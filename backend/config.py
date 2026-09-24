@@ -34,11 +34,6 @@ STEMS_DIR = STORAGE_DIR / "stems"
 for d in [MODELS_DIR, CACHE_DIR, TEMP_DIR, EXPORTS_DIR, LOGS_DIR, UPLOADS_DIR, STEMS_DIR]:
     d.mkdir(parents=True, exist_ok=True)
 
-# Local companion / external runtime paths
-roaming_app_data = os.environ.get("APPDATA") or os.path.expanduser("~")
-STEMKIT_PROGRAMS = Path(local_app_data) / "Programs" / "stemkit"
-STEMKIT_PYTHON = Path(roaming_app_data) / "StemKit" / "venv" / "Scripts" / "python.exe"
-
 # Also check project-level models directory for bundled/downloaded weights
 PROJECT_MODELS_DIR = BASE_DIR / "models"
 
@@ -46,26 +41,25 @@ PROJECT_MODELS_DIR = BASE_DIR / "models"
 # 1. Environment variable override
 # 2. Bundled resource path in desktop app (resources/ffmpeg/ffmpeg.exe)
 # 3. System PATH
-# 4. Known local runtime locations
 def resolve_ffmpeg_path() -> str:
     env_ffmpeg = os.environ.get("SONG_CHORD_ANALYZER_FFMPEG")
     if env_ffmpeg and os.path.exists(env_ffmpeg):
         return env_ffmpeg
 
-    # Check Electron / packaged resources directory
-    bundled_ffmpeg = BASE_DIR / "resources" / "ffmpeg" / "ffmpeg.exe"
-    if bundled_ffmpeg.exists():
-        return str(bundled_ffmpeg)
+    # Check Electron / packaged resources directory (dev & prod)
+    candidates = [
+        BASE_DIR / "resources" / "ffmpeg" / "ffmpeg.exe",
+        BASE_DIR.parent / "ffmpeg" / "ffmpeg.exe",
+        BASE_DIR.parent / "resources" / "ffmpeg" / "ffmpeg.exe",
+    ]
+    for c in candidates:
+        if c.exists():
+            return str(c)
 
     # Check system PATH
     which_ffmpeg = shutil.which("ffmpeg")
     if which_ffmpeg:
         return which_ffmpeg
-
-    # Fallback to local user AppData program path if present during development
-    dev_stemkit_ffmpeg = Path(os.path.expanduser(r"~\AppData\Local\Programs\stemkit\resources\ffmpeg\ffmpeg.exe"))
-    if dev_stemkit_ffmpeg.exists():
-        return str(dev_stemkit_ffmpeg)
 
     return "ffmpeg"
 
@@ -77,14 +71,14 @@ def resolve_python_path() -> str:
     if env_py and os.path.exists(env_py):
         return env_py
 
-    bundled_py = BASE_DIR / "resources" / "python" / "python.exe"
-    if bundled_py.exists():
-        return str(bundled_py)
-
-    # Check StemKit venv for development
-    dev_venv_py = Path(os.path.expanduser(r"~\AppData\Roaming\StemKit\venv\Scripts\python.exe"))
-    if dev_venv_py.exists():
-        return str(dev_venv_py)
+    candidates = [
+        BASE_DIR / "resources" / "python" / "python.exe",
+        BASE_DIR.parent / "python" / "python.exe",
+        BASE_DIR.parent / "resources" / "python" / "python.exe",
+    ]
+    for c in candidates:
+        if c.exists():
+            return str(c)
 
     return sys.executable
 
@@ -166,17 +160,31 @@ CQT_N_BINS = 144
 CQT_BINS_PER_OCTAVE = 24
 BTC_TIMESTEP = 108
 
+BTC_MODEL_DOWNLOAD_URL = "https://raw.githubusercontent.com/ptnghia-j/ChordMini/main/checkpoints/btc_model_large_voca.pt"
+
 # Model checkpoint paths
 def resolve_btc_checkpoint() -> Path:
     # First check AppData models directory
     appdata_ckpt = MODELS_DIR / "btc_model_large_voca.pt"
-    if appdata_ckpt.exists():
+    if appdata_ckpt.exists() and appdata_ckpt.stat().st_size > 1_000_000:
         return appdata_ckpt
+
     # Check project-level directory
     project_ckpt = PROJECT_MODELS_DIR / "btc" / "btc_model_large_voca.pt"
-    if project_ckpt.exists():
+    if project_ckpt.exists() and project_ckpt.stat().st_size > 1_000_000:
         return project_ckpt
-    return appdata_ckpt
+
+    # Auto-download on first launch if missing
+    try:
+        import urllib.request
+        MODELS_DIR.mkdir(parents=True, exist_ok=True)
+        print(f"[Config] Fetching BTC chord recognition checkpoint from {BTC_MODEL_DOWNLOAD_URL}...")
+        urllib.request.urlretrieve(BTC_MODEL_DOWNLOAD_URL, str(appdata_ckpt))
+        print(f"[Config] Successfully downloaded model checkpoint ({appdata_ckpt.stat().st_size} bytes)")
+        return appdata_ckpt
+    except Exception as e:
+        print(f"[Config] Warning: Could not auto-download model checkpoint: {e}")
+        return appdata_ckpt
 
 BTC_CHECKPOINT_PATH = resolve_btc_checkpoint()
 

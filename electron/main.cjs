@@ -82,18 +82,26 @@ function killProcessTree(pid) {
 // Start local Python backend process
 function startPythonBackend(port) {
   const pythonPath = resolvePythonExecutable();
-  const rootDir = path.resolve(__dirname, '..');
+  const rootDir = app.isPackaged
+    ? path.join(process.resourcesPath, 'app.asar.unpacked')
+    : path.resolve(__dirname, '..');
   const scriptPath = path.join(rootDir, 'run_app.py');
 
   console.log(`[Electron] Launching Python backend...`);
   console.log(`[Electron] Python executable: ${pythonPath}`);
   console.log(`[Electron] Script: ${scriptPath} on port ${port}`);
 
+  const ffmpegBin = app.isPackaged
+    ? path.join(process.resourcesPath, 'ffmpeg', 'ffmpeg.exe')
+    : path.join(__dirname, '..', 'resources', 'ffmpeg', 'ffmpeg.exe');
+
   const env = {
     ...process.env,
     PYTHONUNBUFFERED: '1',
     SONG_CHORD_ANALYZER_PORT: String(port),
-    SONG_CHORD_ANALYZER_NO_BROWSER: '1'
+    SONG_CHORD_ANALYZER_NO_BROWSER: '1',
+    SONG_CHORD_ANALYZER_PYTHON: pythonPath,
+    SONG_CHORD_ANALYZER_FFMPEG: fs.existsSync(ffmpegBin) ? ffmpegBin : ''
   };
 
   pythonProcess = spawn(
