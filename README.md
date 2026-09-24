@@ -1,31 +1,31 @@
 # 🎵 SONG CHORD ANALYZER
 
-[![Release](https://img.shields.io/badge/Release-v0.1.4-indigo.svg)](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.4)
+[![Release](https://img.shields.io/badge/Release-v0.1.5-indigo.svg)](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.5)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011%20x64-blue.svg)](https://github.com/jerinjomy07/Song-Chord-Analyzer)
 [![PyTorch](https://img.shields.io/badge/PyTorch-CUDA%20Accelerated-orange.svg)](https://pytorch.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](docs/MODEL_LICENSING.md)
 
-> **Standalone Windows Desktop Application for Automated Music Information Retrieval (MIR), Automatic Chord Recognition (ACR), YouTube Reference Workflow & Persistent Song Library**
+> **Standalone Windows Desktop Application for Automated Music Information Retrieval (MIR), Automatic Chord Recognition (ACR), YouTube Video-to-Chords & Persistent Song Library**
 
-**Song Chord Analyzer** is a local-first Windows desktop application designed specifically for pianists, keyboardists, guitarists, worship teams, arrangers, and music producers. Drag and drop any music file (MP3, WAV, FLAC, M4A, AAC, OGG, WMA) or inspect a YouTube reference link, and the system automatically performs Demucs stem separation, BTC Transformer neural chord recognition, sub-bass inversion detection, beat/bar alignment, and musical section structuring to produce an interactive, musician-ready chord chart.
+**Song Chord Analyzer** is a local-first Windows desktop application designed specifically for pianists, keyboardists, guitarists, worship teams, arrangers, and music producers. Drag and drop any music file (MP3, WAV, FLAC, M4A, AAC, OGG, WMA) or paste a YouTube video link, and the system automatically performs Demucs stem separation, BTC Transformer neural chord recognition, sub-bass inversion detection, beat/bar alignment, and musical section structuring to produce an interactive, musician-ready chord chart.
 
 ---
 
 ## 📥 Downloads & Windows Executables
 
-Download the latest pre-built Windows standalone binaries from the **[v0.1.4 Release Page](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.4)**:
+Download the latest pre-built Windows standalone binaries from the **[v0.1.5 Release Page](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.5)**:
 
 | Distribution Format | Description | Download Link |
 | :--- | :--- | :--- |
-| **Windows Installer** | Standard Windows setup with Start Menu & Desktop shortcuts | [📥 SongChordAnalyzer-Setup.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.4/SongChordAnalyzer-Setup.exe) |
-| **Standalone Portable** | Single-file portable `.exe` requiring zero installation | [📥 SongChordAnalyzer.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.4/SongChordAnalyzer.exe) |
+| **Windows Installer** | Standard Windows setup with Start Menu & Desktop shortcuts | [📥 SongChordAnalyzer-Setup.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.5/SongChordAnalyzer-Setup.exe) |
+| **Standalone Portable** | Single-file portable `.exe` requiring zero installation | [📥 SongChordAnalyzer.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.5/SongChordAnalyzer.exe) |
 | **Pre-Extracted Directory** | Direct standalone folder | `dist_electron/win-unpacked/Song Chord Analyzer.exe` |
 
 ---
 
-## 🌟 Key Features & What's New in v0.1.4
+## 🌟 Key Features & What's New in v0.1.5
 
-### 1. Direct YouTube Video Chord Recognition
+### 1. Direct 1-Click YouTube Video-to-Chords Transcription
 - **One-Click Video to Chords:** Paste any public YouTube URL (standard watch links, youtu.be, shorts, YouTube Music) and click **"Generate Chords from Video"** to automatically extract the audio and perform full chord transcription.
 - **Fast Metadata Inspection:** Automatically fetches and previews the video thumbnail, title, channel name, and duration.
 - **Smart Title Auto-Cleaning:** One-click **Auto-Clean** button automatically strips noisy tags (e.g. `(Official Video)`, `[4K Audio]`, artist channel branding) while allowing manual title edits.

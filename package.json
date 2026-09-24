@@ -1,6 +1,6 @@
 {
   "name": "song-chord-analyzer",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Automated Music Chord Analyzer Windows Desktop Application",
   "main": "electron/main.cjs",
   "author": "Song Chord Analyzer Team",
