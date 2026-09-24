@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SongAnalysis",
+  "description": "Shared musical analysis data contract for Song Chord Analyzer across Windows desktop and Android mobile platforms.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "title",
+    "metadata",
+    "pipeline_metadata",
+    "key",
+    "tempo",
+    "meter",
+    "beat_grid",
+    "sections",
+    "chords"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "default": "1.0.0"
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique UUID for this analysis session and library item"
+    },
+    "title": {
+      "type": "string",
+      "description": "User-facing title of the song"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["filename", "duration", "sample_rate", "channels", "format"],
+      "properties": {
+        "filename": { "type": "string" },
+        "duration": { "type": "number", "minimum": 0 },
+        "sample_rate": { "type": "integer" },
+        "channels": { "type": "integer" },
+        "format": { "type": "string" },
+        "file_size_bytes": { "type": "integer" },
+        "file_hash": { "type": "string" }
+      }
+    },
+    "pipeline_metadata": {
+      "type": "object",
+      "properties": {
+        "app_version": { "type": "string" },
+        "model_name": { "type": "string" },
+        "model_version": { "type": "string" },
+        "separation_model": { "type": "string" },
+        "device_used": { "type": "string" },
+        "timestamp": { "type": "string" }
+      }
+    },
+    "key": {
+      "type": "object",
+      "required": ["tonic", "mode", "display", "confidence"],
+      "properties": {
+        "tonic": { "type": "string" },
+        "mode": { "type": "string", "enum": ["major", "minor"] },
+        "display": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+      }
+    },
+    "tempo": {
+      "type": "object",
+      "required": ["bpm", "confidence"],
+      "properties": {
+        "bpm": { "type": "number", "minimum": 10.0, "maximum": 400.0 },
+        "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "is_estimated": { "type": "boolean", "default": false }
+      }
+    },
+    "meter": {
+      "type": "object",
+      "required": ["numerator", "denominator", "display"],
+      "properties": {
+        "numerator": { "type": "integer", "default": 4 },
+        "denominator": { "type": "integer", "default": 4 },
+        "display": { "type": "string", "default": "4/4" },
+        "confidence": { "type": "number", "default": 0.95 },
+        "is_estimated": { "type": "boolean", "default": false }
+      }
+    },
+    "beat_grid": {
+      "type": "object",
+      "required": ["bpm", "beats", "downbeats"],
+      "properties": {
+        "bpm": { "type": "number" },
+        "beats": {
+          "type": "array",
+          "items": { "type": "number" }
+        },
+        "downbeats": {
+          "type": "array",
+          "items": { "type": "number" }
+        }
+      }
+    },
+    "chords": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ChordPrediction" }
+    },
+    "sections": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/MusicalSection" }
+    },
+    "transpose_semitones": {
+      "type": "integer",
+      "minimum": -12,
+      "maximum": 12,
+      "default": 0
+    },
+    "audio_url": {
+      "type": "string"
+    },
+    "has_stems": {
+      "type": "boolean",
+      "default": false
+    },
+    "source_metadata": {
+      "type": "object"
+    }
+  },
+  "$defs": {
+    "ChordCandidate": {
+      "type": "object",
+      "required": ["chord", "probability"],
+      "properties": {
+        "chord": { "type": "string" },
+        "probability": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+      }
+    },
+    "ChordPrediction": {
+      "type": "object",
+      "required": [
+        "root",
+        "quality",
+        "bass",
+        "inversion",
+        "display",
+        "start_time",
+        "end_time",
+        "confidence"
+      ],
+      "properties": {
+        "root": { "type": "string" },
+        "quality": { "type": "string" },
+        "bass": { "type": "string" },
+        "inversion": { "type": "integer", "default": 0 },
+        "display": { "type": "string" },
+        "start_time": { "type": "number" },
+        "end_time": { "type": "number" },
+        "duration": { "type": "number" },
+        "beat": { "type": "integer", "default": 1 },
+        "beat_duration": { "type": "number", "default": 1.0 },
+        "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "needs_review": { "type": "boolean", "default": false },
+        "alternatives": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ChordCandidate" }
+        }
+      }
+    },
+    "Bar": {
+      "type": "object",
+      "required": ["bar_number", "start_time", "end_time", "chords"],
+      "properties": {
+        "bar_number": { "type": "integer" },
+        "start_time": { "type": "number" },
+        "end_time": { "type": "number" },
+        "beats": { "type": "integer", "default": 4 },
+        "time_signature": { "type": "string", "default": "4/4" },
+        "display": { "type": "string" },
+        "chords": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ChordPrediction" }
+        }
+      }
+    },
+    "MusicalSection": {
+      "type": "object",
+      "required": ["section_id", "name", "start_time", "end_time", "start_bar", "end_bar", "bars"],
+      "properties": {
+        "section_id": { "type": "string" },
+        "name": { "type": "string" },
+        "start_time": { "type": "number" },
+        "end_time": { "type": "number" },
+        "start_bar": { "type": "integer" },
+        "end_bar": { "type": "integer" },
+        "bars": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Bar" }
+        },
+        "is_repeated": { "type": "boolean", "default": false },
+        "repeat_of_section_id": { "type": "string" }
+      }
+    },
+    "UserCorrection": {
+      "type": "object",
+      "required": ["song_id", "chord_index", "original_chord", "corrected_chord", "timestamp"],
+      "properties": {
+        "song_id": { "type": "string" },
+        "chord_index": { "type": "integer" },
+        "original_chord": { "type": "string" },
+        "corrected_chord": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "bar": { "type": "integer" },
+        "beat": { "type": "integer" },
+        "confidence": { "type": "number" }
+      }
+    }
+  }
+}
