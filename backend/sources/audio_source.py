@@ -11,6 +11,8 @@ Provides abstract AudioSource interface and implementations:
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, Any, Optional
+import os
+import shutil
 import re
 import urllib.request
 import urllib.parse
@@ -188,8 +190,8 @@ class YouTubeAudioExtractor:
     @staticmethod
     def get_ffmpeg_dir() -> Optional[str]:
         from backend.config import FFMPEG_PATH
-        if FFMPEG_PATH and FFMPEG_PATH.exists():
-            return str(FFMPEG_PATH.parent)
+        if FFMPEG_PATH and os.path.exists(str(FFMPEG_PATH)):
+            return str(Path(FFMPEG_PATH).parent)
         import shutil
         which_ffmpeg = shutil.which("ffmpeg")
         if which_ffmpeg:

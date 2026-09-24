@@ -142,6 +142,7 @@ def run_youtube_pipeline_worker(
             url=youtube_url,
             progress_cb=update_download_progress
         )
+        audio_path = Path(audio_path)
 
         final_title = song_title.strip() if song_title and song_title.strip() else meta.get("title", "YouTube Song")
 
@@ -547,7 +548,7 @@ async def rename_section(analysis_id: str, req: RenameSectionRequest):
 @router.get("/analysis/{analysis_id}/audio")
 async def stream_audio(analysis_id: str):
     """Streams original uploaded or library-managed audio for waveform playback."""
-    if analysis_id in AUDIO_FILE_PATHS and AUDIO_FILE_PATHS[analysis_id].exists():
+    if analysis_id in AUDIO_FILE_PATHS and Path(AUDIO_FILE_PATHS[analysis_id]).exists():
         return FileResponse(str(AUDIO_FILE_PATHS[analysis_id]))
 
     # Check managed audio library in SQLite
