@@ -7,8 +7,15 @@ import { ChordSheet } from './components/ChordSheet';
 import { ChordEditorModal } from './components/ChordEditorModal';
 import { TransposerToolbar } from './components/TransposerToolbar';
 import { ExportToolbar } from './components/ExportToolbar';
+import { YouTubeSourceZone } from './components/YouTubeSourceZone';
 import type { SongAnalysis, AnalysisStatus, ChordPrediction } from './types';
-import { Music2, AlertCircle } from 'lucide-react';
+import { Music2, AlertCircle, Upload } from 'lucide-react';
+
+const YoutubeIcon: React.FC<{ size?: number; className?: string }> = ({ size = 16, className = "" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+  </svg>
+);
 
 export const App: React.FC = () => {
   const [analysisId, setAnalysisId] = useState<string | null>(null);
@@ -18,10 +25,21 @@ export const App: React.FC = () => {
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Input Source State ('upload' | 'youtube')
+  const [inputSource, setInputSource] = useState<'upload' | 'youtube'>('upload');
+
   // Audio Player State
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState<number>(1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const handleVolumeChange = (newVol: number) => {
+    setVolume(newVol);
+    if (audioRef.current) {
+      audioRef.current.volume = newVol;
+    }
+  };
 
   // Chord Editor Modal State
   const [selectedChord, setSelectedChord] = useState<{ chord: ChordPrediction; index: number } | null>(null);
@@ -258,22 +276,59 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* View 1: Upload Music */}
+        {/* View 1: Input Source Selector & Upload / YouTube */}
         {status === 'IDLE' && !analysis && (
-          <div className="py-12">
-            <div className="text-center max-w-xl mx-auto mb-10">
+          <div className="py-8 sm:py-12">
+            <div className="text-center max-w-xl mx-auto mb-8">
               <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
                 Automatic Music Transcription for Musicians
               </h2>
               <p className="text-slate-400 text-sm sm:text-base">
-                Upload your song file. Automatic Demucs stem separation, BTC neural chord recognition, and bass inversion tracking produce a clean, editable chord chart.
+                Automatic Demucs stem separation, BTC neural chord recognition, and bass inversion tracking produce a clean, musician-friendly chord chart.
               </p>
             </div>
 
-            <UploadZone
-              onStartAnalysis={handleStartAnalysis}
-              isAnalyzing={false}
-            />
+            {/* Input Source Toggle */}
+            <div className="flex flex-col items-center gap-2 mb-8">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">INPUT SOURCE</span>
+              <div className="bg-slate-950 p-1.5 rounded-2xl border border-slate-800 flex items-center gap-1 shadow-lg">
+                <button
+                  onClick={() => setInputSource('upload')}
+                  className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                    inputSource === 'upload'
+                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                  }`}
+                >
+                  <Upload size={14} />
+                  <span>Upload Audio</span>
+                </button>
+
+                <button
+                  onClick={() => setInputSource('youtube')}
+                  className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                    inputSource === 'youtube'
+                      ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                  }`}
+                >
+                  <YoutubeIcon size={14} />
+                  <span>YouTube Link</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Active Source Zone */}
+            {inputSource === 'upload' ? (
+              <UploadZone
+                onStartAnalysis={handleStartAnalysis}
+                isAnalyzing={false}
+              />
+            ) : (
+              <YouTubeSourceZone
+                onSwitchToUpload={() => setInputSource('upload')}
+              />
+            )}
           </div>
         )}
 
@@ -306,7 +361,7 @@ export const App: React.FC = () => {
               onReset={handleReset}
             />
 
-            {/* Interactive Timeline & Audio Waveform Player */}
+            {/* Interactive Timeline & Audio Waveform Player with Live Indicators & Volume */}
             <AudioPlayerTimeline
               analysis={analysis}
               currentTime={currentTime}
@@ -314,12 +369,16 @@ export const App: React.FC = () => {
               onPlayPause={handlePlayPause}
               onSeek={handleSeek}
               onSelectChord={(chord, idx) => setSelectedChord({ chord, index: idx })}
+              volume={volume}
+              onVolumeChange={handleVolumeChange}
             />
 
-            {/* Musician-Friendly Chord Sheet */}
+            {/* Musician-Friendly Chord Sheet with Synchronized Auto-Scroll & Seeking */}
             <ChordSheet
               analysis={analysis}
               currentTime={currentTime}
+              isPlaying={isPlaying}
+              onSeek={handleSeek}
               onSelectChord={(chord, idx) => setSelectedChord({ chord, index: idx })}
               onRenameSection={handleRenameSection}
             />

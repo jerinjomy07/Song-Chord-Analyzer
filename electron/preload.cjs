@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('desktopAPI', {
   },
   openFileDialog: () => ipcRenderer.invoke('dialog:openFile'),
   showSaveDialog: (options) => ipcRenderer.invoke('dialog:saveFile', options),
+  saveExportFile: (payload) => ipcRenderer.invoke('export:saveFile', payload),
   minimizeWindow: () => ipcRenderer.send('window:minimize'),
   maximizeWindow: () => ipcRenderer.send('window:maximize'),
   closeWindow: () => ipcRenderer.send('window:close'),

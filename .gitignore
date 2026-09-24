@@ -53,6 +53,8 @@ storage/cache/*
 !storage/cache/.gitkeep
 storage/exports/*
 !storage/exports/.gitkeep
+storage/temp/*
+!storage/temp/.gitkeep
 
 # Large ML Weights & Checkpoints (downloaded on demand)
 *.pt

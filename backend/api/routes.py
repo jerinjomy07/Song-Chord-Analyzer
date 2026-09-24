@@ -15,6 +15,7 @@ from typing import Dict, Any, Optional
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks
 from fastapi.responses import FileResponse, PlainTextResponse, JSONResponse
+from pydantic import BaseModel
 
 from backend.config import UPLOADS_DIR, EXPORTS_DIR
 from backend.models.schemas import (
@@ -29,7 +30,7 @@ from backend.pipeline import SongAnalyzerPipeline
 from backend.transpose.transpose_engine import transpose_song, transpose_chord
 from backend.export.pdf_exporter import export_to_pdf
 from backend.export.txt_exporter import export_to_txt
-from backend.export.json_exporter import export_to_json
+from backend.export.json_exporter import export_to_json, build_complete_json_export
 
 router = APIRouter()
 
@@ -130,6 +131,30 @@ async def analyze_audio(
     worker.start()
 
     return {"analysis_id": analysis_id, "title": song_title, "status": "QUEUED"}
+
+
+class YouTubeInfoRequest(BaseModel):
+    url: str
+
+
+@router.post("/sources/youtube/info")
+async def get_youtube_info(req: YouTubeInfoRequest):
+    """
+    Validates a YouTube URL and retrieves public video metadata (title, channel, thumbnail)
+    in strict accordance with copyright and API policies.
+    Does not extract or scrape unauthorized audio.
+    """
+    from backend.sources.audio_source import YouTubeSource
+
+    source = YouTubeSource(req.url)
+    if not source.validate():
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid YouTube URL. Please provide a valid link (e.g. https://www.youtube.com/watch?v=... or https://youtu.be/...)"
+        )
+
+    metadata = source.get_metadata()
+    return metadata
 
 
 @router.get("/analysis/{analysis_id}/status", response_model=AnalysisStatusResponse)
@@ -243,25 +268,47 @@ async def stream_audio(analysis_id: str):
     return FileResponse(str(audio_path))
 
 
+def sanitize_filename_title(title: str) -> str:
+    """
+    Sanitizes title to produce safe, clean Windows filenames.
+    Replaces / and \\ with -, replaces illegal characters with _,
+    condenses delimiters and trims.
+    Example: 'Song: A/B * Live?' -> 'Song_A-B_Live'
+    """
+    clean = re.sub(r'[/\\]', '-', title)
+    clean = re.sub(r'[<>:"|?*\x00-\x1f\uff5c]', '_', clean)
+    clean = re.sub(r'\s+', ' ', clean)
+    clean = re.sub(r'\s*_\s*', '_', clean)
+    clean = re.sub(r'_+', '_', clean).strip(' ._-')
+    return clean or "Song"
+
+
 def get_safe_export_filename(title: str, extension: str) -> tuple[str, str]:
     """
     Returns (ascii_filename, content_disposition_header).
     Prevents UnicodeEncodeError in HTTP headers by ensuring latin-1 compatibility
     while supplying UTF-8 encoded names via RFC 5987 / RFC 6266.
+    Follows required naming convention:
+    - pdf:  {clean_title}_ChordSheet.pdf
+    - txt:  {clean_title}_ChordSheet.txt
+    - json: {clean_title}_Analysis.json
     """
-    # Replace illegal/troublesome characters for Windows paths and headers
-    safe_title = re.sub(r'[<>:"/\\|?*\x00-\x1f\uff5c]', '_', title).strip()
-    safe_title = re.sub(r'_+', '_', safe_title).strip(' ._')
-    if not safe_title:
-        safe_title = "Song"
+    clean_title = sanitize_filename_title(title)
+    
+    if extension == "pdf":
+        suffix = "ChordSheet.pdf"
+    elif extension == "txt":
+        suffix = "ChordSheet.txt"
+    elif extension == "json":
+        suffix = "Analysis.json"
+    else:
+        suffix = f"Chords.{extension}"
+
+    filename_utf8 = f"{clean_title}_{suffix}"
 
     # ASCII-only fallback for HTTP latin-1 header requirement
-    ascii_title = safe_title.encode('ascii', 'ignore').decode('ascii').strip(' ._')
-    if not ascii_title:
-        ascii_title = "Song"
-
-    filename_ascii = f"{ascii_title}_Chords.{extension}"
-    filename_utf8 = f"{safe_title}_Chords.{extension}"
+    ascii_title = clean_title.encode('ascii', 'ignore').decode('ascii').strip(' ._-') or "Song"
+    filename_ascii = f"{ascii_title}_{suffix}"
 
     disposition = f'attachment; filename="{filename_ascii}"; filename*=UTF-8\'\'{quote(filename_utf8)}'
     return filename_ascii, disposition
@@ -291,7 +338,7 @@ async def export_txt(analysis_id: str):
         raise HTTPException(status_code=404, detail="Analysis not found")
     analysis = ANALYSIS_RESULTS[analysis_id]
     txt_content = export_to_txt(analysis)
-    _, disposition = get_safe_export_filename(analysis.title, "txt")
+    filename_ascii, disposition = get_safe_export_filename(analysis.title, "txt")
     return PlainTextResponse(
         txt_content,
         media_type="text/plain; charset=utf-8",
@@ -305,8 +352,9 @@ async def export_json_endpoint(analysis_id: str):
     if analysis_id not in ANALYSIS_RESULTS:
         raise HTTPException(status_code=404, detail="Analysis not found")
     analysis = ANALYSIS_RESULTS[analysis_id]
-    _, disposition = get_safe_export_filename(analysis.title, "json")
+    filename_ascii, disposition = get_safe_export_filename(analysis.title, "json")
+    export_dict = build_complete_json_export(analysis)
     return JSONResponse(
-        content=analysis.model_dump(),
+        content=export_dict,
         headers={"Content-Disposition": disposition}
     )

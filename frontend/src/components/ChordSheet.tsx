@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { AlertCircle, Edit2, Check, Music, Terminal, FileText, Search, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { AlertCircle, Edit2, Check, Music, Terminal, FileText, Search, Sparkles, ArrowDownToLine } from 'lucide-react';
 import type { SongAnalysis, MusicalSection, ChordPrediction, Bar } from '../types';
 
 interface ChordSheetProps {
@@ -7,6 +7,8 @@ interface ChordSheetProps {
   onSelectChord: (chord: ChordPrediction, index: number) => void;
   onRenameSection: (sectionId: string, newName: string) => void;
   currentTime: number;
+  isPlaying?: boolean;
+  onSeek?: (timeSec: number) => void;
 }
 
 export const ChordSheet: React.FC<ChordSheetProps> = ({
@@ -14,11 +16,20 @@ export const ChordSheet: React.FC<ChordSheetProps> = ({
   onSelectChord,
   onRenameSection,
   currentTime,
+  isPlaying = false,
+  onSeek,
 }) => {
   const [activeTab, setActiveTab] = useState<'sheet' | 'debug'>('sheet');
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [tempSectionName, setTempSectionName] = useState("");
   const [debugSearch, setDebugSearch] = useState("");
+
+  // Auto-scroll state (default ON per requirements)
+  const [autoScroll, setAutoScroll] = useState<boolean>(true);
+  const [userHasScrolled, setUserHasScrolled] = useState<boolean>(false);
+  const isAutoScrollingRef = useRef<boolean>(false);
+  const lastScrolledBarRef = useRef<number | null>(null);
+  const barRefs = useRef<{ [barNumber: number]: HTMLDivElement | null }>({});
 
   const startRename = (sec: MusicalSection) => {
     setEditingSectionId(sec.section_id);
@@ -45,6 +56,59 @@ export const ChordSheet: React.FC<ChordSheetProps> = ({
     return rows;
   };
 
+  // Detect manual user scrolling during playback without fighting them
+  useEffect(() => {
+    const handleManualScroll = () => {
+      if (!isAutoScrollingRef.current && isPlaying && autoScroll) {
+        setUserHasScrolled(true);
+      }
+    };
+
+    window.addEventListener('wheel', handleManualScroll, { passive: true });
+    window.addEventListener('touchmove', handleManualScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('wheel', handleManualScroll);
+      window.removeEventListener('touchmove', handleManualScroll);
+    };
+  }, [isPlaying, autoScroll]);
+
+  // Find currently active bar
+  let currentActiveBarNumber: number | null = null;
+  for (const sec of analysis.sections) {
+    const b = sec.bars.find(bar => currentTime >= bar.start_time && currentTime <= bar.end_time);
+    if (b) {
+      currentActiveBarNumber = b.bar_number;
+      break;
+    }
+  }
+
+  const scrollToBar = (barNum: number) => {
+    const el = barRefs.current[barNum];
+    if (el) {
+      isAutoScrollingRef.current = true;
+      el.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      setTimeout(() => {
+        isAutoScrollingRef.current = false;
+      }, 400);
+    }
+  };
+
+  // Auto-scroll effect: triggers only when active bar changes
+  useEffect(() => {
+    if (!isPlaying || !autoScroll || userHasScrolled || currentActiveBarNumber === null) {
+      return;
+    }
+
+    if (currentActiveBarNumber !== lastScrolledBarRef.current) {
+      lastScrolledBarRef.current = currentActiveBarNumber;
+      scrollToBar(currentActiveBarNumber);
+    }
+  }, [currentActiveBarNumber, isPlaying, autoScroll, userHasScrolled]);
+
   // Filter debug view entries
   const filteredDebug = (analysis.debug_view || []).filter(entry => {
     if (!debugSearch.trim()) return true;
@@ -59,8 +123,8 @@ export const ChordSheet: React.FC<ChordSheetProps> = ({
   });
 
   return (
-    <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-2xl">
-      {/* Top Header & View Tabs */}
+    <div className="relative w-full bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-2xl">
+      {/* Top Header, Auto-Scroll Controls & View Tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 mb-5 gap-3">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -71,40 +135,66 @@ export const ChordSheet: React.FC<ChordSheetProps> = ({
             </span>
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Musician bar-based chord chart. Each connected measure represents one bar. Click any chord to edit.
+            Musician bar-based chord chart. Click any bar or chord to jump playback and edit.
           </p>
         </div>
 
-        {/* Tab Switcher: Lead Sheet vs Developer Debug View */}
-        <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+        {/* Tab Switcher & Auto-Scroll Toggle */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Auto Scroll Toggle Button */}
           <button
-            onClick={() => setActiveTab('sheet')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              activeTab === 'sheet'
-                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+            onClick={() => {
+              const nextState = !autoScroll;
+              setAutoScroll(nextState);
+              if (nextState) {
+                setUserHasScrolled(false);
+                if (currentActiveBarNumber !== null) {
+                  scrollToBar(currentActiveBarNumber);
+                }
+              }
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+              autoScroll
+                ? 'bg-emerald-950/70 text-emerald-300 border-emerald-700/60 shadow-sm'
+                : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-slate-200'
             }`}
+            title={autoScroll ? "Auto-scroll is following playback (click to disable)" : "Auto-scroll is paused (click to enable)"}
           >
-            <FileText size={14} />
-            <span>Lead Sheet</span>
+            <ArrowDownToLine size={14} className={autoScroll ? "text-emerald-400" : "text-slate-500"} />
+            <span>Auto Scroll {autoScroll ? '✓' : 'OFF'}</span>
           </button>
 
-          <button
-            onClick={() => setActiveTab('debug')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-              activeTab === 'debug'
-                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-            }`}
-          >
-            <Terminal size={14} />
-            <span>Debug View</span>
-            {analysis.debug_view && (
-              <span className="bg-slate-800 text-[10px] text-indigo-300 px-1.5 py-0.2 rounded-full">
-                {analysis.debug_view.length}
-              </span>
-            )}
-          </button>
+          {/* Lead Sheet / Debug View */}
+          <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <button
+              onClick={() => setActiveTab('sheet')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === 'sheet'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <FileText size={14} />
+              <span>Lead Sheet</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('debug')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === 'debug'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <Terminal size={14} />
+              <span>Debug View</span>
+              {analysis.debug_view && (
+                <span className="bg-slate-800 text-[10px] text-indigo-300 px-1.5 py-0.2 rounded-full">
+                  {analysis.debug_view.length}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -120,7 +210,7 @@ export const ChordSheet: React.FC<ChordSheetProps> = ({
                 key={section.section_id}
                 className={`transition-all rounded-xl p-3 sm:p-4 ${
                   isSectionActive 
-                    ? 'bg-indigo-950/20 ring-1 ring-indigo-500/30' 
+                    ? 'bg-indigo-950/30 ring-1 ring-indigo-500/40' 
                     : 'bg-slate-950/40'
                 }`}
               >
@@ -149,7 +239,9 @@ export const ChordSheet: React.FC<ChordSheetProps> = ({
                       </div>
                     ) : (
                       <div className="flex items-center gap-2 group">
-                        <span className="text-xs sm:text-sm font-black tracking-wider text-indigo-300 uppercase">
+                        <span className={`text-xs sm:text-sm font-black tracking-wider uppercase ${
+                          isSectionActive ? 'text-indigo-300' : 'text-slate-300'
+                        }`}>
                           {section.name}
                         </span>
                         {section.is_repeated && (
@@ -191,12 +283,21 @@ export const ChordSheet: React.FC<ChordSheetProps> = ({
                         return (
                           <div
                             key={bar.bar_number}
-                            className={`relative flex-1 min-w-0 border-r border-slate-700/80 last:border-r-0 h-11 sm:h-12 flex items-center transition-colors px-1 sm:px-2 ${
-                              isBarActive ? 'bg-indigo-950/60 shadow-inner' : 'hover:bg-slate-800/40'
+                            ref={(el) => {
+                              barRefs.current[bar.bar_number] = el;
+                            }}
+                            onClick={() => {
+                              if (onSeek) onSeek(bar.start_time);
+                            }}
+                            className={`relative flex-1 min-w-0 border-r border-slate-700/80 last:border-r-0 h-11 sm:h-12 flex items-center transition-all px-1 sm:px-2 cursor-pointer select-none ${
+                              isBarActive 
+                                ? 'bg-indigo-950/80 ring-2 ring-indigo-500/60 shadow-lg z-10' 
+                                : 'hover:bg-slate-800/50'
                             }`}
+                            title={`Bar ${bar.bar_number} (Click to jump)`}
                           >
                             {/* Subtle Bar Number in top-left */}
-                            <span className="absolute top-0.5 left-1 text-[8px] font-mono text-slate-500 select-none pointer-events-none">
+                            <span className="absolute top-0.5 left-1 text-[8px] font-mono text-slate-500 pointer-events-none">
                               {bar.bar_number}
                             </span>
 
@@ -235,13 +336,17 @@ export const ChordSheet: React.FC<ChordSheetProps> = ({
                                         <span className="text-slate-500 font-bold text-xs select-none pr-1">/</span>
                                       )}
                                       <button
-                                        onClick={() => onSelectChord(chord, globalIdx)}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (onSeek) onSeek(chord.start_time);
+                                          onSelectChord(chord, globalIdx);
+                                        }}
                                         className={`group relative inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-extrabold tracking-tight transition-all cursor-pointer ${
                                           isChordPlaying
-                                            ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/40 scale-105'
+                                            ? 'bg-amber-400 text-slate-950 font-black shadow-lg shadow-amber-400/50 ring-2 ring-amber-300 scale-105 z-20'
                                             : 'text-slate-100 hover:text-indigo-300 hover:bg-slate-800'
                                         }`}
-                                        title={`Bar ${bar.bar_number}, Beat ${chord.beat || chord.beat_position || 1}: ${chord.display} (${Math.round(chord.confidence * 100)}% conf)`}
+                                        title={`Bar ${bar.bar_number}, Beat ${chord.beat || chord.beat_position || 1}: ${chord.display} (${Math.round(chord.confidence * 100)}% conf - Click to jump)`}
                                       >
                                         <span>{chord.display}</span>
 
@@ -277,6 +382,24 @@ export const ChordSheet: React.FC<ChordSheetProps> = ({
             );
           })}
         </div>
+      )}
+
+      {/* Floating Follow Playback Button (when user manually scrolled away during playback) */}
+      {userHasScrolled && isPlaying && (
+        <button
+          onClick={() => {
+            setUserHasScrolled(false);
+            if (currentActiveBarNumber !== null) {
+              lastScrolledBarRef.current = currentActiveBarNumber;
+              scrollToBar(currentActiveBarNumber);
+            }
+          }}
+          className="fixed bottom-8 right-8 z-50 px-4 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold shadow-2xl flex items-center gap-2 animate-bounce cursor-pointer border border-indigo-400/40"
+          title="Resume following active playback bar"
+        >
+          <ArrowDownToLine size={16} />
+          <span>Follow Playback</span>
+        </button>
       )}
 
       {/* VIEW 2: Developer / Musician Side-by-Side Debug View */}

@@ -349,15 +349,49 @@ function createMainWindow(port, healthInfo) {
     console.log(`[Electron] Main window displayed successfully. GPU Device: ${healthInfo?.device || 'CPU'}`);
   });
 
-  // Setup download handling for PDF/TXT/JSON chord sheets
+  // Setup download handling for any direct browser downloads with safe fallback
   session.defaultSession.on('will-download', (event, item, webContents) => {
-    const fileName = item.getFilename();
-    item.setPromptUser(true);
+    try {
+      const defaultFilename = sanitizeFilename(item.getFilename());
+      if (typeof item.setSaveDialogOptions === 'function') {
+        const defaultFolder = app.getPath('downloads') || app.getPath('documents');
+        item.setSaveDialogOptions({
+          title: 'Save Exported File',
+          defaultPath: path.join(defaultFolder, defaultFilename)
+        });
+      }
+
+      item.once('done', (event, state) => {
+        if (state === 'completed') {
+          console.log('[Electron Download] Saved successfully to:', item.getSavePath());
+        } else if (state === 'cancelled') {
+          console.log('[Electron Download] Export cancelled by user');
+        } else {
+          console.warn(`[Electron Download] Export state: ${state}`);
+        }
+      });
+    } catch (err) {
+      console.error('[Electron Download] Error during will-download handling:', err);
+    }
   });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+}
+
+// Sanitize filename to ensure Windows path compliance
+function sanitizeFilename(name) {
+  if (!name) return 'Song';
+  let clean = name
+    .replace(/[/\\]/g, '-')
+    .replace(/[<>:"|?*\x00-\x1f\uff5c]/g, '_')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*_\s*/g, '_')
+    .replace(/_+/g, '_')
+    .trim();
+  clean = clean.replace(/^[ ._-]+|[ ._-]+$/g, '');
+  return clean || 'Song';
 }
 
 // IPC Handlers
@@ -375,6 +409,49 @@ ipcMain.handle('dialog:openFile', async () => {
 ipcMain.handle('dialog:saveFile', async (event, options) => {
   const result = await dialog.showSaveDialog(mainWindow, options);
   return result;
+});
+
+ipcMain.handle('export:saveFile', async (event, { defaultFilename, format, content, isBase64 }) => {
+  try {
+    const safeFilename = sanitizeFilename(defaultFilename || `Song_ChordSheet.${format}`);
+    const documentsDir = app.getPath('documents') || app.getPath('downloads');
+    const defaultPath = path.join(documentsDir, safeFilename);
+
+    let filters = [{ name: 'All Files', extensions: ['*'] }];
+    if (format === 'pdf') {
+      filters = [{ name: 'PDF Chord Sheet (*.pdf)', extensions: ['pdf'] }, ...filters];
+    } else if (format === 'txt') {
+      filters = [{ name: 'Monospace Text Chart (*.txt)', extensions: ['txt'] }, ...filters];
+    } else if (format === 'json') {
+      filters = [{ name: 'Structured JSON (*.json)', extensions: ['json'] }, ...filters];
+    }
+
+    const result = await dialog.showSaveDialog(mainWindow, {
+      title: `Export ${format.toUpperCase()}`,
+      defaultPath: defaultPath,
+      filters: filters
+    });
+
+    if (result.canceled || !result.filePath) {
+      return { canceled: true };
+    }
+
+    const buffer = isBase64 ? Buffer.from(content, 'base64') : Buffer.from(content, 'utf-8');
+    await fs.promises.writeFile(result.filePath, buffer);
+
+    console.log(`[Export] Successfully saved ${format.toUpperCase()} to: ${result.filePath}`);
+    return {
+      success: true,
+      filePath: result.filePath,
+      filename: path.basename(result.filePath)
+    };
+  } catch (err) {
+    console.error(`[Export Error] Failed to export ${format}:`, err);
+    return {
+      success: false,
+      error: `${format.toUpperCase()} export failed. Please try again.`
+    };
+  }
 });
 
 ipcMain.handle('backend:info', () => {

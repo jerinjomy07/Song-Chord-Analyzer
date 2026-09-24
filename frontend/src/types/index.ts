@@ -144,3 +144,32 @@ export interface AnalysisStatusResponse {
   message: string;
   error?: string;
 }
+
+export interface DesktopAPI {
+  isElectron: boolean;
+  platform: string;
+  versions: {
+    electron: string;
+    chrome: string;
+    node: string;
+  };
+  openFileDialog: () => Promise<{ canceled: boolean; filePaths: string[] }>;
+  showSaveDialog: (options: any) => Promise<{ canceled: boolean; filePath?: string }>;
+  saveExportFile: (payload: {
+    defaultFilename: string;
+    format: 'pdf' | 'txt' | 'json';
+    content: string;
+    isBase64?: boolean;
+  }) => Promise<{ success: boolean; canceled?: boolean; filePath?: string; filename?: string; error?: string }>;
+  minimizeWindow: () => void;
+  maximizeWindow: () => void;
+  closeWindow: () => void;
+  getBackendInfo: () => Promise<{ port: number; python: string }>;
+}
+
+declare global {
+  interface Window {
+    desktopAPI?: DesktopAPI;
+  }
+}
+
