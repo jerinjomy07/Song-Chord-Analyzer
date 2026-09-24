@@ -1,0 +1,948 @@
+[
+  {
+    "song_name": "Golden Parity (Multi-Instrumental)",
+    "duration_sec": 120.0,
+    "windows_time_sec": 2.14,
+    "android_time_sec": 4.61,
+    "metrics": {
+      "status": "PASS",
+      "sample_count": 334,
+      "root_accuracy_pct": 100.0,
+      "quality_accuracy_pct": 100.0,
+      "bass_accuracy_pct": 94.31,
+      "inversion_accuracy_pct": 94.31,
+      "full_chord_accuracy_pct": 94.31,
+      "mean_timing_error_sec": 0.0001,
+      "windows_bpm": 172.3,
+      "android_bpm": 172.3,
+      "bpm_error": 0.0,
+      "windows_key": "Bb Minor",
+      "android_key": "Bb Minor",
+      "key_match": true,
+      "meter_match": true,
+      "mismatches": [
+        {
+          "index": 69,
+          "time": "29.28s",
+          "win_chord": "Bbm",
+          "and_chord": "Bbm/Ab",
+          "win_conf": 0.48,
+          "and_conf": 0.48,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 70,
+          "time": "29.61s",
+          "win_chord": "Bbm",
+          "and_chord": "Bbm/Ab",
+          "win_conf": 0.32,
+          "and_conf": 0.32,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 166,
+          "time": "62.53s",
+          "win_chord": "Gb",
+          "and_chord": "Gb/Ab",
+          "win_conf": 0.67,
+          "and_conf": 0.67,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 173,
+          "time": "64.92s",
+          "win_chord": "Gbmaj7",
+          "and_chord": "Gbmaj7/Ab",
+          "win_conf": 0.86,
+          "and_conf": 0.86,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 190,
+          "time": "70.75s",
+          "win_chord": "Db",
+          "and_chord": "Db/Ab",
+          "win_conf": 0.55,
+          "and_conf": 0.55,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 198,
+          "time": "73.49s",
+          "win_chord": "Bbm",
+          "and_chord": "Bbm/F",
+          "win_conf": 0.83,
+          "and_conf": 0.83,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 205,
+          "time": "75.88s",
+          "win_chord": "Bbm",
+          "and_chord": "Bbm/Ab",
+          "win_conf": 0.8,
+          "and_conf": 0.8,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 230,
+          "time": "84.47s",
+          "win_chord": "Gb",
+          "and_chord": "Gb/Ab",
+          "win_conf": 0.92,
+          "and_conf": 0.92,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 261,
+          "time": "95.11s",
+          "win_chord": "Bbm",
+          "and_chord": "Bbm/Ab",
+          "win_conf": 0.43,
+          "and_conf": 0.43,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 285,
+          "time": "103.33s",
+          "win_chord": "Ebm7",
+          "and_chord": "Ebm7/Bb",
+          "win_conf": 0.76,
+          "and_conf": 0.76,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 288,
+          "time": "104.35s",
+          "win_chord": "Fm",
+          "and_chord": "Fm/Eb",
+          "win_conf": 0.72,
+          "and_conf": 0.72,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 289,
+          "time": "104.70s",
+          "win_chord": "Gb",
+          "and_chord": "Gb/F",
+          "win_conf": 0.37,
+          "and_conf": 0.37,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 290,
+          "time": "105.05s",
+          "win_chord": "Gb",
+          "and_chord": "Gb/F",
+          "win_conf": 0.85,
+          "and_conf": 0.85,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 302,
+          "time": "109.16s",
+          "win_chord": "Gb",
+          "and_chord": "Gb/F",
+          "win_conf": 0.69,
+          "and_conf": 0.69,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 320,
+          "time": "115.33s",
+          "win_chord": "Db",
+          "and_chord": "Db/Eb",
+          "win_conf": 0.28,
+          "and_conf": 0.28,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 321,
+          "time": "115.68s",
+          "win_chord": "Gb",
+          "and_chord": "Gb/F",
+          "win_conf": 0.63,
+          "and_conf": 0.63,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 322,
+          "time": "116.03s",
+          "win_chord": "Gb",
+          "and_chord": "Gb/F",
+          "win_conf": 0.94,
+          "and_conf": 0.94,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 329,
+          "time": "118.42s",
+          "win_chord": "Eb",
+          "and_chord": "Eb/Ab",
+          "win_conf": 0.42,
+          "and_conf": 0.42,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 330,
+          "time": "118.75s",
+          "win_chord": "Eb",
+          "and_chord": "Eb/Ab",
+          "win_conf": 0.51,
+          "and_conf": 0.51,
+          "reason": "BASS/INVERSION"
+        }
+      ]
+    }
+  },
+  {
+    "song_name": "Carol Song (Malayalam Choral)",
+    "duration_sec": 45.0,
+    "windows_time_sec": 1.15,
+    "android_time_sec": 1.52,
+    "metrics": {
+      "status": "FAIL",
+      "sample_count": 74,
+      "root_accuracy_pct": 98.65,
+      "quality_accuracy_pct": 100.0,
+      "bass_accuracy_pct": 95.95,
+      "inversion_accuracy_pct": 97.3,
+      "full_chord_accuracy_pct": 95.95,
+      "mean_timing_error_sec": 0.0245,
+      "windows_bpm": 117.5,
+      "android_bpm": 114.8,
+      "bpm_error": 2.7,
+      "windows_key": "G Major",
+      "android_key": "C Major",
+      "key_match": false,
+      "meter_match": false,
+      "mismatches": [
+        {
+          "index": 32,
+          "time": "22.55s",
+          "win_chord": "E",
+          "and_chord": "C",
+          "win_conf": 0.33,
+          "and_conf": 0.37,
+          "reason": "ROOT"
+        },
+        {
+          "index": 34,
+          "time": "23.59s",
+          "win_chord": "Am",
+          "and_chord": "Am/B",
+          "win_conf": 0.62,
+          "and_conf": 0.62,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 58,
+          "time": "36.11s",
+          "win_chord": "C",
+          "and_chord": "C/G",
+          "win_conf": 0.98,
+          "and_conf": 0.99,
+          "reason": "BASS/INVERSION"
+        }
+      ]
+    }
+  },
+  {
+    "song_name": "Radhimaa (Tamil Pop)",
+    "duration_sec": 45.0,
+    "windows_time_sec": 1.22,
+    "android_time_sec": 1.55,
+    "metrics": {
+      "status": "FAIL",
+      "sample_count": 93,
+      "root_accuracy_pct": 36.56,
+      "quality_accuracy_pct": 56.99,
+      "bass_accuracy_pct": 35.48,
+      "inversion_accuracy_pct": 96.77,
+      "full_chord_accuracy_pct": 35.48,
+      "mean_timing_error_sec": 2.601,
+      "windows_bpm": 136.0,
+      "android_bpm": 137.2,
+      "bpm_error": 1.2,
+      "windows_key": "G Minor",
+      "android_key": "G Minor",
+      "key_match": true,
+      "meter_match": false,
+      "mismatches": [
+        {
+          "index": 25,
+          "time": "12.12s",
+          "win_chord": "N",
+          "and_chord": "Gm",
+          "win_conf": 0.84,
+          "and_conf": 0.49,
+          "reason": "ROOT"
+        },
+        {
+          "index": 26,
+          "time": "12.59s",
+          "win_chord": "N",
+          "and_chord": "Gm",
+          "win_conf": 0.83,
+          "and_conf": 0.78,
+          "reason": "ROOT"
+        },
+        {
+          "index": 27,
+          "time": "13.05s",
+          "win_chord": "N",
+          "and_chord": "Gm",
+          "win_conf": 0.88,
+          "and_conf": 0.74,
+          "reason": "ROOT"
+        },
+        {
+          "index": 28,
+          "time": "13.49s",
+          "win_chord": "N",
+          "and_chord": "Gm",
+          "win_conf": 0.86,
+          "and_conf": 0.72,
+          "reason": "ROOT"
+        },
+        {
+          "index": 29,
+          "time": "13.96s",
+          "win_chord": "N",
+          "and_chord": "Gm",
+          "win_conf": 0.82,
+          "and_conf": 0.37,
+          "reason": "ROOT"
+        },
+        {
+          "index": 30,
+          "time": "14.40s",
+          "win_chord": "N",
+          "and_chord": "Cm7",
+          "win_conf": 0.72,
+          "and_conf": 0.78,
+          "reason": "ROOT"
+        },
+        {
+          "index": 31,
+          "time": "14.84s",
+          "win_chord": "Gm",
+          "and_chord": "Cm7",
+          "win_conf": 0.51,
+          "and_conf": 0.82,
+          "reason": "ROOT"
+        },
+        {
+          "index": 32,
+          "time": "15.28s",
+          "win_chord": "Gm",
+          "and_chord": "Cm7",
+          "win_conf": 0.78,
+          "and_conf": 0.82,
+          "reason": "ROOT"
+        },
+        {
+          "index": 33,
+          "time": "15.70s",
+          "win_chord": "Gm",
+          "and_chord": "Cm",
+          "win_conf": 0.75,
+          "and_conf": 0.63,
+          "reason": "ROOT"
+        },
+        {
+          "index": 34,
+          "time": "16.14s",
+          "win_chord": "Gm",
+          "and_chord": "F",
+          "win_conf": 0.73,
+          "and_conf": 0.64,
+          "reason": "ROOT"
+        },
+        {
+          "index": 35,
+          "time": "16.58s",
+          "win_chord": "Gm",
+          "and_chord": "F",
+          "win_conf": 0.38,
+          "and_conf": 0.62,
+          "reason": "ROOT"
+        },
+        {
+          "index": 36,
+          "time": "17.02s",
+          "win_chord": "Cm7",
+          "and_chord": "F",
+          "win_conf": 0.79,
+          "and_conf": 0.57,
+          "reason": "ROOT"
+        },
+        {
+          "index": 37,
+          "time": "17.46s",
+          "win_chord": "Cm7",
+          "and_chord": "F",
+          "win_conf": 0.82,
+          "and_conf": 0.53,
+          "reason": "ROOT"
+        },
+        {
+          "index": 38,
+          "time": "17.90s",
+          "win_chord": "Cm7",
+          "and_chord": "Bb",
+          "win_conf": 0.81,
+          "and_conf": 0.64,
+          "reason": "ROOT"
+        },
+        {
+          "index": 39,
+          "time": "18.37s",
+          "win_chord": "Cm",
+          "and_chord": "Bb",
+          "win_conf": 0.63,
+          "and_conf": 0.52,
+          "reason": "ROOT"
+        },
+        {
+          "index": 40,
+          "time": "18.81s",
+          "win_chord": "F",
+          "and_chord": "Bb",
+          "win_conf": 0.63,
+          "and_conf": 0.94,
+          "reason": "ROOT"
+        },
+        {
+          "index": 41,
+          "time": "19.27s",
+          "win_chord": "F",
+          "and_chord": "Bb",
+          "win_conf": 0.61,
+          "and_conf": 0.56,
+          "reason": "ROOT"
+        },
+        {
+          "index": 42,
+          "time": "19.71s",
+          "win_chord": "F",
+          "and_chord": "Eb",
+          "win_conf": 0.52,
+          "and_conf": 0.7,
+          "reason": "ROOT"
+        },
+        {
+          "index": 43,
+          "time": "20.16s",
+          "win_chord": "Bb",
+          "and_chord": "Eb",
+          "win_conf": 0.32,
+          "and_conf": 0.7,
+          "reason": "ROOT"
+        },
+        {
+          "index": 44,
+          "time": "20.60s",
+          "win_chord": "Bb",
+          "and_chord": "Eb",
+          "win_conf": 0.62,
+          "and_conf": 0.65,
+          "reason": "ROOT"
+        },
+        {
+          "index": 45,
+          "time": "21.04s",
+          "win_chord": "Bb",
+          "and_chord": "Am",
+          "win_conf": 0.48,
+          "and_conf": 0.26,
+          "reason": "ROOT"
+        },
+        {
+          "index": 46,
+          "time": "21.48s",
+          "win_chord": "Bb",
+          "and_chord": "Am",
+          "win_conf": 0.93,
+          "and_conf": 0.51,
+          "reason": "ROOT"
+        },
+        {
+          "index": 47,
+          "time": "21.92s",
+          "win_chord": "Bb",
+          "and_chord": "Am",
+          "win_conf": 0.47,
+          "and_conf": 0.48,
+          "reason": "ROOT"
+        },
+        {
+          "index": 48,
+          "time": "22.34s",
+          "win_chord": "Eb",
+          "and_chord": "Am",
+          "win_conf": 0.69,
+          "and_conf": 0.43,
+          "reason": "ROOT"
+        },
+        {
+          "index": 49,
+          "time": "22.78s",
+          "win_chord": "Eb",
+          "and_chord": "D",
+          "win_conf": 0.69,
+          "and_conf": 0.43,
+          "reason": "ROOT"
+        },
+        {
+          "index": 50,
+          "time": "23.22s",
+          "win_chord": "Eb",
+          "and_chord": "D7",
+          "win_conf": 0.62,
+          "and_conf": 0.77,
+          "reason": "ROOT"
+        },
+        {
+          "index": 51,
+          "time": "23.68s",
+          "win_chord": "Am",
+          "and_chord": "D7",
+          "win_conf": 0.37,
+          "and_conf": 0.78,
+          "reason": "ROOT"
+        },
+        {
+          "index": 52,
+          "time": "24.13s",
+          "win_chord": "Am",
+          "and_chord": "D7",
+          "win_conf": 0.5,
+          "and_conf": 0.78,
+          "reason": "ROOT"
+        },
+        {
+          "index": 53,
+          "time": "24.57s",
+          "win_chord": "Am",
+          "and_chord": "D",
+          "win_conf": 0.48,
+          "and_conf": 0.69,
+          "reason": "ROOT"
+        },
+        {
+          "index": 54,
+          "time": "25.01s",
+          "win_chord": "Am",
+          "and_chord": "Eb",
+          "win_conf": 0.43,
+          "and_conf": 0.76,
+          "reason": "ROOT"
+        },
+        {
+          "index": 55,
+          "time": "25.45s",
+          "win_chord": "D",
+          "and_chord": "Eb",
+          "win_conf": 0.51,
+          "and_conf": 0.72,
+          "reason": "ROOT"
+        },
+        {
+          "index": 56,
+          "time": "25.89s",
+          "win_chord": "D7",
+          "and_chord": "F",
+          "win_conf": 0.78,
+          "and_conf": 0.67,
+          "reason": "ROOT"
+        },
+        {
+          "index": 57,
+          "time": "26.31s",
+          "win_chord": "D7",
+          "and_chord": "F",
+          "win_conf": 0.78,
+          "and_conf": 0.48,
+          "reason": "ROOT"
+        },
+        {
+          "index": 58,
+          "time": "26.75s",
+          "win_chord": "D7",
+          "and_chord": "Gm",
+          "win_conf": 0.78,
+          "and_conf": 0.9,
+          "reason": "ROOT"
+        },
+        {
+          "index": 59,
+          "time": "27.19s",
+          "win_chord": "D",
+          "and_chord": "Gm/Gb",
+          "win_conf": 0.69,
+          "and_conf": 0.56,
+          "reason": "ROOT"
+        },
+        {
+          "index": 60,
+          "time": "27.63s",
+          "win_chord": "Eb",
+          "and_chord": "Gm",
+          "win_conf": 0.75,
+          "and_conf": 0.33,
+          "reason": "ROOT"
+        },
+        {
+          "index": 61,
+          "time": "28.07s",
+          "win_chord": "Eb",
+          "and_chord": "Gm",
+          "win_conf": 0.71,
+          "and_conf": 0.41,
+          "reason": "ROOT"
+        },
+        {
+          "index": 62,
+          "time": "28.51s",
+          "win_chord": "F",
+          "and_chord": "Gm",
+          "win_conf": 0.67,
+          "and_conf": 0.74,
+          "reason": "ROOT"
+        },
+        {
+          "index": 63,
+          "time": "28.95s",
+          "win_chord": "F",
+          "and_chord": "Gm",
+          "win_conf": 0.41,
+          "and_conf": 0.68,
+          "reason": "ROOT"
+        },
+        {
+          "index": 64,
+          "time": "29.40s",
+          "win_chord": "Gm",
+          "and_chord": "Eb",
+          "win_conf": 0.89,
+          "and_conf": 0.3,
+          "reason": "ROOT"
+        },
+        {
+          "index": 70,
+          "time": "32.04s",
+          "win_chord": "Eb",
+          "and_chord": "Gm/Gb",
+          "win_conf": 0.3,
+          "and_conf": 0.76,
+          "reason": "ROOT"
+        },
+        {
+          "index": 71,
+          "time": "32.48s",
+          "win_chord": "Gm",
+          "and_chord": "Gm/Gb",
+          "win_conf": 0.48,
+          "and_conf": 0.81,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 73,
+          "time": "33.37s",
+          "win_chord": "Gm",
+          "and_chord": "Dm",
+          "win_conf": 0.72,
+          "and_conf": 0.36,
+          "reason": "ROOT"
+        },
+        {
+          "index": 74,
+          "time": "33.81s",
+          "win_chord": "Gm",
+          "and_chord": "Dm",
+          "win_conf": 0.47,
+          "and_conf": 0.44,
+          "reason": "ROOT"
+        },
+        {
+          "index": 75,
+          "time": "34.25s",
+          "win_chord": "Gm",
+          "and_chord": "Dm",
+          "win_conf": 0.46,
+          "and_conf": 0.42,
+          "reason": "ROOT"
+        },
+        {
+          "index": 76,
+          "time": "34.69s",
+          "win_chord": "Gm",
+          "and_chord": "Dm",
+          "win_conf": 0.77,
+          "and_conf": 0.44,
+          "reason": "ROOT"
+        },
+        {
+          "index": 79,
+          "time": "36.01s",
+          "win_chord": "Dm",
+          "and_chord": "Gm",
+          "win_conf": 0.36,
+          "and_conf": 0.89,
+          "reason": "ROOT"
+        },
+        {
+          "index": 80,
+          "time": "36.45s",
+          "win_chord": "Dm",
+          "and_chord": "Gm",
+          "win_conf": 0.41,
+          "and_conf": 0.9,
+          "reason": "ROOT"
+        },
+        {
+          "index": 81,
+          "time": "36.90s",
+          "win_chord": "Dm",
+          "and_chord": "Gm",
+          "win_conf": 0.4,
+          "and_conf": 0.9,
+          "reason": "ROOT"
+        },
+        {
+          "index": 82,
+          "time": "37.34s",
+          "win_chord": "Dm",
+          "and_chord": "Cm",
+          "win_conf": 0.42,
+          "and_conf": 0.51,
+          "reason": "ROOT"
+        },
+        {
+          "index": 83,
+          "time": "37.78s",
+          "win_chord": "Gm",
+          "and_chord": "Cm",
+          "win_conf": 0.4,
+          "and_conf": 0.61,
+          "reason": "ROOT"
+        },
+        {
+          "index": 84,
+          "time": "38.22s",
+          "win_chord": "Gm",
+          "and_chord": "Cm",
+          "win_conf": 0.88,
+          "and_conf": 0.52,
+          "reason": "ROOT"
+        },
+        {
+          "index": 85,
+          "time": "38.66s",
+          "win_chord": "Gm",
+          "and_chord": "Eb",
+          "win_conf": 0.89,
+          "and_conf": 0.51,
+          "reason": "ROOT"
+        },
+        {
+          "index": 86,
+          "time": "39.10s",
+          "win_chord": "Gm",
+          "and_chord": "Eb",
+          "win_conf": 0.9,
+          "and_conf": 0.91,
+          "reason": "ROOT"
+        },
+        {
+          "index": 87,
+          "time": "39.54s",
+          "win_chord": "Gm",
+          "and_chord": "Eb",
+          "win_conf": 0.9,
+          "and_conf": 0.7,
+          "reason": "ROOT"
+        },
+        {
+          "index": 88,
+          "time": "39.98s",
+          "win_chord": "Cm",
+          "and_chord": "D",
+          "win_conf": 0.55,
+          "and_conf": 0.54,
+          "reason": "ROOT"
+        },
+        {
+          "index": 89,
+          "time": "40.43s",
+          "win_chord": "Cm",
+          "and_chord": "D",
+          "win_conf": 0.62,
+          "and_conf": 0.47,
+          "reason": "ROOT"
+        },
+        {
+          "index": 90,
+          "time": "40.87s",
+          "win_chord": "Cm",
+          "and_chord": "Gm",
+          "win_conf": 0.53,
+          "and_conf": 0.76,
+          "reason": "ROOT"
+        },
+        {
+          "index": 91,
+          "time": "41.31s",
+          "win_chord": "Eb",
+          "and_chord": "Gm",
+          "win_conf": 0.58,
+          "and_conf": 0.83,
+          "reason": "ROOT"
+        },
+        {
+          "index": 92,
+          "time": "41.75s",
+          "win_chord": "Eb",
+          "and_chord": "Gm",
+          "win_conf": 0.89,
+          "and_conf": 0.75,
+          "reason": "ROOT"
+        }
+      ]
+    }
+  },
+  {
+    "song_name": "Ray (Indie / Cinematic)",
+    "duration_sec": 45.0,
+    "windows_time_sec": 1.2,
+    "android_time_sec": 1.49,
+    "metrics": {
+      "status": "FAIL",
+      "sample_count": 92,
+      "root_accuracy_pct": 89.13,
+      "quality_accuracy_pct": 93.48,
+      "bass_accuracy_pct": 88.04,
+      "inversion_accuracy_pct": 95.65,
+      "full_chord_accuracy_pct": 86.96,
+      "mean_timing_error_sec": 0.4848,
+      "windows_bpm": 123.0,
+      "android_bpm": 122.3,
+      "bpm_error": 0.7,
+      "windows_key": "A Major",
+      "android_key": "A Major",
+      "key_match": true,
+      "meter_match": true,
+      "mismatches": [
+        {
+          "index": 25,
+          "time": "12.21s",
+          "win_chord": "D",
+          "and_chord": "N",
+          "win_conf": 0.68,
+          "and_conf": 0.83,
+          "reason": "ROOT"
+        },
+        {
+          "index": 33,
+          "time": "16.07s",
+          "win_chord": "F#",
+          "and_chord": "D",
+          "win_conf": 0.25,
+          "and_conf": 0.23,
+          "reason": "ROOT"
+        },
+        {
+          "index": 34,
+          "time": "16.56s",
+          "win_chord": "F#m",
+          "and_chord": "B/F#",
+          "win_conf": 0.53,
+          "and_conf": 0.21,
+          "reason": "ROOT"
+        },
+        {
+          "index": 41,
+          "time": "19.92s",
+          "win_chord": "A",
+          "and_chord": "F#m",
+          "win_conf": 0.75,
+          "and_conf": 0.83,
+          "reason": "ROOT"
+        },
+        {
+          "index": 50,
+          "time": "24.29s",
+          "win_chord": "E",
+          "and_chord": "A",
+          "win_conf": 0.48,
+          "and_conf": 0.38,
+          "reason": "ROOT"
+        },
+        {
+          "index": 62,
+          "time": "30.09s",
+          "win_chord": "D",
+          "and_chord": "D/A",
+          "win_conf": 0.72,
+          "and_conf": 0.91,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 64,
+          "time": "31.07s",
+          "win_chord": "F#m",
+          "and_chord": "D/A",
+          "win_conf": 0.49,
+          "and_conf": 0.69,
+          "reason": "ROOT"
+        },
+        {
+          "index": 65,
+          "time": "31.53s",
+          "win_chord": "F#m",
+          "and_chord": "D",
+          "win_conf": 0.95,
+          "and_conf": 0.44,
+          "reason": "ROOT"
+        },
+        {
+          "index": 72,
+          "time": "34.92s",
+          "win_chord": "A",
+          "and_chord": "F#m",
+          "win_conf": 0.59,
+          "and_conf": 0.76,
+          "reason": "ROOT"
+        },
+        {
+          "index": 80,
+          "time": "38.80s",
+          "win_chord": "E",
+          "and_chord": "A",
+          "win_conf": 0.52,
+          "and_conf": 0.87,
+          "reason": "ROOT"
+        },
+        {
+          "index": 86,
+          "time": "41.70s",
+          "win_chord": "E",
+          "and_chord": "E/A",
+          "win_conf": 0.78,
+          "and_conf": 0.87,
+          "reason": "BASS/INVERSION"
+        },
+        {
+          "index": 89,
+          "time": "43.14s",
+          "win_chord": "D",
+          "and_chord": "E",
+          "win_conf": 0.77,
+          "and_conf": 0.42,
+          "reason": "ROOT"
+        }
+      ]
+    }
+  }
+]

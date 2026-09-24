@@ -147,24 +147,20 @@ class AndroidCandidateEngine:
 
         # Sub-bass lowpass filter & chroma for sounding bass / slash chords
         from scipy.signal import butter, sosfilt
+        from backend.chord.vocabulary import ROOT_NAMES, PITCH_TO_SEMITONE
+
+        # Dedicated sub-90Hz filter to detect physical bass activity vs silence/rests
+        sos_sub90 = butter(4, 90, 'lowpass', fs=sr, output='sos')
+        y_sub90 = sosfilt(sos_sub90, y)
+        rms_sub90 = librosa.feature.rms(y=y_sub90, hop_length=512)[0]
+        times_sub90 = librosa.frames_to_time(np.arange(len(rms_sub90)), sr=sr, hop_length=512)
+
+        # 260Hz filter for pitch chroma tracking
         sos = butter(4, 260, 'lowpass', fs=sr, output='sos')
         y_low = sosfilt(sos, y)
         chroma_low = librosa.feature.chroma_cqt(y=y_low, sr=sr, fmin=librosa.note_to_hz('C1'), n_octaves=4, hop_length=512, bins_per_octave=24)
         rms_low = librosa.feature.rms(y=y_low, hop_length=512)[0]
         times_low = librosa.frames_to_time(np.arange(chroma_low.shape[1]), sr=sr, hop_length=512)
-
-        def get_bass_note(s_t, e_t):
-            mask = (times_low >= s_t) & (times_low <= e_t)
-            if not np.any(mask) or np.mean(rms_low[mask]) < 1e-3:
-                return None, 0.0
-            w = rms_low[mask]
-            avg = np.average(chroma_low[:, mask], axis=1, weights=w) if np.sum(w) > 0 else np.mean(chroma_low[:, mask], axis=1)
-            top_idx = int(np.argmax(avg))
-            top_e = float(avg[top_idx])
-            sorted_e = np.sort(avg)[::-1]
-            clarity = (top_e - (sorted_e[1] if len(sorted_e) > 1 else 0.0)) / (top_e + 1e-6)
-            from backend.chord.vocabulary import ROOT_NAMES
-            return ROOT_NAMES[top_idx], float(np.clip(clarity * 1.5, 0.5, 0.99))
 
         # 1. Beat & Tempo Tracking
         beat_grid, tempo_info = self.beat_tracker.track_beats(audio_path)
@@ -176,11 +172,18 @@ class AndroidCandidateEngine:
         key_info = self.key_detector.detect_key(audio_path)
         is_flat = is_flat_key(key_info.tonic, key_info.mode)
 
+        # Key-aware diatonic pitch classes for scale-degree constraints
+        tonic_semi = PITCH_TO_SEMITONE.get(key_info.tonic, 0)
+        if key_info.mode == "major":
+            diatonic_intervals = {0, 2, 4, 5, 7, 9, 11}
+        else: # minor (natural + harmonic minor)
+            diatonic_intervals = {0, 2, 3, 5, 7, 8, 10, 11}
+        diatonic_semitones = {(tonic_semi + interval) % 12 for interval in diatonic_intervals}
+
         # 4. Beat-synchronous Probability Pooling & Simplicity Regularization
         time_unit = 10.0 / float(self.timestep)
         beat_times = beat_grid.beats
         chords: list[ChordPrediction] = []
-        from backend.chord.vocabulary import PITCH_TO_SEMITONE
 
         for i in range(len(beat_times) - 1):
             s_t = beat_times[i]
@@ -207,29 +210,55 @@ class AndroidCandidateEngine:
             final_bass = root
             final_inv = 0
 
-            if root != "N":
-                bn, bc = get_bass_note(s_t, e_t)
-                if bn and bn != root:
+            # Phase 3 Structural Bass Activity Gate
+            mask90 = (times_sub90 >= s_t) & (times_sub90 <= e_t)
+            sub90_e = float(np.mean(rms_sub90[mask90])) if np.any(mask90) else 0.0
+
+            # Only evaluate sounding bass if physical sub-bass instrument is active (>= 0.012 RMS)
+            if root != "N" and sub90_e >= 0.012:
+                mask_b = (times_low >= s_t) & (times_low <= e_t)
+                if np.any(mask_b):
+                    avg_c = np.mean(chroma_low[:, mask_b], axis=1)
+                    top_b_idx = int(np.argmax(avg_c))
+                    top_b_note = ROOT_NAMES[top_b_idx]
+                    top_b_e = float(avg_c[top_b_idx])
+                    sorted_e = np.sort(avg_c)[::-1]
+                    clarity = (top_b_e - (sorted_e[1] if len(sorted_e) > 1 else 0.0)) / (top_b_e + 1e-6)
+                    bass_conf = float(np.clip(clarity * 1.5, 0.5, 0.99))
+
                     root_semi = PITCH_TO_SEMITONE.get(root, 0)
-                    bass_semi = PITCH_TO_SEMITONE.get(bn, 0)
+                    root_e = float(avg_c[root_semi])
+                    bass_semi = PITCH_TO_SEMITONE.get(top_b_note, 0)
                     interval = (bass_semi - root_semi) % 12
 
-                    # Relative major/minor disambiguation
-                    if qual in ['min', 'min7'] and interval == 8 and bc >= 0.60:
-                        gb_idx = self.chord_to_idx.get(bn)
-                        gb7_idx = self.chord_to_idx.get(f"{bn}:maj7")
+                    # Relative major/minor disambiguation with neural support
+                    if qual in ['min', 'min7'] and interval == 8 and top_b_e > 1.15 * root_e and bass_conf >= 0.58:
+                        gb_idx = self.chord_to_idx.get(top_b_note)
+                        gb7_idx = self.chord_to_idx.get(f"{top_b_note}:maj7")
                         p_gb = (p_vec[gb_idx] if gb_idx else 0.0) + (p_vec[gb7_idx] if gb7_idx else 0.0)
                         if p_gb > 0.08:
-                            root = bn
+                            root = top_b_note
                             qual = 'maj7' if (gb7_idx and p_vec[gb7_idx] > 0.15) else 'maj'
-                            final_bass = bn
+                            final_bass = top_b_note
                             final_inv = 0
-                    else:
-                        is_legit, inv_num = self.ensemble._is_valid_slash_or_inversion(root, qual, bn)
+                    elif qual in ['min', 'min7'] and interval == 5 and top_b_e > 1.15 * root_e and bass_conf >= 0.58:
+                        eb_idx = self.chord_to_idx.get(top_b_note)
+                        eb7_idx = self.chord_to_idx.get(f"{top_b_note}:min7")
+                        p_eb = (p_vec[eb_idx] if eb_idx else 0.0) + (p_vec[eb7_idx] if eb7_idx else 0.0)
+                        if p_eb > 0.08:
+                            root = top_b_note
+                            qual = 'min7' if (eb7_idx and p_vec[eb7_idx] > 0.15) else 'min'
+                            final_bass = top_b_note
+                            final_inv = 0
+                    # Phase 3 Structural vs Passing Bass Discrimination
+                    elif top_b_note != root and (bass_semi in diatonic_semitones) and top_b_e > 1.15 * root_e:
+                        is_legit, inv_num = self.ensemble._is_valid_slash_or_inversion(root, qual, top_b_note)
                         if is_legit:
-                            min_conf = 0.52 if inv_num in [1, 2] else 0.64
-                            if bc >= min_conf:
-                                final_bass = bn
+                            beat_in_bar = (i % 2) + 1
+                            # Downbeat or 3rd inversion requires 0.18 clarity; passing beats require 0.28
+                            min_clarity = 0.18 if (beat_in_bar == 1 or inv_num == 3) else 0.28
+                            if clarity >= min_clarity:
+                                final_bass = top_b_note
                                 final_inv = inv_num
 
             if root == "N":

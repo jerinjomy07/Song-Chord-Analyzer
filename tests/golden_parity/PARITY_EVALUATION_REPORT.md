@@ -10,9 +10,9 @@ Comprehensive evaluation comparing **Windows Reference Implementation (Gold Stan
 
 | Acoustic Parity Metric | Result | Target Quality Gate | Status |
 | :--- | :--- | :--- | :--- |
-| **Root Note Accuracy** | **92.74%** | $\ge 95.0\%$ | ❌ FAIL |
+| **Root Note Accuracy** | **92.45%** | $\ge 95.0\%$ | ❌ FAIL |
 | **Chord Quality Accuracy** | **87.75%** | $\ge 95.0\%$ | ❌ FAIL |
-| **Full Chord String Accuracy** | **78.63%** | $\ge 95.0\%$ | ❌ FAIL |
+| **Full Chord String Accuracy** | **79.91%** | $\ge 95.0\%$ | ❌ FAIL |
 | **Mean Timing Error** | **0.0s** | $< 0.05\text{s}$ | ✅ PASS |
 | **Key Detection Match** | `Bb Minor` vs `Bb Minor` | Exact Match | ✅ PASS |
 | **BPM Error** | $\Delta 0.0\text{ BPM}$ | $\le 1.0\text{ BPM}$ | ✅ PASS |
@@ -21,13 +21,13 @@ Comprehensive evaluation comparing **Windows Reference Implementation (Gold Stan
 
 | Metric | Result | Target Quality Gate | Status |
 | :--- | :--- | :--- | :--- |
-| **Root Note Accuracy** | **86.61%** | $\ge 70.0\%$ | ✅ PASS |
+| **Root Note Accuracy** | **86.47%** | $\ge 70.0\%$ | ✅ PASS |
 | **Chord Quality Accuracy** | **83.19%** | $\ge 65.0\%$ | ✅ PASS |
 | **Key Detection Match** | Windows: `Bb Minor` vs Android: `Bb Minor` | Exact Match | ✅ PASS |
 | **Time Signature (Meter)** | Windows: `2/4` vs Android: `2/4` | Exact Match | ✅ PASS |
 | **BPM Error** | Windows: `172.3` vs Android: `172.3` | $\le 5.0\text{ BPM}$ | ✅ PASS |
 | **Mean Timing Error** | **0.0s** | $< 0.35\text{s}$ | ✅ PASS |
-| **Inference Time** | Windows: `12.75s` vs Android: `18.24s` | Real-time factor | ⚡ |
+| **Inference Time** | Windows: `8.53s` vs Android: `9.53s` | Real-time factor | ⚡ |
 
 ## 3. Bar-by-Bar Musical Grid Comparison (Sample)
 

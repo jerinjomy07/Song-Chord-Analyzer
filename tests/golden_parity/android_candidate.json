@@ -1,5 +1,5 @@
 {
-  "id": "ba936f2a",
+  "id": "d103f007",
   "title": "Parity Test Track",
   "metadata": {
     "filename": "ecdbc4dd2a6d827b_22k_mono.wav",
@@ -8,7 +8,7 @@
     "channels": 1,
     "format": "WAV",
     "file_size_bytes": 11955244,
-    "file_hash": "25abbfea-1c13-41"
+    "file_hash": "87ed715b-4e7e-40"
   },
   "pipeline_metadata": {
     "app_version": "2.0.0-mobile",
@@ -16,7 +16,7 @@
     "model_version": "2.0",
     "separation_model": "none",
     "device_used": "Android Candidate (ONNX CPU)",
-    "timestamp": "2026-09-25 01:25:06"
+    "timestamp": "2026-09-25 01:47:56"
   },
   "key": {
     "tonic": "Bb",
@@ -1480,12 +1480,12 @@
               "inversion": 0,
               "display": "Bbm",
               "start_time": 17.949,
-              "end_time": 18.297,
-              "duration": 0.348,
+              "end_time": 18.622,
+              "duration": 0.673,
               "beat_position": 1,
               "bar_position": 19,
               "beat": 1,
-              "beat_duration": 1.0,
+              "beat_duration": 2.0,
               "confidence": 0.89,
               "needs_review": false,
               "alternatives": [
@@ -1498,39 +1498,9 @@
                   "probability": 0.29
                 }
               ]
-            },
-            {
-              "root": "A#",
-              "quality": "min",
-              "bass": "G#",
-              "inversion": 3,
-              "display": "Bbm/Ab",
-              "start_time": 18.297,
-              "end_time": 18.622,
-              "duration": 0.325,
-              "beat_position": 2,
-              "bar_position": 19,
-              "beat": 2,
-              "beat_duration": 1.0,
-              "confidence": 0.61,
-              "needs_review": false,
-              "alternatives": [
-                {
-                  "chord": "A#m7",
-                  "probability": 0.37
-                },
-                {
-                  "chord": "A#m",
-                  "probability": 0.24
-                },
-                {
-                  "chord": "G#",
-                  "probability": 0.15
-                }
-              ]
             }
           ],
-          "display": "Bbm  Bbm/Ab",
+          "display": "Bbm",
           "time_signature": "2/4"
         },
         {
@@ -1828,9 +1798,9 @@
             {
               "root": "A#",
               "quality": "min",
-              "bass": "C#",
-              "inversion": 1,
-              "display": "Bbm/Db",
+              "bass": "A#",
+              "inversion": 0,
+              "display": "Bbm",
               "start_time": 23.8,
               "end_time": 24.126,
               "duration": 0.325,
@@ -1856,7 +1826,7 @@
               ]
             }
           ],
-          "display": "Bbm7  Bbm/Db",
+          "display": "Bbm7  Bbm",
           "time_signature": "2/4"
         },
         {
@@ -3020,9 +2990,9 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "A#",
-              "inversion": 1,
-              "display": "Gb/Bb",
+              "bass": "F#",
+              "inversion": 0,
+              "display": "Gb",
               "start_time": 41.262,
               "end_time": 41.958,
               "duration": 0.696,
@@ -3048,7 +3018,7 @@
               ]
             }
           ],
-          "display": "Gb/Bb",
+          "display": "Gb",
           "time_signature": "2/4"
         },
         {
@@ -3060,16 +3030,16 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "A#",
-              "inversion": 1,
-              "display": "Gb/Bb",
+              "bass": "F#",
+              "inversion": 0,
+              "display": "Gb",
               "start_time": 41.958,
-              "end_time": 42.307,
-              "duration": 0.348,
+              "end_time": 42.655,
+              "duration": 0.697,
               "beat_position": 1,
               "bar_position": 54,
               "beat": 1,
-              "beat_duration": 1.0,
+              "beat_duration": 2.0,
               "confidence": 0.66,
               "needs_review": false,
               "alternatives": [
@@ -3086,35 +3056,9 @@
                   "probability": 0.1
                 }
               ]
-            },
-            {
-              "root": "F#",
-              "quality": "maj",
-              "bass": "F#",
-              "inversion": 0,
-              "display": "Gb",
-              "start_time": 42.307,
-              "end_time": 42.655,
-              "duration": 0.348,
-              "beat_position": 2,
-              "bar_position": 54,
-              "beat": 2,
-              "beat_duration": 1.0,
-              "confidence": 0.71,
-              "needs_review": false,
-              "alternatives": [
-                {
-                  "chord": "F#maj7",
-                  "probability": 0.69
-                },
-                {
-                  "chord": "A#m",
-                  "probability": 0.16
-                }
-              ]
             }
           ],
-          "display": "Gb/Bb  Gb",
+          "display": "Gb",
           "time_signature": "2/4"
         },
         {
@@ -3126,9 +3070,9 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "A#",
-              "inversion": 1,
-              "display": "Gb/Bb",
+              "bass": "F#",
+              "inversion": 0,
+              "display": "Gb",
               "start_time": 42.655,
               "end_time": 43.375,
               "duration": 0.72,
@@ -3150,7 +3094,7 @@
               ]
             }
           ],
-          "display": "Gb/Bb",
+          "display": "Gb",
           "time_signature": "2/4"
         },
         {
@@ -3380,9 +3324,9 @@
             {
               "root": "D#",
               "quality": "min7",
-              "bass": "A#",
-              "inversion": 2,
-              "display": "Ebm7/Bb",
+              "bass": "D#",
+              "inversion": 0,
+              "display": "Ebm7",
               "start_time": 46.765,
               "end_time": 47.462,
               "duration": 0.697,
@@ -3400,7 +3344,7 @@
               ]
             }
           ],
-          "display": "Ebm7/Bb",
+          "display": "Ebm7",
           "time_signature": "2/4"
         },
         {
@@ -3775,16 +3719,16 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "G#",
-              "inversion": 1,
-              "display": "Gb/Ab",
+              "bass": "F#",
+              "inversion": 0,
+              "display": "Gb",
               "start_time": 54.311,
-              "end_time": 54.637,
-              "duration": 0.325,
+              "end_time": 54.985,
+              "duration": 0.674,
               "beat_position": 1,
               "bar_position": 72,
               "beat": 1,
-              "beat_duration": 1.0,
+              "beat_duration": 2.0,
               "confidence": 0.63,
               "needs_review": false,
               "alternatives": [
@@ -3801,35 +3745,9 @@
                   "probability": 0.13
                 }
               ]
-            },
-            {
-              "root": "F#",
-              "quality": "maj",
-              "bass": "F#",
-              "inversion": 0,
-              "display": "Gb",
-              "start_time": 54.637,
-              "end_time": 54.985,
-              "duration": 0.348,
-              "beat_position": 2,
-              "bar_position": 72,
-              "beat": 2,
-              "beat_duration": 1.0,
-              "confidence": 0.44,
-              "needs_review": true,
-              "alternatives": [
-                {
-                  "chord": "F#maj7",
-                  "probability": 0.35
-                },
-                {
-                  "chord": "D#m7",
-                  "probability": 0.08
-                }
-              ]
             }
           ],
-          "display": "Gb/Ab  Gb",
+          "display": "Gb",
           "time_signature": "2/4"
         }
       ],
@@ -3838,7 +3756,7 @@
     },
     {
       "section_id": "sec_10",
-      "name": "SECTION I",
+      "name": "SECTION H (Repeat)",
       "start_time": 54.985,
       "end_time": 60.465,
       "start_bar": 73,
@@ -4071,9 +3989,9 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "G#",
-              "inversion": 1,
-              "display": "Gb/Ab",
+              "bass": "F#",
+              "inversion": 0,
+              "display": "Gb",
               "start_time": 58.421,
               "end_time": 58.77,
               "duration": 0.348,
@@ -4121,7 +4039,7 @@
               ]
             }
           ],
-          "display": "Gb/Ab  Db",
+          "display": "Gb  Db",
           "time_signature": "2/4"
         },
         {
@@ -4133,9 +4051,9 @@
             {
               "root": "C#",
               "quality": "maj",
-              "bass": "F",
-              "inversion": 1,
-              "display": "Db/F",
+              "bass": "C#",
+              "inversion": 0,
+              "display": "Db",
               "start_time": 59.095,
               "end_time": 59.791,
               "duration": 0.696,
@@ -4153,7 +4071,7 @@
               ]
             }
           ],
-          "display": "Db/F",
+          "display": "Db",
           "time_signature": "2/4"
         },
         {
@@ -4193,12 +4111,12 @@
           "time_signature": "2/4"
         }
       ],
-      "is_repeated": false,
-      "repeat_of_section_id": null
+      "is_repeated": true,
+      "repeat_of_section_id": "sec_9"
     },
     {
       "section_id": "sec_11",
-      "name": "SECTION J",
+      "name": "SECTION I",
       "start_time": 60.465,
       "end_time": 66.014,
       "start_bar": 81,
@@ -4343,16 +4261,16 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 0,
-              "display": "Gb",
+              "bass": "G#",
+              "inversion": 1,
+              "display": "Gb/Ab",
               "start_time": 62.531,
-              "end_time": 63.228,
-              "duration": 0.697,
+              "end_time": 62.88,
+              "duration": 0.348,
               "beat_position": 1,
               "bar_position": 84,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.58,
               "needs_review": false,
               "alternatives": [
@@ -4369,9 +4287,35 @@
                   "probability": 0.2
                 }
               ]
+            },
+            {
+              "root": "F#",
+              "quality": "maj",
+              "bass": "F#",
+              "inversion": 0,
+              "display": "Gb",
+              "start_time": 62.88,
+              "end_time": 63.228,
+              "duration": 0.348,
+              "beat_position": 2,
+              "bar_position": 84,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.95,
+              "needs_review": false,
+              "alternatives": [
+                {
+                  "chord": "F#maj7",
+                  "probability": 0.76
+                },
+                {
+                  "chord": "F#",
+                  "probability": 0.19
+                }
+              ]
             }
           ],
-          "display": "Gb",
+          "display": "Gb/Ab  Gb",
           "time_signature": "2/4"
         },
         {
@@ -4925,7 +4869,7 @@
     },
     {
       "section_id": "sec_13",
-      "name": "SECTION A",
+      "name": "SECTION J",
       "start_time": 71.448,
       "end_time": 76.928,
       "start_bar": 97,
@@ -5275,7 +5219,7 @@
     },
     {
       "section_id": "sec_14",
-      "name": "SECTION B",
+      "name": "SECTION A",
       "start_time": 76.928,
       "end_time": 82.431,
       "start_bar": 105,
@@ -5396,9 +5340,9 @@
             {
               "root": "F",
               "quality": "maj",
-              "bass": "A",
-              "inversion": 1,
-              "display": "F/A",
+              "bass": "F",
+              "inversion": 0,
+              "display": "F",
               "start_time": 78.298,
               "end_time": 78.646,
               "duration": 0.348,
@@ -5454,7 +5398,7 @@
               ]
             }
           ],
-          "display": "F/A  F/C",
+          "display": "F  F/C",
           "time_signature": "2/4"
         },
         {
@@ -5542,12 +5486,12 @@
               "inversion": 0,
               "display": "Gb",
               "start_time": 80.364,
-              "end_time": 80.713,
-              "duration": 0.348,
+              "end_time": 81.061,
+              "duration": 0.697,
               "beat_position": 1,
               "bar_position": 110,
               "beat": 1,
-              "beat_duration": 1.0,
+              "beat_duration": 2.0,
               "confidence": 0.96,
               "needs_review": false,
               "alternatives": [
@@ -5560,35 +5504,9 @@
                   "probability": 0.13
                 }
               ]
-            },
-            {
-              "root": "F#",
-              "quality": "maj",
-              "bass": "G#",
-              "inversion": 1,
-              "display": "Gb/Ab",
-              "start_time": 80.713,
-              "end_time": 81.061,
-              "duration": 0.348,
-              "beat_position": 2,
-              "bar_position": 110,
-              "beat": 2,
-              "beat_duration": 1.0,
-              "confidence": 0.96,
-              "needs_review": false,
-              "alternatives": [
-                {
-                  "chord": "F#maj7",
-                  "probability": 0.84
-                },
-                {
-                  "chord": "F#",
-                  "probability": 0.12
-                }
-              ]
             }
           ],
-          "display": "Gb  Gb/Ab",
+          "display": "Gb",
           "time_signature": "2/4"
         },
         {
@@ -5604,12 +5522,12 @@
               "inversion": 0,
               "display": "Gb",
               "start_time": 81.061,
-              "end_time": 81.409,
-              "duration": 0.348,
+              "end_time": 81.734,
+              "duration": 0.673,
               "beat_position": 1,
               "bar_position": 111,
               "beat": 1,
-              "beat_duration": 1.0,
+              "beat_duration": 2.0,
               "confidence": 0.95,
               "needs_review": false,
               "alternatives": [
@@ -5622,39 +5540,9 @@
                   "probability": 0.12
                 }
               ]
-            },
-            {
-              "root": "F#",
-              "quality": "maj",
-              "bass": "C#",
-              "inversion": 2,
-              "display": "Gb/Db",
-              "start_time": 81.409,
-              "end_time": 81.734,
-              "duration": 0.325,
-              "beat_position": 2,
-              "bar_position": 111,
-              "beat": 2,
-              "beat_duration": 1.0,
-              "confidence": 0.74,
-              "needs_review": false,
-              "alternatives": [
-                {
-                  "chord": "F#maj7",
-                  "probability": 0.63
-                },
-                {
-                  "chord": "A#m7",
-                  "probability": 0.1
-                },
-                {
-                  "chord": "F#",
-                  "probability": 0.1
-                }
-              ]
             }
           ],
-          "display": "Gb  Gb/Db",
+          "display": "Gb",
           "time_signature": "2/4"
         },
         {
@@ -5699,7 +5587,7 @@
     },
     {
       "section_id": "sec_15",
-      "name": "SECTION C",
+      "name": "SECTION B",
       "start_time": 82.431,
       "end_time": 87.911,
       "start_bar": 113,
@@ -5848,16 +5736,16 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 0,
-              "display": "Gb",
+              "bass": "G#",
+              "inversion": 1,
+              "display": "Gb/Ab",
               "start_time": 84.474,
-              "end_time": 85.148,
-              "duration": 0.674,
+              "end_time": 84.822,
+              "duration": 0.348,
               "beat_position": 1,
               "bar_position": 116,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.87,
               "needs_review": false,
               "alternatives": [
@@ -5870,9 +5758,35 @@
                   "probability": 0.39
                 }
               ]
+            },
+            {
+              "root": "F#",
+              "quality": "maj",
+              "bass": "F#",
+              "inversion": 0,
+              "display": "Gb",
+              "start_time": 84.822,
+              "end_time": 85.148,
+              "duration": 0.325,
+              "beat_position": 2,
+              "bar_position": 116,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.96,
+              "needs_review": false,
+              "alternatives": [
+                {
+                  "chord": "F#maj7",
+                  "probability": 0.63
+                },
+                {
+                  "chord": "F#",
+                  "probability": 0.33
+                }
+              ]
             }
           ],
-          "display": "Gb",
+          "display": "Gb/Ab  Gb",
           "time_signature": "2/4"
         },
         {
@@ -6361,7 +6275,7 @@
     },
     {
       "section_id": "sec_17",
-      "name": "SECTION C (Repeat)",
+      "name": "SECTION F (Repeat)",
       "start_time": 93.391,
       "end_time": 98.871,
       "start_bar": 129,
@@ -6709,7 +6623,7 @@
         }
       ],
       "is_repeated": true,
-      "repeat_of_section_id": "sec_15"
+      "repeat_of_section_id": "sec_7"
     },
     {
       "section_id": "sec_18",
@@ -6980,12 +6894,12 @@
               "inversion": 0,
               "display": "Ebm7",
               "start_time": 102.98,
-              "end_time": 103.654,
-              "duration": 0.674,
+              "end_time": 103.329,
+              "duration": 0.348,
               "beat_position": 1,
               "bar_position": 143,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.75,
               "needs_review": false,
               "alternatives": [
@@ -6994,9 +6908,31 @@
                   "probability": 0.23
                 }
               ]
+            },
+            {
+              "root": "D#",
+              "quality": "min7",
+              "bass": "A#",
+              "inversion": 2,
+              "display": "Ebm7/Bb",
+              "start_time": 103.329,
+              "end_time": 103.654,
+              "duration": 0.325,
+              "beat_position": 2,
+              "bar_position": 143,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.73,
+              "needs_review": false,
+              "alternatives": [
+                {
+                  "chord": "D#m",
+                  "probability": 0.24
+                }
+              ]
             }
           ],
-          "display": "Ebm7",
+          "display": "Ebm7  Ebm7/Bb",
           "time_signature": "2/4"
         },
         {
@@ -7067,7 +7003,7 @@
     },
     {
       "section_id": "sec_19",
-      "name": "SECTION D",
+      "name": "SECTION C",
       "start_time": 104.35,
       "end_time": 109.83,
       "start_bar": 145,
@@ -7082,9 +7018,9 @@
             {
               "root": "F",
               "quality": "min",
-              "bass": "F",
-              "inversion": 0,
-              "display": "Fm",
+              "bass": "D#",
+              "inversion": 3,
+              "display": "Fm/Eb",
               "start_time": 104.35,
               "end_time": 104.699,
               "duration": 0.348,
@@ -7140,7 +7076,7 @@
               ]
             }
           ],
-          "display": "Fm  Gb/F",
+          "display": "Fm/Eb  Gb/F",
           "time_signature": "2/4"
         },
         {
@@ -7298,9 +7234,9 @@
             {
               "root": "G#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 3,
-              "display": "Ab/Gb",
+              "bass": "G#",
+              "inversion": 0,
+              "display": "Ab",
               "start_time": 107.09,
               "end_time": 107.439,
               "duration": 0.348,
@@ -7356,7 +7292,7 @@
               ]
             }
           ],
-          "display": "Ab/Gb  Fm/Ab",
+          "display": "Ab  Fm/Ab",
           "time_signature": "2/4"
         },
         {
@@ -7478,16 +7414,16 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 0,
-              "display": "Gb",
+              "bass": "F",
+              "inversion": 3,
+              "display": "Gb/F",
               "start_time": 109.157,
-              "end_time": 109.83,
-              "duration": 0.673,
+              "end_time": 109.482,
+              "duration": 0.325,
               "beat_position": 1,
               "bar_position": 152,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.41,
               "needs_review": true,
               "alternatives": [
@@ -7500,9 +7436,39 @@
                   "probability": 0.29
                 }
               ]
+            },
+            {
+              "root": "F#",
+              "quality": "maj",
+              "bass": "F#",
+              "inversion": 0,
+              "display": "Gb",
+              "start_time": 109.482,
+              "end_time": 109.83,
+              "duration": 0.348,
+              "beat_position": 2,
+              "bar_position": 152,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.52,
+              "needs_review": true,
+              "alternatives": [
+                {
+                  "chord": "F#maj7",
+                  "probability": 0.43
+                },
+                {
+                  "chord": "A#m",
+                  "probability": 0.2
+                },
+                {
+                  "chord": "F#",
+                  "probability": 0.08
+                }
+              ]
             }
           ],
-          "display": "Gb",
+          "display": "Gb/F  Gb",
           "time_signature": "2/4"
         }
       ],
@@ -7511,7 +7477,7 @@
     },
     {
       "section_id": "sec_20",
-      "name": "SECTION E",
+      "name": "SECTION D",
       "start_time": 109.83,
       "end_time": 115.334,
       "start_bar": 153,
@@ -7556,9 +7522,9 @@
             {
               "root": "C#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 1,
-              "display": "Db/Gb",
+              "bass": "C#",
+              "inversion": 0,
+              "display": "Db",
               "start_time": 110.179,
               "end_time": 110.527,
               "duration": 0.348,
@@ -7584,7 +7550,7 @@
               ]
             }
           ],
-          "display": "Gb  Db/Gb",
+          "display": "Gb  Db",
           "time_signature": "2/4"
         },
         {
@@ -7596,16 +7562,16 @@
             {
               "root": "C#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 1,
-              "display": "Db/Gb",
+              "bass": "C#",
+              "inversion": 0,
+              "display": "Db",
               "start_time": 110.527,
-              "end_time": 110.875,
-              "duration": 0.348,
+              "end_time": 111.224,
+              "duration": 0.697,
               "beat_position": 1,
               "bar_position": 154,
               "beat": 1,
-              "beat_duration": 1.0,
+              "beat_duration": 2.0,
               "confidence": 0.63,
               "needs_review": false,
               "alternatives": [
@@ -7614,31 +7580,9 @@
                   "probability": 0.23
                 }
               ]
-            },
-            {
-              "root": "C#",
-              "quality": "maj",
-              "bass": "C#",
-              "inversion": 0,
-              "display": "Db",
-              "start_time": 110.875,
-              "end_time": 111.224,
-              "duration": 0.348,
-              "beat_position": 2,
-              "bar_position": 154,
-              "beat": 2,
-              "beat_duration": 1.0,
-              "confidence": 0.55,
-              "needs_review": true,
-              "alternatives": [
-                {
-                  "chord": "C#maj7",
-                  "probability": 0.31
-                }
-              ]
             }
           ],
-          "display": "Db/Gb  Db",
+          "display": "Db",
           "time_signature": "2/4"
         },
         {
@@ -7722,16 +7666,16 @@
             {
               "root": "G#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 3,
-              "display": "Ab/Gb",
+              "bass": "G#",
+              "inversion": 0,
+              "display": "Ab",
               "start_time": 112.594,
-              "end_time": 112.919,
-              "duration": 0.325,
+              "end_time": 113.267,
+              "duration": 0.673,
               "beat_position": 1,
               "bar_position": 157,
               "beat": 1,
-              "beat_duration": 1.0,
+              "beat_duration": 2.0,
               "confidence": 0.53,
               "needs_review": true,
               "alternatives": [
@@ -7740,35 +7684,9 @@
                   "probability": 0.11
                 }
               ]
-            },
-            {
-              "root": "G#",
-              "quality": "maj",
-              "bass": "G#",
-              "inversion": 0,
-              "display": "Ab",
-              "start_time": 112.919,
-              "end_time": 113.267,
-              "duration": 0.348,
-              "beat_position": 2,
-              "bar_position": 157,
-              "beat": 2,
-              "beat_duration": 1.0,
-              "confidence": 0.47,
-              "needs_review": true,
-              "alternatives": [
-                {
-                  "chord": "D#m7",
-                  "probability": 0.13
-                },
-                {
-                  "chord": "C#",
-                  "probability": 0.09
-                }
-              ]
             }
           ],
-          "display": "Ab/Gb  Ab",
+          "display": "Ab",
           "time_signature": "2/4"
         },
         {
@@ -7778,11 +7696,11 @@
           "beats": 2,
           "chords": [
             {
-              "root": "D#",
+              "root": "G#",
               "quality": "min",
               "bass": "G#",
-              "inversion": 1,
-              "display": "Ebm/Ab",
+              "inversion": 0,
+              "display": "Abm",
               "start_time": 113.267,
               "end_time": 113.615,
               "duration": 0.348,
@@ -7838,7 +7756,7 @@
               ]
             }
           ],
-          "display": "Ebm/Ab  Ebm",
+          "display": "Abm  Ebm",
           "time_signature": "2/4"
         },
         {
@@ -7923,7 +7841,7 @@
     },
     {
       "section_id": "sec_21",
-      "name": "SECTION F",
+      "name": "SECTION E",
       "start_time": 115.334,
       "end_time": 120.813,
       "start_bar": 161,
@@ -7938,9 +7856,9 @@
             {
               "root": "F",
               "quality": "min",
-              "bass": "F",
-              "inversion": 0,
-              "display": "Fm",
+              "bass": "D#",
+              "inversion": 3,
+              "display": "Fm/Eb",
               "start_time": 115.334,
               "end_time": 115.682,
               "duration": 0.348,
@@ -7996,7 +7914,7 @@
               ]
             }
           ],
-          "display": "Fm  Gb/F",
+          "display": "Fm/Eb  Gb/F",
           "time_signature": "2/4"
         },
         {
@@ -8008,16 +7926,16 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 0,
-              "display": "Gb",
+              "bass": "F",
+              "inversion": 3,
+              "display": "Gb/F",
               "start_time": 116.03,
-              "end_time": 116.703,
-              "duration": 0.673,
+              "end_time": 116.355,
+              "duration": 0.325,
               "beat_position": 1,
               "bar_position": 162,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.56,
               "needs_review": false,
               "alternatives": [
@@ -8034,9 +7952,39 @@
                   "probability": 0.16
                 }
               ]
+            },
+            {
+              "root": "F#",
+              "quality": "maj",
+              "bass": "F#",
+              "inversion": 0,
+              "display": "Gb",
+              "start_time": 116.355,
+              "end_time": 116.703,
+              "duration": 0.348,
+              "beat_position": 2,
+              "bar_position": 162,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.54,
+              "needs_review": true,
+              "alternatives": [
+                {
+                  "chord": "F#maj7",
+                  "probability": 0.31
+                },
+                {
+                  "chord": "F#",
+                  "probability": 0.23
+                },
+                {
+                  "chord": "A#m",
+                  "probability": 0.21
+                }
+              ]
             }
           ],
-          "display": "Gb",
+          "display": "Gb/F  Gb",
           "time_signature": "2/4"
         },
         {
@@ -8128,16 +8076,16 @@
             {
               "root": "G#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 3,
-              "display": "Ab/Gb",
+              "bass": "G#",
+              "inversion": 0,
+              "display": "Ab",
               "start_time": 118.073,
-              "end_time": 118.422,
-              "duration": 0.348,
+              "end_time": 118.747,
+              "duration": 0.674,
               "beat_position": 1,
               "bar_position": 165,
               "beat": 1,
-              "beat_duration": 1.0,
+              "beat_duration": 2.0,
               "confidence": 0.65,
               "needs_review": false,
               "alternatives": [
@@ -8146,35 +8094,9 @@
                   "probability": 0.09
                 }
               ]
-            },
-            {
-              "root": "G#",
-              "quality": "maj",
-              "bass": "G#",
-              "inversion": 0,
-              "display": "Ab",
-              "start_time": 118.422,
-              "end_time": 118.747,
-              "duration": 0.325,
-              "beat_position": 2,
-              "bar_position": 165,
-              "beat": 2,
-              "beat_duration": 1.0,
-              "confidence": 0.36,
-              "needs_review": true,
-              "alternatives": [
-                {
-                  "chord": "D#m7",
-                  "probability": 0.22
-                },
-                {
-                  "chord": "D#m",
-                  "probability": 0.17
-                }
-              ]
             }
           ],
-          "display": "Ab/Gb  Ab",
+          "display": "Ab",
           "time_signature": "2/4"
         },
         {
@@ -8184,11 +8106,11 @@
           "beats": 2,
           "chords": [
             {
-              "root": "D#",
+              "root": "G#",
               "quality": "min",
               "bass": "G#",
-              "inversion": 1,
-              "display": "Ebm/Ab",
+              "inversion": 0,
+              "display": "Abm",
               "start_time": 118.747,
               "end_time": 119.095,
               "duration": 0.348,
@@ -8240,7 +8162,7 @@
               ]
             }
           ],
-          "display": "Ebm/Ab  Ebm",
+          "display": "Abm  Ebm",
           "time_signature": "2/4"
         },
         {
@@ -8288,9 +8210,9 @@
             {
               "root": "D#",
               "quality": "min",
-              "bass": "D#",
-              "inversion": 0,
-              "display": "Ebm",
+              "bass": "F",
+              "inversion": 1,
+              "display": "Ebm/F",
               "start_time": 120.117,
               "end_time": 120.465,
               "duration": 0.348,
@@ -8346,7 +8268,7 @@
               ]
             }
           ],
-          "display": "Ebm  Gb",
+          "display": "Ebm/F  Gb",
           "time_signature": "2/4"
         }
       ],
@@ -8355,7 +8277,7 @@
     },
     {
       "section_id": "sec_22",
-      "name": "SECTION E (Repeat)",
+      "name": "SECTION D (Repeat)",
       "start_time": 120.813,
       "end_time": 126.224,
       "start_bar": 169,
@@ -8400,9 +8322,9 @@
             {
               "root": "C#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 1,
-              "display": "Db/Gb",
+              "bass": "C#",
+              "inversion": 0,
+              "display": "Db",
               "start_time": 121.162,
               "end_time": 121.51,
               "duration": 0.348,
@@ -8424,7 +8346,7 @@
               ]
             }
           ],
-          "display": "Gb  Db/Gb",
+          "display": "Gb  Db",
           "time_signature": "2/4"
         },
         {
@@ -8436,44 +8358,22 @@
             {
               "root": "C#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 1,
-              "display": "Db/Gb",
-              "start_time": 121.51,
-              "end_time": 121.835,
-              "duration": 0.325,
-              "beat_position": 1,
-              "bar_position": 170,
-              "beat": 1,
-              "beat_duration": 1.0,
-              "confidence": 0.66,
-              "needs_review": false,
-              "alternatives": []
-            },
-            {
-              "root": "C#",
-              "quality": "maj",
               "bass": "C#",
               "inversion": 0,
               "display": "Db",
-              "start_time": 121.835,
+              "start_time": 121.51,
               "end_time": 122.183,
-              "duration": 0.348,
-              "beat_position": 2,
+              "duration": 0.673,
+              "beat_position": 1,
               "bar_position": 170,
-              "beat": 2,
-              "beat_duration": 1.0,
-              "confidence": 0.49,
-              "needs_review": true,
-              "alternatives": [
-                {
-                  "chord": "G#",
-                  "probability": 0.17
-                }
-              ]
+              "beat": 1,
+              "beat_duration": 2.0,
+              "confidence": 0.66,
+              "needs_review": false,
+              "alternatives": []
             }
           ],
-          "display": "Db/Gb  Db",
+          "display": "Db",
           "time_signature": "2/4"
         },
         {
@@ -8621,48 +8521,22 @@
             {
               "root": "G#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 3,
-              "display": "Ab/Gb",
-              "start_time": 123.553,
-              "end_time": 123.902,
-              "duration": 0.348,
-              "beat_position": 1,
-              "bar_position": 173,
-              "beat": 1,
-              "beat_duration": 1.0,
-              "confidence": 0.56,
-              "needs_review": false,
-              "alternatives": []
-            },
-            {
-              "root": "G#",
-              "quality": "maj",
               "bass": "G#",
               "inversion": 0,
               "display": "Ab",
-              "start_time": 123.902,
+              "start_time": 123.553,
               "end_time": 124.25,
-              "duration": 0.348,
-              "beat_position": 2,
+              "duration": 0.697,
+              "beat_position": 1,
               "bar_position": 173,
-              "beat": 2,
-              "beat_duration": 1.0,
-              "confidence": 0.45,
-              "needs_review": true,
-              "alternatives": [
-                {
-                  "chord": "D#m7",
-                  "probability": 0.1
-                },
-                {
-                  "chord": "D#m",
-                  "probability": 0.08
-                }
-              ]
+              "beat": 1,
+              "beat_duration": 2.0,
+              "confidence": 0.56,
+              "needs_review": false,
+              "alternatives": []
             }
           ],
-          "display": "Ab/Gb  Ab",
+          "display": "Ab",
           "time_signature": "2/4"
         },
         {
@@ -8672,11 +8546,11 @@
           "beats": 2,
           "chords": [
             {
-              "root": "D#",
+              "root": "G#",
               "quality": "min",
               "bass": "G#",
-              "inversion": 1,
-              "display": "Ebm/Ab",
+              "inversion": 0,
+              "display": "Abm",
               "start_time": 124.25,
               "end_time": 124.575,
               "duration": 0.325,
@@ -8724,7 +8598,7 @@
               ]
             }
           ],
-          "display": "Ebm/Ab  Ebm",
+          "display": "Abm  Ebm",
           "time_signature": "2/4"
         },
         {
@@ -8801,7 +8675,7 @@
     },
     {
       "section_id": "sec_23",
-      "name": "SECTION G",
+      "name": "SECTION F",
       "start_time": 126.224,
       "end_time": 131.634,
       "start_bar": 177,
@@ -9179,7 +9053,7 @@
     },
     {
       "section_id": "sec_24",
-      "name": "SECTION H",
+      "name": "SECTION G",
       "start_time": 131.634,
       "end_time": 137.276,
       "start_bar": 185,
@@ -9226,16 +9100,16 @@
             {
               "root": "C#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 1,
-              "display": "Db/Gb",
+              "bass": "C#",
+              "inversion": 0,
+              "display": "Db",
               "start_time": 132.331,
-              "end_time": 132.656,
-              "duration": 0.325,
+              "end_time": 133.004,
+              "duration": 0.673,
               "beat_position": 1,
               "bar_position": 186,
               "beat": 1,
-              "beat_duration": 1.0,
+              "beat_duration": 2.0,
               "confidence": 0.49,
               "needs_review": true,
               "alternatives": [
@@ -9248,31 +9122,9 @@
                   "probability": 0.08
                 }
               ]
-            },
-            {
-              "root": "C#",
-              "quality": "maj",
-              "bass": "C#",
-              "inversion": 0,
-              "display": "Db",
-              "start_time": 132.656,
-              "end_time": 133.004,
-              "duration": 0.348,
-              "beat_position": 2,
-              "bar_position": 186,
-              "beat": 2,
-              "beat_duration": 1.0,
-              "confidence": 0.47,
-              "needs_review": true,
-              "alternatives": [
-                {
-                  "chord": "C#maj7",
-                  "probability": 0.39
-                }
-              ]
             }
           ],
-          "display": "Db/Gb  Db",
+          "display": "Db",
           "time_signature": "2/4"
         },
         {
@@ -9320,16 +9172,16 @@
             {
               "root": "A#",
               "quality": "min",
-              "bass": "A#",
-              "inversion": 0,
-              "display": "Bbm",
+              "bass": "F",
+              "inversion": 2,
+              "display": "Bbm/F",
               "start_time": 133.7,
-              "end_time": 134.374,
-              "duration": 0.674,
+              "end_time": 134.026,
+              "duration": 0.325,
               "beat_position": 1,
               "bar_position": 188,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.91,
               "needs_review": false,
               "alternatives": [
@@ -9342,9 +9194,35 @@
                   "probability": 0.43
                 }
               ]
+            },
+            {
+              "root": "A#",
+              "quality": "min",
+              "bass": "A#",
+              "inversion": 0,
+              "display": "Bbm",
+              "start_time": 134.026,
+              "end_time": 134.374,
+              "duration": 0.348,
+              "beat_position": 2,
+              "bar_position": 188,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.98,
+              "needs_review": false,
+              "alternatives": [
+                {
+                  "chord": "A#m7",
+                  "probability": 0.6
+                },
+                {
+                  "chord": "A#m",
+                  "probability": 0.38
+                }
+              ]
             }
           ],
-          "display": "Bbm",
+          "display": "Bbm/F  Bbm",
           "time_signature": "2/4"
         },
         {
@@ -9531,7 +9409,7 @@
     },
     {
       "section_id": "sec_25",
-      "name": "SECTION I",
+      "name": "SECTION H",
       "start_time": 137.276,
       "end_time": 142.756,
       "start_bar": 193,
@@ -9752,12 +9630,12 @@
               "inversion": 0,
               "display": "Bbm",
               "start_time": 139.32,
-              "end_time": 140.016,
-              "duration": 0.696,
+              "end_time": 139.668,
+              "duration": 0.348,
               "beat_position": 1,
               "bar_position": 196,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.23,
               "needs_review": true,
               "alternatives": [
@@ -9774,9 +9652,39 @@
                   "probability": 0.12
                 }
               ]
+            },
+            {
+              "root": "A#",
+              "quality": "min",
+              "bass": "F",
+              "inversion": 2,
+              "display": "Bbm/F",
+              "start_time": 139.668,
+              "end_time": 140.016,
+              "duration": 0.348,
+              "beat_position": 2,
+              "bar_position": 196,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.29,
+              "needs_review": true,
+              "alternatives": [
+                {
+                  "chord": "C#maj7",
+                  "probability": 0.24
+                },
+                {
+                  "chord": "A#m7",
+                  "probability": 0.12
+                },
+                {
+                  "chord": "F#maj7",
+                  "probability": 0.09
+                }
+              ]
             }
           ],
-          "display": "Bbm",
+          "display": "Bbm  Bbm/F",
           "time_signature": "2/4"
         },
         {
@@ -9951,7 +9859,7 @@
     },
     {
       "section_id": "sec_26",
-      "name": "SECTION J",
+      "name": "SECTION I",
       "start_time": 142.756,
       "end_time": 148.19,
       "start_bar": 201,
@@ -10036,16 +9944,16 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 0,
-              "display": "Gb",
+              "bass": "F",
+              "inversion": 3,
+              "display": "Gb/F",
               "start_time": 143.43,
-              "end_time": 144.126,
-              "duration": 0.696,
+              "end_time": 143.778,
+              "duration": 0.348,
               "beat_position": 1,
               "bar_position": 202,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.51,
               "needs_review": true,
               "alternatives": [
@@ -10062,9 +9970,39 @@
                   "probability": 0.1
                 }
               ]
+            },
+            {
+              "root": "F#",
+              "quality": "maj",
+              "bass": "F#",
+              "inversion": 0,
+              "display": "Gb",
+              "start_time": 143.778,
+              "end_time": 144.126,
+              "duration": 0.348,
+              "beat_position": 2,
+              "bar_position": 202,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.33,
+              "needs_review": true,
+              "alternatives": [
+                {
+                  "chord": "F#maj7",
+                  "probability": 0.31
+                },
+                {
+                  "chord": "A#m7",
+                  "probability": 0.26
+                },
+                {
+                  "chord": "D#m7",
+                  "probability": 0.15
+                }
+              ]
             }
           ],
-          "display": "Gb",
+          "display": "Gb/F  Gb",
           "time_signature": "2/4"
         },
         {
@@ -10280,9 +10218,9 @@
             {
               "root": "G#",
               "quality": "maj",
-              "bass": "G#",
-              "inversion": 0,
-              "display": "Ab",
+              "bass": "A#",
+              "inversion": 1,
+              "display": "Ab/Bb",
               "start_time": 146.866,
               "end_time": 147.215,
               "duration": 0.348,
@@ -10310,9 +10248,9 @@
             {
               "root": "D#",
               "quality": "min",
-              "bass": "G#",
-              "inversion": 1,
-              "display": "Ebm/Ab",
+              "bass": "D#",
+              "inversion": 0,
+              "display": "Ebm",
               "start_time": 147.215,
               "end_time": 147.54,
               "duration": 0.325,
@@ -10334,7 +10272,7 @@
               ]
             }
           ],
-          "display": "Ab  Ebm/Ab",
+          "display": "Ab/Bb  Ebm",
           "time_signature": "2/4"
         },
         {
@@ -10400,7 +10338,7 @@
     },
     {
       "section_id": "sec_27",
-      "name": "SECTION A",
+      "name": "SECTION J",
       "start_time": 148.19,
       "end_time": 153.6,
       "start_bar": 209,
@@ -10578,12 +10516,12 @@
               "inversion": 0,
               "display": "Gb",
               "start_time": 150.14,
-              "end_time": 150.489,
-              "duration": 0.348,
+              "end_time": 150.837,
+              "duration": 0.697,
               "beat_position": 1,
               "bar_position": 212,
               "beat": 1,
-              "beat_duration": 1.0,
+              "beat_duration": 2.0,
               "confidence": 0.56,
               "needs_review": false,
               "alternatives": [
@@ -10596,39 +10534,9 @@
                   "probability": 0.12
                 }
               ]
-            },
-            {
-              "root": "F#",
-              "quality": "maj",
-              "bass": "C#",
-              "inversion": 2,
-              "display": "Gb/Db",
-              "start_time": 150.489,
-              "end_time": 150.837,
-              "duration": 0.348,
-              "beat_position": 2,
-              "bar_position": 212,
-              "beat": 2,
-              "beat_duration": 1.0,
-              "confidence": 0.34,
-              "needs_review": true,
-              "alternatives": [
-                {
-                  "chord": "F#maj7",
-                  "probability": 0.27
-                },
-                {
-                  "chord": "C#maj7",
-                  "probability": 0.19
-                },
-                {
-                  "chord": "G#7",
-                  "probability": 0.11
-                }
-              ]
             }
           ],
-          "display": "Gb  Gb/Db",
+          "display": "Gb",
           "time_signature": "2/4"
         },
         {
@@ -10744,9 +10652,9 @@
             {
               "root": "D",
               "quality": "min",
-              "bass": "C#",
-              "inversion": 3,
-              "display": "Dm/Db",
+              "bass": "D",
+              "inversion": 0,
+              "display": "Dm",
               "start_time": 152.88,
               "end_time": 153.252,
               "duration": 0.372,
@@ -10798,7 +10706,7 @@
               ]
             }
           ],
-          "display": "Dm/Db  Bb/C",
+          "display": "Dm  Bb/C",
           "time_signature": "2/4"
         }
       ],
@@ -10807,7 +10715,7 @@
     },
     {
       "section_id": "sec_28",
-      "name": "SECTION B",
+      "name": "SECTION A",
       "start_time": 153.6,
       "end_time": 159.219,
       "start_bar": 217,
@@ -10848,9 +10756,9 @@
             {
               "root": "D#",
               "quality": "min",
-              "bass": "C",
-              "inversion": 1,
-              "display": "Ebm/C",
+              "bass": "D#",
+              "inversion": 0,
+              "display": "Ebm",
               "start_time": 153.948,
               "end_time": 154.32,
               "duration": 0.372,
@@ -10872,7 +10780,7 @@
               ]
             }
           ],
-          "display": "Bb/C  Ebm/C",
+          "display": "Bb/C  Ebm",
           "time_signature": "2/4"
         },
         {
@@ -10960,9 +10868,9 @@
             {
               "root": "F",
               "quality": "min",
-              "bass": "D#",
-              "inversion": 3,
-              "display": "Fm/Eb",
+              "bass": "F",
+              "inversion": 0,
+              "display": "Fm",
               "start_time": 155.411,
               "end_time": 155.759,
               "duration": 0.348,
@@ -10984,7 +10892,7 @@
               ]
             }
           ],
-          "display": "Ebm7  Fm/Eb",
+          "display": "Ebm7  Fm",
           "time_signature": "2/4"
         },
         {
@@ -11160,9 +11068,9 @@
             {
               "root": "A#",
               "quality": "min",
-              "bass": "A#",
-              "inversion": 0,
-              "display": "Bbm",
+              "bass": "G#",
+              "inversion": 3,
+              "display": "Bbm/Ab",
               "start_time": 158.198,
               "end_time": 158.523,
               "duration": 0.325,
@@ -11184,7 +11092,7 @@
               ]
             }
           ],
-          "display": "Fm/Ab  Bbm",
+          "display": "Fm/Ab  Bbm/Ab",
           "time_signature": "2/4"
         },
         {
@@ -11196,16 +11104,16 @@
             {
               "root": "A#",
               "quality": "min7",
-              "bass": "A#",
-              "inversion": 0,
-              "display": "Bbm7",
+              "bass": "G#",
+              "inversion": 3,
+              "display": "Bbm7/Ab",
               "start_time": 158.523,
-              "end_time": 159.219,
-              "duration": 0.696,
+              "end_time": 158.871,
+              "duration": 0.348,
               "beat_position": 1,
               "bar_position": 224,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.68,
               "needs_review": false,
               "alternatives": [
@@ -11214,9 +11122,31 @@
                   "probability": 0.31
                 }
               ]
+            },
+            {
+              "root": "A#",
+              "quality": "min7",
+              "bass": "A#",
+              "inversion": 0,
+              "display": "Bbm7",
+              "start_time": 158.871,
+              "end_time": 159.219,
+              "duration": 0.348,
+              "beat_position": 2,
+              "bar_position": 224,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.74,
+              "needs_review": false,
+              "alternatives": [
+                {
+                  "chord": "A#m",
+                  "probability": 0.25
+                }
+              ]
             }
           ],
-          "display": "Bbm7",
+          "display": "Bbm7/Ab  Bbm7",
           "time_signature": "2/4"
         }
       ],
@@ -11225,7 +11155,7 @@
     },
     {
       "section_id": "sec_29",
-      "name": "SECTION C",
+      "name": "SECTION I (Repeat)",
       "start_time": 159.219,
       "end_time": 164.722,
       "start_bar": 225,
@@ -11589,12 +11519,12 @@
           "time_signature": "2/4"
         }
       ],
-      "is_repeated": false,
-      "repeat_of_section_id": null
+      "is_repeated": true,
+      "repeat_of_section_id": "sec_11"
     },
     {
       "section_id": "sec_30",
-      "name": "SECTION D",
+      "name": "SECTION B",
       "start_time": 164.722,
       "end_time": 170.179,
       "start_bar": 233,
@@ -11677,9 +11607,9 @@
             {
               "root": "G#",
               "quality": "maj",
-              "bass": "G#",
-              "inversion": 0,
-              "display": "Ab",
+              "bass": "A#",
+              "inversion": 1,
+              "display": "Ab/Bb",
               "start_time": 166.069,
               "end_time": 166.394,
               "duration": 0.325,
@@ -11697,11 +11627,11 @@
               ]
             },
             {
-              "root": "D#",
+              "root": "G#",
               "quality": "min",
               "bass": "G#",
-              "inversion": 1,
-              "display": "Ebm/Ab",
+              "inversion": 0,
+              "display": "Abm",
               "start_time": 166.394,
               "end_time": 166.742,
               "duration": 0.348,
@@ -11727,7 +11657,7 @@
               ]
             }
           ],
-          "display": "Ab  Ebm/Ab",
+          "display": "Ab/Bb  Abm",
           "time_signature": "2/4"
         },
         {
@@ -11913,7 +11843,7 @@
     },
     {
       "section_id": "sec_31",
-      "name": "SECTION E",
+      "name": "SECTION C",
       "start_time": 170.179,
       "end_time": 175.659,
       "start_bar": 241,
@@ -12008,9 +11938,9 @@
             {
               "root": "A#",
               "quality": "min",
-              "bass": "C#",
-              "inversion": 1,
-              "display": "Bbm/Db",
+              "bass": "A#",
+              "inversion": 0,
+              "display": "Bbm",
               "start_time": 171.921,
               "end_time": 172.269,
               "duration": 0.348,
@@ -12028,7 +11958,7 @@
               ]
             }
           ],
-          "display": "Db  Bbm/Db",
+          "display": "Db  Bbm",
           "time_signature": "2/4"
         },
         {
@@ -12040,16 +11970,16 @@
             {
               "root": "A#",
               "quality": "min",
-              "bass": "A#",
-              "inversion": 0,
-              "display": "Bbm",
+              "bass": "G#",
+              "inversion": 3,
+              "display": "Bbm/Ab",
               "start_time": 172.269,
-              "end_time": 172.965,
-              "duration": 0.696,
+              "end_time": 172.617,
+              "duration": 0.348,
               "beat_position": 1,
               "bar_position": 244,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.98,
               "needs_review": false,
               "alternatives": [
@@ -12062,9 +11992,35 @@
                   "probability": 0.47
                 }
               ]
+            },
+            {
+              "root": "A#",
+              "quality": "min",
+              "bass": "A#",
+              "inversion": 0,
+              "display": "Bbm",
+              "start_time": 172.617,
+              "end_time": 172.965,
+              "duration": 0.348,
+              "beat_position": 2,
+              "bar_position": 244,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.98,
+              "needs_review": false,
+              "alternatives": [
+                {
+                  "chord": "A#m7",
+                  "probability": 0.55
+                },
+                {
+                  "chord": "A#m",
+                  "probability": 0.42
+                }
+              ]
             }
           ],
-          "display": "Bbm",
+          "display": "Bbm/Ab  Bbm",
           "time_signature": "2/4"
         },
         {
@@ -12277,7 +12233,7 @@
     },
     {
       "section_id": "sec_32",
-      "name": "SECTION F",
+      "name": "SECTION D",
       "start_time": 175.659,
       "end_time": 181.162,
       "start_bar": 249,
@@ -12434,16 +12390,16 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 0,
-              "display": "Gb",
+              "bass": "F",
+              "inversion": 3,
+              "display": "Gb/F",
               "start_time": 177.749,
-              "end_time": 178.399,
-              "duration": 0.65,
+              "end_time": 178.074,
+              "duration": 0.325,
               "beat_position": 1,
               "bar_position": 252,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.87,
               "needs_review": false,
               "alternatives": [
@@ -12460,9 +12416,35 @@
                   "probability": 0.09
                 }
               ]
+            },
+            {
+              "root": "F#",
+              "quality": "maj",
+              "bass": "F#",
+              "inversion": 0,
+              "display": "Gb",
+              "start_time": 178.074,
+              "end_time": 178.399,
+              "duration": 0.325,
+              "beat_position": 2,
+              "bar_position": 252,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.91,
+              "needs_review": false,
+              "alternatives": [
+                {
+                  "chord": "F#maj7",
+                  "probability": 0.56
+                },
+                {
+                  "chord": "F#",
+                  "probability": 0.35
+                }
+              ]
             }
           ],
-          "display": "Gb",
+          "display": "Gb/F  Gb",
           "time_signature": "2/4"
         },
         {
@@ -12559,9 +12541,9 @@
             {
               "root": "A#",
               "quality": "min",
-              "bass": "D#",
-              "inversion": 1,
-              "display": "Bbm/Eb",
+              "bass": "A#",
+              "inversion": 0,
+              "display": "Bbm",
               "start_time": 180.117,
               "end_time": 180.465,
               "duration": 0.348,
@@ -12579,7 +12561,7 @@
               ]
             }
           ],
-          "display": "Db  Bbm/Eb",
+          "display": "Db  Bbm",
           "time_signature": "2/4"
         },
         {
@@ -12642,7 +12624,7 @@
     },
     {
       "section_id": "sec_33",
-      "name": "SECTION G",
+      "name": "SECTION E",
       "start_time": 181.162,
       "end_time": 186.642,
       "start_bar": 257,
@@ -12986,7 +12968,7 @@
     },
     {
       "section_id": "sec_34",
-      "name": "SECTION H",
+      "name": "SECTION F",
       "start_time": 186.642,
       "end_time": 192.122,
       "start_bar": 265,
@@ -13317,7 +13299,7 @@
     },
     {
       "section_id": "sec_35",
-      "name": "SECTION H (Repeat)",
+      "name": "SECTION D (Repeat)",
       "start_time": 192.122,
       "end_time": 197.602,
       "start_bar": 273,
@@ -13468,12 +13450,12 @@
               "inversion": 0,
               "display": "Bbm",
               "start_time": 194.862,
-              "end_time": 195.558,
-              "duration": 0.696,
+              "end_time": 195.21,
+              "duration": 0.348,
               "beat_position": 1,
               "bar_position": 277,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.6,
               "needs_review": false,
               "alternatives": [
@@ -13482,9 +13464,31 @@
                   "probability": 0.38
                 }
               ]
+            },
+            {
+              "root": "A#",
+              "quality": "min",
+              "bass": "F",
+              "inversion": 2,
+              "display": "Bbm/F",
+              "start_time": 195.21,
+              "end_time": 195.558,
+              "duration": 0.348,
+              "beat_position": 2,
+              "bar_position": 277,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.59,
+              "needs_review": false,
+              "alternatives": [
+                {
+                  "chord": "A#m7",
+                  "probability": 0.39
+                }
+              ]
             }
           ],
-          "display": "Bbm",
+          "display": "Bbm  Bbm/F",
           "time_signature": "2/4"
         },
         {
@@ -13550,9 +13554,9 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 0,
-              "display": "Gb",
+              "bass": "F",
+              "inversion": 3,
+              "display": "Gb/F",
               "start_time": 196.58,
               "end_time": 196.928,
               "duration": 0.348,
@@ -13574,7 +13578,7 @@
               ]
             }
           ],
-          "display": "Bbm  Gb",
+          "display": "Bbm  Gb/F",
           "time_signature": "2/4"
         },
         {
@@ -13611,11 +13615,11 @@
         }
       ],
       "is_repeated": true,
-      "repeat_of_section_id": "sec_9"
+      "repeat_of_section_id": "sec_32"
     },
     {
       "section_id": "sec_36",
-      "name": "SECTION I",
+      "name": "SECTION G",
       "start_time": 197.602,
       "end_time": 203.105,
       "start_bar": 281,
@@ -13942,9 +13946,9 @@
             {
               "root": "A#",
               "quality": "min",
-              "bass": "F",
-              "inversion": 2,
-              "display": "Bbm/F",
+              "bass": "A#",
+              "inversion": 0,
+              "display": "Bbm",
               "start_time": 202.06,
               "end_time": 202.408,
               "duration": 0.348,
@@ -13962,7 +13966,7 @@
               ]
             }
           ],
-          "display": "Fm  Bbm/F",
+          "display": "Fm  Bbm",
           "time_signature": "2/4"
         },
         {
@@ -13974,16 +13978,16 @@
             {
               "root": "A#",
               "quality": "min",
-              "bass": "A#",
-              "inversion": 0,
-              "display": "Bbm",
+              "bass": "F",
+              "inversion": 2,
+              "display": "Bbm/F",
               "start_time": 202.408,
-              "end_time": 203.105,
-              "duration": 0.697,
+              "end_time": 202.757,
+              "duration": 0.348,
               "beat_position": 1,
               "bar_position": 288,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.67,
               "needs_review": false,
               "alternatives": [
@@ -13992,9 +13996,31 @@
                   "probability": 0.3
                 }
               ]
+            },
+            {
+              "root": "A#",
+              "quality": "min",
+              "bass": "A#",
+              "inversion": 0,
+              "display": "Bbm",
+              "start_time": 202.757,
+              "end_time": 203.105,
+              "duration": 0.348,
+              "beat_position": 2,
+              "bar_position": 288,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.65,
+              "needs_review": false,
+              "alternatives": [
+                {
+                  "chord": "A#m7",
+                  "probability": 0.33
+                }
+              ]
             }
           ],
-          "display": "Bbm",
+          "display": "Bbm/F  Bbm",
           "time_signature": "2/4"
         }
       ],
@@ -14003,7 +14029,7 @@
     },
     {
       "section_id": "sec_37",
-      "name": "SECTION G (Repeat)",
+      "name": "SECTION E (Repeat)",
       "start_time": 203.105,
       "end_time": 208.585,
       "start_bar": 289,
@@ -14309,7 +14335,7 @@
     },
     {
       "section_id": "sec_38",
-      "name": "SECTION J",
+      "name": "SECTION C (Repeat)",
       "start_time": 208.585,
       "end_time": 214.065,
       "start_bar": 297,
@@ -14648,12 +14674,12 @@
           "time_signature": "2/4"
         }
       ],
-      "is_repeated": false,
-      "repeat_of_section_id": null
+      "is_repeated": true,
+      "repeat_of_section_id": "sec_4"
     },
     {
       "section_id": "sec_39",
-      "name": "SECTION A",
+      "name": "SECTION B (Repeat)",
       "start_time": 214.065,
       "end_time": 219.568,
       "start_bar": 305,
@@ -14992,12 +15018,12 @@
           "time_signature": "2/4"
         }
       ],
-      "is_repeated": false,
-      "repeat_of_section_id": null
+      "is_repeated": true,
+      "repeat_of_section_id": "sec_3"
     },
     {
       "section_id": "sec_40",
-      "name": "SECTION J (Repeat)",
+      "name": "SECTION C (Repeat)",
       "start_time": 219.568,
       "end_time": 225.048,
       "start_bar": 313,
@@ -15272,9 +15298,9 @@
             {
               "root": "A#",
               "quality": "min",
-              "bass": "D#",
-              "inversion": 1,
-              "display": "Bbm/Eb",
+              "bass": "A#",
+              "inversion": 0,
+              "display": "Bbm",
               "start_time": 224.003,
               "end_time": 224.351,
               "duration": 0.348,
@@ -15292,7 +15318,7 @@
               ]
             }
           ],
-          "display": "Ebm  Bbm/Eb",
+          "display": "Ebm  Bbm",
           "time_signature": "2/4"
         },
         {
@@ -15329,11 +15355,11 @@
         }
       ],
       "is_repeated": true,
-      "repeat_of_section_id": "sec_38"
+      "repeat_of_section_id": "sec_4"
     },
     {
       "section_id": "sec_41",
-      "name": "SECTION A (Repeat)",
+      "name": "SECTION B (Repeat)",
       "start_time": 225.048,
       "end_time": 230.551,
       "start_bar": 321,
@@ -15637,11 +15663,11 @@
         }
       ],
       "is_repeated": true,
-      "repeat_of_section_id": "sec_39"
+      "repeat_of_section_id": "sec_3"
     },
     {
       "section_id": "sec_42",
-      "name": "SECTION H (Repeat)",
+      "name": "SECTION F (Repeat)",
       "start_time": 230.551,
       "end_time": 236.008,
       "start_bar": 329,
@@ -15955,7 +15981,7 @@
     },
     {
       "section_id": "sec_43",
-      "name": "SECTION B",
+      "name": "SECTION H",
       "start_time": 236.008,
       "end_time": 241.511,
       "start_bar": 337,
@@ -16056,16 +16082,16 @@
             {
               "root": "A#",
               "quality": "min",
-              "bass": "A#",
-              "inversion": 0,
-              "display": "Bbm",
+              "bass": "G#",
+              "inversion": 3,
+              "display": "Bbm/Ab",
               "start_time": 237.378,
-              "end_time": 238.074,
-              "duration": 0.696,
+              "end_time": 237.726,
+              "duration": 0.348,
               "beat_position": 1,
               "bar_position": 339,
               "beat": 1,
-              "beat_duration": 2.0,
+              "beat_duration": 1.0,
               "confidence": 0.69,
               "needs_review": false,
               "alternatives": [
@@ -16078,9 +16104,31 @@
                   "probability": 0.12
                 }
               ]
+            },
+            {
+              "root": "A#",
+              "quality": "min",
+              "bass": "A#",
+              "inversion": 0,
+              "display": "Bbm",
+              "start_time": 237.726,
+              "end_time": 238.074,
+              "duration": 0.348,
+              "beat_position": 2,
+              "bar_position": 339,
+              "beat": 2,
+              "beat_duration": 1.0,
+              "confidence": 0.74,
+              "needs_review": false,
+              "alternatives": [
+                {
+                  "chord": "A#m7",
+                  "probability": 0.21
+                }
+              ]
             }
           ],
-          "display": "Bbm",
+          "display": "Bbm/Ab  Bbm",
           "time_signature": "2/4"
         },
         {
@@ -16188,9 +16236,9 @@
             {
               "root": "C#",
               "quality": "maj",
-              "bass": "C#",
-              "inversion": 0,
-              "display": "Db",
+              "bass": "A#",
+              "inversion": 1,
+              "display": "Db/Bb",
               "start_time": 240.118,
               "end_time": 240.466,
               "duration": 0.348,
@@ -16218,9 +16266,9 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "F#",
-              "inversion": 0,
-              "display": "Gb",
+              "bass": "F",
+              "inversion": 3,
+              "display": "Gb/F",
               "start_time": 240.466,
               "end_time": 240.814,
               "duration": 0.348,
@@ -16242,7 +16290,7 @@
               ]
             }
           ],
-          "display": "Db  Gb",
+          "display": "Db/Bb  Gb/F",
           "time_signature": "2/4"
         },
         {
@@ -16287,7 +16335,7 @@
     },
     {
       "section_id": "sec_44",
-      "name": "SECTION C",
+      "name": "SECTION I",
       "start_time": 241.511,
       "end_time": 246.294,
       "start_bar": 345,
@@ -16302,9 +16350,9 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "C#",
-              "inversion": 2,
-              "display": "Gb/Db",
+              "bass": "F#",
+              "inversion": 0,
+              "display": "Gb",
               "start_time": 241.511,
               "end_time": 241.836,
               "duration": 0.325,
@@ -16360,7 +16408,7 @@
               ]
             }
           ],
-          "display": "Gb/Db  Gb/Bb",
+          "display": "Gb  Gb/Bb",
           "time_signature": "2/4"
         },
         {
@@ -16514,9 +16562,9 @@
             {
               "root": "F#",
               "quality": "maj",
-              "bass": "C#",
-              "inversion": 2,
-              "display": "Gb/Db",
+              "bass": "F#",
+              "inversion": 0,
+              "display": "Gb",
               "start_time": 244.251,
               "end_time": 244.576,
               "duration": 0.325,
@@ -16559,7 +16607,7 @@
               "alternatives": []
             }
           ],
-          "display": "Gb/Db  Db/Bb",
+          "display": "Gb  Db/Bb",
           "time_signature": "2/4"
         },
         {
@@ -17313,9 +17361,9 @@
     {
       "root": "A#",
       "quality": "min",
-      "bass": "G#",
-      "inversion": 3,
-      "display": "Bbm/Ab",
+      "bass": "A#",
+      "inversion": 0,
+      "display": "Bbm",
       "start_time": 18.297,
       "end_time": 18.622,
       "duration": 0.325,
@@ -17668,9 +17716,9 @@
     {
       "root": "A#",
       "quality": "min",
-      "bass": "C#",
-      "inversion": 1,
-      "display": "Bbm/Db",
+      "bass": "A#",
+      "inversion": 0,
+      "display": "Bbm",
       "start_time": 23.8,
       "end_time": 24.126,
       "duration": 0.325,
@@ -18886,9 +18934,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "A#",
-      "inversion": 1,
-      "display": "Gb/Bb",
+      "bass": "F#",
+      "inversion": 0,
+      "display": "Gb",
       "start_time": 41.262,
       "end_time": 41.61,
       "duration": 0.348,
@@ -18916,9 +18964,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "A#",
-      "inversion": 1,
-      "display": "Gb/Bb",
+      "bass": "F#",
+      "inversion": 0,
+      "display": "Gb",
       "start_time": 41.61,
       "end_time": 41.958,
       "duration": 0.348,
@@ -18946,9 +18994,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "A#",
-      "inversion": 1,
-      "display": "Gb/Bb",
+      "bass": "F#",
+      "inversion": 0,
+      "display": "Gb",
       "start_time": 41.958,
       "end_time": 42.307,
       "duration": 0.348,
@@ -19002,9 +19050,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "A#",
-      "inversion": 1,
-      "display": "Gb/Bb",
+      "bass": "F#",
+      "inversion": 0,
+      "display": "Gb",
       "start_time": 42.655,
       "end_time": 43.003,
       "duration": 0.348,
@@ -19028,9 +19076,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "A#",
-      "inversion": 1,
-      "display": "Gb/Bb",
+      "bass": "F#",
+      "inversion": 0,
+      "display": "Gb",
       "start_time": 43.003,
       "end_time": 43.375,
       "duration": 0.372,
@@ -19305,9 +19353,9 @@
     {
       "root": "D#",
       "quality": "min7",
-      "bass": "A#",
-      "inversion": 2,
-      "display": "Ebm7/Bb",
+      "bass": "D#",
+      "inversion": 0,
+      "display": "Ebm7",
       "start_time": 46.765,
       "end_time": 47.113,
       "duration": 0.348,
@@ -19327,9 +19375,9 @@
     {
       "root": "D#",
       "quality": "min7",
-      "bass": "A#",
-      "inversion": 2,
-      "display": "Ebm7/Bb",
+      "bass": "D#",
+      "inversion": 0,
+      "display": "Ebm7",
       "start_time": 47.113,
       "end_time": 47.462,
       "duration": 0.348,
@@ -19791,9 +19839,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "G#",
-      "inversion": 1,
-      "display": "Gb/Ab",
+      "bass": "F#",
+      "inversion": 0,
+      "display": "Gb",
       "start_time": 54.311,
       "end_time": 54.637,
       "duration": 0.325,
@@ -20123,9 +20171,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "G#",
-      "inversion": 1,
-      "display": "Gb/Ab",
+      "bass": "F#",
+      "inversion": 0,
+      "display": "Gb",
       "start_time": 58.421,
       "end_time": 58.77,
       "duration": 0.348,
@@ -20175,9 +20223,9 @@
     {
       "root": "C#",
       "quality": "maj",
-      "bass": "F",
-      "inversion": 1,
-      "display": "Db/F",
+      "bass": "C#",
+      "inversion": 0,
+      "display": "Db",
       "start_time": 59.095,
       "end_time": 59.443,
       "duration": 0.348,
@@ -20197,9 +20245,9 @@
     {
       "root": "C#",
       "quality": "maj",
-      "bass": "F",
-      "inversion": 1,
-      "display": "Db/F",
+      "bass": "C#",
+      "inversion": 0,
+      "display": "Db",
       "start_time": 59.443,
       "end_time": 59.791,
       "duration": 0.348,
@@ -20423,9 +20471,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 0,
-      "display": "Gb",
+      "bass": "G#",
+      "inversion": 1,
+      "display": "Gb/Ab",
       "start_time": 62.531,
       "end_time": 62.88,
       "duration": 0.348,
@@ -21536,9 +21584,9 @@
     {
       "root": "F",
       "quality": "maj",
-      "bass": "A",
-      "inversion": 1,
-      "display": "F/A",
+      "bass": "F",
+      "inversion": 0,
+      "display": "F",
       "start_time": 78.298,
       "end_time": 78.646,
       "duration": 0.348,
@@ -21726,9 +21774,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "G#",
-      "inversion": 1,
-      "display": "Gb/Ab",
+      "bass": "F#",
+      "inversion": 0,
+      "display": "Gb",
       "start_time": 80.713,
       "end_time": 81.061,
       "duration": 0.348,
@@ -21778,9 +21826,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "C#",
-      "inversion": 2,
-      "display": "Gb/Db",
+      "bass": "F#",
+      "inversion": 0,
+      "display": "Gb",
       "start_time": 81.409,
       "end_time": 81.734,
       "duration": 0.325,
@@ -22008,9 +22056,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 0,
-      "display": "Gb",
+      "bass": "G#",
+      "inversion": 1,
+      "display": "Gb/Ab",
       "start_time": 84.474,
       "end_time": 84.822,
       "duration": 0.348,
@@ -23386,9 +23434,9 @@
     {
       "root": "D#",
       "quality": "min7",
-      "bass": "D#",
-      "inversion": 0,
-      "display": "Ebm7",
+      "bass": "A#",
+      "inversion": 2,
+      "display": "Ebm7/Bb",
       "start_time": 103.329,
       "end_time": 103.654,
       "duration": 0.325,
@@ -23460,9 +23508,9 @@
     {
       "root": "F",
       "quality": "min",
-      "bass": "F",
-      "inversion": 0,
-      "display": "Fm",
+      "bass": "D#",
+      "inversion": 3,
+      "display": "Fm/Eb",
       "start_time": 104.35,
       "end_time": 104.699,
       "duration": 0.348,
@@ -23692,9 +23740,9 @@
     {
       "root": "G#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 3,
-      "display": "Ab/Gb",
+      "bass": "G#",
+      "inversion": 0,
+      "display": "Ab",
       "start_time": 107.09,
       "end_time": 107.439,
       "duration": 0.348,
@@ -23872,9 +23920,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 0,
-      "display": "Gb",
+      "bass": "F",
+      "inversion": 3,
+      "display": "Gb/F",
       "start_time": 109.157,
       "end_time": 109.482,
       "duration": 0.325,
@@ -23958,9 +24006,9 @@
     {
       "root": "C#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 1,
-      "display": "Db/Gb",
+      "bass": "C#",
+      "inversion": 0,
+      "display": "Db",
       "start_time": 110.179,
       "end_time": 110.527,
       "duration": 0.348,
@@ -23988,9 +24036,9 @@
     {
       "root": "C#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 1,
-      "display": "Db/Gb",
+      "bass": "C#",
+      "inversion": 0,
+      "display": "Db",
       "start_time": 110.527,
       "end_time": 110.875,
       "duration": 0.348,
@@ -24140,9 +24188,9 @@
     {
       "root": "G#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 3,
-      "display": "Ab/Gb",
+      "bass": "G#",
+      "inversion": 0,
+      "display": "Ab",
       "start_time": 112.594,
       "end_time": 112.919,
       "duration": 0.325,
@@ -24186,11 +24234,11 @@
       ]
     },
     {
-      "root": "D#",
+      "root": "G#",
       "quality": "min",
       "bass": "G#",
-      "inversion": 1,
-      "display": "Ebm/Ab",
+      "inversion": 0,
+      "display": "Abm",
       "start_time": 113.267,
       "end_time": 113.615,
       "duration": 0.348,
@@ -24360,9 +24408,9 @@
     {
       "root": "F",
       "quality": "min",
-      "bass": "F",
-      "inversion": 0,
-      "display": "Fm",
+      "bass": "D#",
+      "inversion": 3,
+      "display": "Fm/Eb",
       "start_time": 115.334,
       "end_time": 115.682,
       "duration": 0.348,
@@ -24420,9 +24468,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 0,
-      "display": "Gb",
+      "bass": "F",
+      "inversion": 3,
+      "display": "Gb/F",
       "start_time": 116.03,
       "end_time": 116.355,
       "duration": 0.325,
@@ -24600,9 +24648,9 @@
     {
       "root": "G#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 3,
-      "display": "Ab/Gb",
+      "bass": "G#",
+      "inversion": 0,
+      "display": "Ab",
       "start_time": 118.073,
       "end_time": 118.422,
       "duration": 0.348,
@@ -24646,11 +24694,11 @@
       ]
     },
     {
-      "root": "D#",
+      "root": "G#",
       "quality": "min",
       "bass": "G#",
-      "inversion": 1,
-      "display": "Ebm/Ab",
+      "inversion": 0,
+      "display": "Abm",
       "start_time": 118.747,
       "end_time": 119.095,
       "duration": 0.348,
@@ -24760,9 +24808,9 @@
     {
       "root": "D#",
       "quality": "min",
-      "bass": "D#",
-      "inversion": 0,
-      "display": "Ebm",
+      "bass": "F",
+      "inversion": 1,
+      "display": "Ebm/F",
       "start_time": 120.117,
       "end_time": 120.465,
       "duration": 0.348,
@@ -24850,9 +24898,9 @@
     {
       "root": "C#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 1,
-      "display": "Db/Gb",
+      "bass": "C#",
+      "inversion": 0,
+      "display": "Db",
       "start_time": 121.162,
       "end_time": 121.51,
       "duration": 0.348,
@@ -24876,9 +24924,9 @@
     {
       "root": "C#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 1,
-      "display": "Db/Gb",
+      "bass": "C#",
+      "inversion": 0,
+      "display": "Db",
       "start_time": 121.51,
       "end_time": 121.835,
       "duration": 0.325,
@@ -25031,9 +25079,9 @@
     {
       "root": "G#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 3,
-      "display": "Ab/Gb",
+      "bass": "G#",
+      "inversion": 0,
+      "display": "Ab",
       "start_time": 123.553,
       "end_time": 123.902,
       "duration": 0.348,
@@ -25072,11 +25120,11 @@
       ]
     },
     {
-      "root": "D#",
+      "root": "G#",
       "quality": "min",
       "bass": "G#",
-      "inversion": 1,
-      "display": "Ebm/Ab",
+      "inversion": 0,
+      "display": "Abm",
       "start_time": 124.25,
       "end_time": 124.575,
       "duration": 0.325,
@@ -25690,9 +25738,9 @@
     {
       "root": "C#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 1,
-      "display": "Db/Gb",
+      "bass": "C#",
+      "inversion": 0,
+      "display": "Db",
       "start_time": 132.331,
       "end_time": 132.656,
       "duration": 0.325,
@@ -25794,9 +25842,9 @@
     {
       "root": "A#",
       "quality": "min",
-      "bass": "A#",
-      "inversion": 0,
-      "display": "Bbm",
+      "bass": "F",
+      "inversion": 2,
+      "display": "Bbm/F",
       "start_time": 133.7,
       "end_time": 134.026,
       "duration": 0.325,
@@ -26260,9 +26308,9 @@
     {
       "root": "A#",
       "quality": "min",
-      "bass": "A#",
-      "inversion": 0,
-      "display": "Bbm",
+      "bass": "F",
+      "inversion": 2,
+      "display": "Bbm/F",
       "start_time": 139.668,
       "end_time": 140.016,
       "duration": 0.348,
@@ -26550,9 +26598,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 0,
-      "display": "Gb",
+      "bass": "F",
+      "inversion": 3,
+      "display": "Gb/F",
       "start_time": 143.43,
       "end_time": 143.778,
       "duration": 0.348,
@@ -26830,9 +26878,9 @@
     {
       "root": "G#",
       "quality": "maj",
-      "bass": "G#",
-      "inversion": 0,
-      "display": "Ab",
+      "bass": "A#",
+      "inversion": 1,
+      "display": "Ab/Bb",
       "start_time": 146.866,
       "end_time": 147.215,
       "duration": 0.348,
@@ -26860,9 +26908,9 @@
     {
       "root": "D#",
       "quality": "min",
-      "bass": "G#",
-      "inversion": 1,
-      "display": "Ebm/Ab",
+      "bass": "D#",
+      "inversion": 0,
+      "display": "Ebm",
       "start_time": 147.215,
       "end_time": 147.54,
       "duration": 0.325,
@@ -27088,9 +27136,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "C#",
-      "inversion": 2,
-      "display": "Gb/Db",
+      "bass": "F#",
+      "inversion": 0,
+      "display": "Gb",
       "start_time": 150.489,
       "end_time": 150.837,
       "duration": 0.348,
@@ -27274,9 +27322,9 @@
     {
       "root": "D",
       "quality": "min",
-      "bass": "C#",
-      "inversion": 3,
-      "display": "Dm/Db",
+      "bass": "D",
+      "inversion": 0,
+      "display": "Dm",
       "start_time": 152.88,
       "end_time": 153.252,
       "duration": 0.372,
@@ -27356,9 +27404,9 @@
     {
       "root": "D#",
       "quality": "min",
-      "bass": "C",
-      "inversion": 1,
-      "display": "Ebm/C",
+      "bass": "D#",
+      "inversion": 0,
+      "display": "Ebm",
       "start_time": 153.948,
       "end_time": 154.32,
       "duration": 0.372,
@@ -27448,9 +27496,9 @@
     {
       "root": "F",
       "quality": "min",
-      "bass": "D#",
-      "inversion": 3,
-      "display": "Fm/Eb",
+      "bass": "F",
+      "inversion": 0,
+      "display": "Fm",
       "start_time": 155.411,
       "end_time": 155.759,
       "duration": 0.348,
@@ -27652,9 +27700,9 @@
     {
       "root": "A#",
       "quality": "min",
-      "bass": "A#",
-      "inversion": 0,
-      "display": "Bbm",
+      "bass": "G#",
+      "inversion": 3,
+      "display": "Bbm/Ab",
       "start_time": 158.198,
       "end_time": 158.523,
       "duration": 0.325,
@@ -27678,9 +27726,9 @@
     {
       "root": "A#",
       "quality": "min7",
-      "bass": "A#",
-      "inversion": 0,
-      "display": "Bbm7",
+      "bass": "G#",
+      "inversion": 3,
+      "display": "Bbm7/Ab",
       "start_time": 158.523,
       "end_time": 158.871,
       "duration": 0.348,
@@ -28216,9 +28264,9 @@
     {
       "root": "G#",
       "quality": "maj",
-      "bass": "G#",
-      "inversion": 0,
-      "display": "Ab",
+      "bass": "A#",
+      "inversion": 1,
+      "display": "Ab/Bb",
       "start_time": 166.069,
       "end_time": 166.394,
       "duration": 0.325,
@@ -28236,11 +28284,11 @@
       ]
     },
     {
-      "root": "D#",
+      "root": "G#",
       "quality": "min",
       "bass": "G#",
-      "inversion": 1,
-      "display": "Ebm/Ab",
+      "inversion": 0,
+      "display": "Abm",
       "start_time": 166.394,
       "end_time": 166.742,
       "duration": 0.348,
@@ -28572,9 +28620,9 @@
     {
       "root": "A#",
       "quality": "min",
-      "bass": "C#",
-      "inversion": 1,
-      "display": "Bbm/Db",
+      "bass": "A#",
+      "inversion": 0,
+      "display": "Bbm",
       "start_time": 171.921,
       "end_time": 172.269,
       "duration": 0.348,
@@ -28594,9 +28642,9 @@
     {
       "root": "A#",
       "quality": "min",
-      "bass": "A#",
-      "inversion": 0,
-      "display": "Bbm",
+      "bass": "G#",
+      "inversion": 3,
+      "display": "Bbm/Ab",
       "start_time": 172.269,
       "end_time": 172.617,
       "duration": 0.348,
@@ -29030,9 +29078,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 0,
-      "display": "Gb",
+      "bass": "F",
+      "inversion": 3,
+      "display": "Gb/F",
       "start_time": 177.749,
       "end_time": 178.074,
       "duration": 0.325,
@@ -29198,9 +29246,9 @@
     {
       "root": "A#",
       "quality": "min",
-      "bass": "D#",
-      "inversion": 1,
-      "display": "Bbm/Eb",
+      "bass": "A#",
+      "inversion": 0,
+      "display": "Bbm",
       "start_time": 180.117,
       "end_time": 180.465,
       "duration": 0.348,
@@ -30235,9 +30283,9 @@
     {
       "root": "A#",
       "quality": "min",
-      "bass": "A#",
-      "inversion": 0,
-      "display": "Bbm",
+      "bass": "F",
+      "inversion": 2,
+      "display": "Bbm/F",
       "start_time": 195.21,
       "end_time": 195.558,
       "duration": 0.348,
@@ -30323,9 +30371,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 0,
-      "display": "Gb",
+      "bass": "F",
+      "inversion": 3,
+      "display": "Gb/F",
       "start_time": 196.58,
       "end_time": 196.928,
       "duration": 0.348,
@@ -30719,9 +30767,9 @@
     {
       "root": "A#",
       "quality": "min",
-      "bass": "F",
-      "inversion": 2,
-      "display": "Bbm/F",
+      "bass": "A#",
+      "inversion": 0,
+      "display": "Bbm",
       "start_time": 202.06,
       "end_time": 202.408,
       "duration": 0.348,
@@ -30741,9 +30789,9 @@
     {
       "root": "A#",
       "quality": "min",
-      "bass": "A#",
-      "inversion": 0,
-      "display": "Bbm",
+      "bass": "F",
+      "inversion": 2,
+      "display": "Bbm/F",
       "start_time": 202.408,
       "end_time": 202.757,
       "duration": 0.348,
@@ -32255,9 +32303,9 @@
     {
       "root": "A#",
       "quality": "min",
-      "bass": "D#",
-      "inversion": 1,
-      "display": "Bbm/Eb",
+      "bass": "A#",
+      "inversion": 0,
+      "display": "Bbm",
       "start_time": 224.003,
       "end_time": 224.351,
       "duration": 0.348,
@@ -33135,9 +33183,9 @@
     {
       "root": "A#",
       "quality": "min",
-      "bass": "A#",
-      "inversion": 0,
-      "display": "Bbm",
+      "bass": "G#",
+      "inversion": 3,
+      "display": "Bbm/Ab",
       "start_time": 237.378,
       "end_time": 237.726,
       "duration": 0.348,
@@ -33319,9 +33367,9 @@
     {
       "root": "C#",
       "quality": "maj",
-      "bass": "C#",
-      "inversion": 0,
-      "display": "Db",
+      "bass": "A#",
+      "inversion": 1,
+      "display": "Db/Bb",
       "start_time": 240.118,
       "end_time": 240.466,
       "duration": 0.348,
@@ -33349,9 +33397,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "F#",
-      "inversion": 0,
-      "display": "Gb",
+      "bass": "F",
+      "inversion": 3,
+      "display": "Gb/F",
       "start_time": 240.466,
       "end_time": 240.814,
       "duration": 0.348,
@@ -33427,9 +33475,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "C#",
-      "inversion": 2,
-      "display": "Gb/Db",
+      "bass": "F#",
+      "inversion": 0,
+      "display": "Gb",
       "start_time": 241.511,
       "end_time": 241.836,
       "duration": 0.325,
@@ -33651,9 +33699,9 @@
     {
       "root": "F#",
       "quality": "maj",
-      "bass": "C#",
-      "inversion": 2,
-      "display": "Gb/Db",
+      "bass": "F#",
+      "inversion": 0,
+      "display": "Gb",
       "start_time": 244.251,
       "end_time": 244.576,
       "duration": 0.325,

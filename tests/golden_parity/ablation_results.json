@@ -39,7 +39,7 @@
     "timing_accuracy_sec": 0.0,
     "slash_chords_detected": 65
   },
-  "F. Lightweight Side-Channel + Sub-Bass + Simplicity": {
+  "F. Phase 2 Baseline (Side-Channel + Sub-Bass + Simplicity)": {
     "root_accuracy_pct": 86.61,
     "quality_accuracy_pct": 83.19,
     "inversion_accuracy_pct": 79.06,
@@ -47,12 +47,28 @@
     "timing_accuracy_sec": 0.0,
     "slash_chords_detected": 70
   },
-  "G. Stems (Demucs Accompaniment) + BTC + Sub-Bass": {
-    "root_accuracy_pct": 39.74,
-    "quality_accuracy_pct": 44.59,
-    "inversion_accuracy_pct": 36.89,
-    "full_chord_accuracy_pct": 26.07,
+  "G. Phase 3 Improved Inversion (Structural vs Passing Bass + Sub-90Hz Activity Gate)": {
+    "root_accuracy_pct": 86.61,
+    "quality_accuracy_pct": 83.19,
+    "inversion_accuracy_pct": 79.06,
+    "full_chord_accuracy_pct": 71.79,
     "timing_accuracy_sec": 0.0,
-    "slash_chords_detected": 212
+    "slash_chords_detected": 60
+  },
+  "H. Phase 3 Improved Inversion + Key-Aware Diatonic Bass Disambiguation": {
+    "root_accuracy_pct": 86.47,
+    "quality_accuracy_pct": 83.19,
+    "inversion_accuracy_pct": 78.92,
+    "full_chord_accuracy_pct": 71.51,
+    "timing_accuracy_sec": 0.0,
+    "slash_chords_detected": 56
+  },
+  "I. Phase 3 Full Candidate (Structural Bass + Key-Aware Disambiguation + Multi-Source Fusion)": {
+    "root_accuracy_pct": 86.47,
+    "quality_accuracy_pct": 83.19,
+    "inversion_accuracy_pct": 78.92,
+    "full_chord_accuracy_pct": 71.51,
+    "timing_accuracy_sec": 0.0,
+    "slash_chords_detected": 56
   }
 }
