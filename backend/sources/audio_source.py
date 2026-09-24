@@ -199,39 +199,69 @@ class YouTubeAudioExtractor:
         return None
 
     @classmethod
+    def _get_extraction_strategies(cls) -> list[Dict[str, Any]]:
+        """
+        Ordered strategies to bypass bot checks, SABR streaming barriers, and login prompts.
+        1. android & ios clients (primary, bypasses 'Sign in to confirm you’re not a bot')
+        2. android client alone
+        3. ios client alone
+        4. web & mweb clients fallback
+        """
+        return [
+            {'player_client': ['android', 'ios']},
+            {'player_client': ['android']},
+            {'player_client': ['ios']},
+            {'player_client': ['mweb', 'web']},
+        ]
+
+    @classmethod
     def get_video_info(cls, url: str) -> Dict[str, Any]:
         """Extracts video metadata quickly without downloading media."""
         import yt_dlp
+        import shutil
         ffmpeg_dir = cls.get_ffmpeg_dir()
-        opts: Dict[str, Any] = {
-            'skip_download': True,
-            'quiet': True,
-            'no_warnings': True,
-            'noplaylist': True,
-        }
-        if ffmpeg_dir:
-            opts['ffmpeg_location'] = ffmpeg_dir
+        node_path = shutil.which("node")
 
-        try:
-            with yt_dlp.YoutubeDL(opts) as ydl:
-                info = ydl.extract_info(url.strip(), download=False)
-                vid = info.get("id", "")
-                return {
-                    "valid": True,
-                    "video_id": vid,
-                    "title": info.get("title", ""),
-                    "channel": info.get("uploader") or info.get("channel") or "Unknown Creator",
-                    "duration": info.get("duration", 0),
-                    "thumbnail_url": info.get("thumbnail") or f"https://img.youtube.com/vi/{vid}/hqdefault.jpg",
-                    "canonical_url": info.get("webpage_url") or f"https://www.youtube.com/watch?v={vid}"
-                }
-        except Exception as e:
-            # Fall back to oEmbed if yt-dlp hits quick extraction issue
-            ref_src = YouTubeReferenceSource(url)
-            meta = ref_src.get_metadata()
-            if meta.get("valid"):
-                return meta
-            raise ValueError(f"Could not retrieve YouTube video info: {e}")
+        last_error = None
+        for strategy in cls._get_extraction_strategies():
+            opts: Dict[str, Any] = {
+                'skip_download': True,
+                'quiet': True,
+                'no_warnings': True,
+                'noplaylist': True,
+            }
+            if ffmpeg_dir:
+                opts['ffmpeg_location'] = ffmpeg_dir
+            if node_path:
+                opts['js_runtimes'] = {'node': {'path': str(node_path)}}
+            if 'player_client' in strategy:
+                opts['extractor_args'] = {'youtube': {'player_client': strategy['player_client']}}
+            if 'cookiesfrombrowser' in strategy:
+                opts['cookiesfrombrowser'] = (strategy['cookiesfrombrowser'],)
+
+            try:
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(url.strip(), download=False)
+                    vid = info.get("id", "")
+                    return {
+                        "valid": True,
+                        "video_id": vid,
+                        "title": info.get("title", ""),
+                        "channel": info.get("uploader") or info.get("channel") or "Unknown Creator",
+                        "duration": info.get("duration", 0),
+                        "thumbnail_url": info.get("thumbnail") or f"https://img.youtube.com/vi/{vid}/hqdefault.jpg",
+                        "canonical_url": info.get("webpage_url") or f"https://www.youtube.com/watch?v={vid}"
+                    }
+            except Exception as e:
+                last_error = e
+                continue
+
+        # Fall back to oEmbed if all yt-dlp strategies hit issues
+        ref_src = YouTubeReferenceSource(url)
+        meta = ref_src.get_metadata()
+        if meta.get("valid"):
+            return meta
+        raise ValueError(f"Could not retrieve YouTube video info: {last_error}")
 
     @classmethod
     def download_audio(
@@ -242,14 +272,17 @@ class YouTubeAudioExtractor:
     ) -> tuple[Path, Dict[str, Any]]:
         """
         Downloads audio stream directly from YouTube and converts to high-quality MP3.
+        Tries multiple player clients (android/ios) and browser cookies to bypass bot checks.
         Returns the downloaded MP3 Path and video metadata.
         """
         import yt_dlp
+        import shutil
         from backend.config import STORAGE_DIR
 
         target_dir = Path(output_dir) if output_dir else (STORAGE_DIR / "temp")
         target_dir.mkdir(parents=True, exist_ok=True)
         ffmpeg_dir = cls.get_ffmpeg_dir()
+        node_path = shutil.which("node")
 
         out_template = str(target_dir / "yt_%(id)s.%(ext)s")
 
@@ -260,44 +293,68 @@ class YouTubeAudioExtractor:
                 pct = min(99, int((downloaded / total) * 100))
                 progress_cb(pct, f"Downloading YouTube audio ({pct}%)...")
 
-        opts: Dict[str, Any] = {
-            'format': 'bestaudio/best',
-            'outtmpl': out_template,
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-            'quiet': True,
-            'no_warnings': True,
-            'noplaylist': True,
-            'progress_hooks': [hook],
-        }
-        if ffmpeg_dir:
-            opts['ffmpeg_location'] = ffmpeg_dir
-
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(url.strip(), download=True)
-            video_id = info['id']
-            expected_mp3 = target_dir / f"yt_{video_id}.mp3"
-
-            if not expected_mp3.exists():
-                # Check if file has another audio extension
-                matches = list(target_dir.glob(f"yt_{video_id}.*"))
-                if matches:
-                    expected_mp3 = matches[0]
-                else:
-                    raise FileNotFoundError(f"Failed to locate extracted audio for YouTube video {video_id}")
-
-            meta = {
-                "video_id": video_id,
-                "title": info.get("title", ""),
-                "channel": info.get("uploader") or info.get("channel") or "Unknown Creator",
-                "duration": info.get("duration", 0),
-                "thumbnail_url": info.get("thumbnail") or f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",
-                "canonical_url": info.get("webpage_url") or f"https://www.youtube.com/watch?v={video_id}"
+        last_err = None
+        for strategy in cls._get_extraction_strategies():
+            opts: Dict[str, Any] = {
+                'format': 'bestaudio/best',
+                'outtmpl': out_template,
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                }],
+                'quiet': True,
+                'no_warnings': True,
+                'noplaylist': True,
+                'progress_hooks': [hook],
             }
-            return expected_mp3, meta
+            if ffmpeg_dir:
+                opts['ffmpeg_location'] = ffmpeg_dir
+            if node_path:
+                opts['js_runtimes'] = {'node': {'path': str(node_path)}}
+            if 'player_client' in strategy:
+                opts['extractor_args'] = {'youtube': {'player_client': strategy['player_client']}}
+            if 'cookiesfrombrowser' in strategy:
+                opts['cookiesfrombrowser'] = (strategy['cookiesfrombrowser'],)
+
+            try:
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(url.strip(), download=True)
+                    video_id = info['id']
+                    expected_mp3 = target_dir / f"yt_{video_id}.mp3"
+
+                    if not expected_mp3.exists():
+                        # Check if file has another audio extension
+                        matches = list(target_dir.glob(f"yt_{video_id}.*"))
+                        if matches:
+                            expected_mp3 = matches[0]
+                        else:
+                            raise FileNotFoundError(f"Failed to locate extracted audio for YouTube video {video_id}")
+
+                    meta = {
+                        "video_id": video_id,
+                        "title": info.get("title", ""),
+                        "channel": info.get("uploader") or info.get("channel") or "Unknown Creator",
+                        "duration": info.get("duration", 0),
+                        "thumbnail_url": info.get("thumbnail") or f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",
+                        "canonical_url": info.get("webpage_url") or f"https://www.youtube.com/watch?v={video_id}"
+                    }
+                    return expected_mp3, meta
+            except Exception as e:
+                last_err = e
+                vid_match = YouTubeReferenceSource._extract_video_id(url)
+                if vid_match:
+                    for partial in target_dir.glob(f"yt_{vid_match}.*"):
+                        try:
+                            partial.unlink(missing_ok=True)
+                        except Exception:
+                            pass
+                continue
+
+        raise ValueError(
+            f"Failed to download audio from YouTube: {last_err}. "
+            "Please ensure the video is public and accessible in your web browser."
+        )
 
 
 class YouTubeSource(AudioSource):
