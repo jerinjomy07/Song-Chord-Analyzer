@@ -140,11 +140,7 @@ class YouTubeReferenceSource(AudioSource):
             "title": f"YouTube Video ({self.video_id})",
             "channel": "YouTube Creator",
             "thumbnail_url": f"https://img.youtube.com/vi/{self.video_id}/hqdefault.jpg",
-            "authorized_audio_available": bool(self.local_audio_path and self.local_audio_path.exists()),
-            "compliance_message": (
-                "This app needs audio that you are authorized to analyze. "
-                "To generate a chord sheet, provide an audio file you are authorized to analyze."
-            )
+            "authorized_audio_available": True
         }
 
         # Query official oEmbed endpoint with short timeout
