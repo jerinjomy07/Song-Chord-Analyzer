@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, AlertCircle, Upload, Loader2, ExternalLink } from 'lucide-react';
+import { Search, AlertCircle, Upload, Loader2, ExternalLink, Edit2, Sparkles } from 'lucide-react';
 
 const YoutubeIcon: React.FC<{ size?: number; className?: string }> = ({ size = 20, className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
@@ -22,11 +22,22 @@ interface YouTubeMetadata {
   authorized_audio_available?: boolean;
 }
 
+export function cleanYouTubeTitle(raw: string): string {
+  if (!raw) return '';
+  // Split on pipe or dash if present
+  let clean = raw.split(/\||–|-/)[0].trim();
+  // Remove common suffixes like (Official Video), [Official Audio], etc.
+  clean = clean.replace(/\((official\s*(music\s*)?(video|audio|lyric|video\s*song)|lyrics?|4k|hd|remastered)\)/gi, '');
+  clean = clean.replace(/\[(official\s*(music\s*)?(video|audio|lyric|video\s*song)|lyrics?|4k|hd|remastered)\]/gi, '');
+  return clean.trim() || raw.trim();
+}
+
 export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({ onSwitchToUpload }) => {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<YouTubeMetadata | null>(null);
+  const [customTitle, setCustomTitle] = useState('');
 
   const handleValidate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +60,8 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({ onSwitchTo
       }
 
       setMetadata(data);
+      const cleaned = cleanYouTubeTitle(data.title || '');
+      setCustomTitle(cleaned);
     } catch (err: any) {
       setError(err.message || 'Failed to inspect YouTube link.');
     } finally {
@@ -67,6 +80,18 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({ onSwitchTo
     }
   };
 
+  const handleResetToClean = () => {
+    if (metadata?.title) {
+      setCustomTitle(cleanYouTubeTitle(metadata.title));
+    }
+  };
+
+  const handleResetToRaw = () => {
+    if (metadata?.title) {
+      setCustomTitle(metadata.title);
+    }
+  };
+
   return (
     <div className="w-full max-w-2xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
       <div className="flex items-center gap-3 mb-5">
@@ -76,12 +101,12 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({ onSwitchTo
         <div>
           <h3 className="text-base font-bold text-white">YouTube Link Inspection</h3>
           <p className="text-xs text-slate-400">
-            Paste a public YouTube link to inspect video details and check audio authorization.
+            Paste a public YouTube link to inspect video details and prepare for chord analysis.
           </p>
         </div>
       </div>
 
-      {/* URL Input Form */}
+      {/* URL Input Form with generous right padding to prevent Clear button collision */}
       <form onSubmit={handleValidate} className="space-y-4">
         <div className="flex gap-2">
           <div className="relative flex-1">
@@ -93,13 +118,17 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({ onSwitchTo
                 if (error) setError(null);
               }}
               placeholder="https://www.youtube.com/watch?v=..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-red-500 font-mono transition-colors"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-4 pr-16 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-red-500 font-mono transition-colors"
             />
             {url && (
               <button
                 type="button"
-                onClick={() => setUrl('')}
-                className="absolute right-3 top-3 text-slate-500 hover:text-slate-300 text-xs font-semibold cursor-pointer"
+                onClick={() => {
+                  setUrl('');
+                  setMetadata(null);
+                  setError(null);
+                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 text-[11px] font-semibold cursor-pointer transition-colors shadow-sm"
               >
                 Clear
               </button>
@@ -153,7 +182,7 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({ onSwitchTo
               <span className="text-[10px] font-bold text-red-400 tracking-wider uppercase block mb-1">
                 Identified YouTube Video
               </span>
-              <h4 className="text-sm sm:text-base font-bold text-white line-clamp-2">
+              <h4 className="text-sm sm:text-base font-bold text-white line-clamp-2" title={metadata.title}>
                 {metadata.title}
               </h4>
               <p className="text-xs text-slate-400 mt-1 font-medium">
@@ -173,27 +202,68 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({ onSwitchTo
             </div>
           </div>
 
-          {/* Policy Compliance Notice & Authorized Upload Fallback */}
+          {/* Option to Rename Song Title */}
+          <div className="p-4 sm:p-5 bg-slate-900/60">
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                <Edit2 size={13} className="text-indigo-400" />
+                <span>Rename Song Title for Analysis & Sheet:</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleResetToClean}
+                  className="text-[10px] font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
+                  title="Auto-clean title by stripping artist tags and suffixes"
+                >
+                  <Sparkles size={11} />
+                  <span>Auto-Clean</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetToRaw}
+                  className="text-[10px] font-medium text-slate-400 hover:text-slate-300 cursor-pointer"
+                  title="Reset to full YouTube video title"
+                >
+                  Original
+                </button>
+              </div>
+            </div>
+
+            <input
+              type="text"
+              value={customTitle}
+              onChange={(e) => setCustomTitle(e.target.value)}
+              placeholder="e.g. Nallaru Po"
+              className="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white focus:outline-none transition-colors"
+            />
+            <p className="text-[11px] text-slate-400 mt-1.5">
+              Customize how the song name will appear on your chord chart, library, and exports.
+            </p>
+          </div>
+
+          {/* Policy Compliance Notice & Proceed to Audio Upload */}
           <div className="p-4 sm:p-5 bg-amber-950/20 border-t border-amber-900/30">
             <div className="flex items-start gap-3">
               <AlertCircle size={20} className="text-amber-400 shrink-0 mt-0.5" />
-              <div className="space-y-3">
+              <div className="space-y-3 flex-1">
                 <div>
                   <p className="text-xs font-bold text-amber-200 uppercase tracking-wide">
-                    Policy Notice: Audio Extraction Unavailable
+                    Audio Authorization Required
                   </p>
                   <p className="text-xs text-amber-300/90 mt-1 leading-relaxed">
-                    This YouTube video cannot be imported directly for audio analysis. Please upload an audio file you are authorized to analyze.
+                    Direct stream downloading from YouTube is restricted by copyright and terms of service.
+                    Please provide an audio file (<span className="font-mono text-amber-200">MP3, WAV, FLAC, M4A</span>) for this song to begin chord recognition.
                   </p>
                 </div>
 
                 <div>
                   <button
-                    onClick={() => onSwitchToUpload(metadata.title)}
-                    className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 text-xs font-black flex items-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer transition-all"
+                    onClick={() => onSwitchToUpload(customTitle.trim() || metadata.title)}
+                    className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 text-xs font-black flex items-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer transition-all"
                   >
                     <Upload size={15} />
-                    <span>Upload Audio Instead</span>
+                    <span>Provide Audio File for "{customTitle || metadata.title}"</span>
                   </button>
                 </div>
               </div>

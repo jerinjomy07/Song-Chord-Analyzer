@@ -34,6 +34,7 @@ export const App: React.FC = () => {
   // Library & Duplicate State
   const [duplicateInfo, setDuplicateInfo] = useState<{ existingSong: HistorySong; file: File } | null>(null);
   const [recentRefreshTrigger, setRecentRefreshTrigger] = useState(0);
+  const [prefilledTitle, setPrefilledTitle] = useState<string>('');
 
   // Auto-Save Indicator State
   const [savedIndicator, setSavedIndicator] = useState(false);
@@ -123,7 +124,7 @@ export const App: React.FC = () => {
     };
   }, [analysis]);
 
-  const handleStartAnalysis = async (file: File, force: boolean = false) => {
+  const handleStartAnalysis = async (file: File, force: boolean = false, customTitle?: string) => {
     setErrorMessage(null);
     setDuplicateInfo(null);
     setAnalysis(null);
@@ -131,9 +132,11 @@ export const App: React.FC = () => {
     setProgress(5);
     setStatusMessage('Uploading music file...');
 
+    const finalTitle = customTitle?.trim() || prefilledTitle?.trim() || file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
+
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('title', file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' '));
+    formData.append('title', finalTitle);
     if (force) {
       formData.append('force', 'true');
     }
@@ -295,12 +298,30 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleRenameCurrentSong = async (newTitle: string) => {
+    if (!analysisId || !analysis || !newTitle.trim()) return;
+    try {
+      const res = await fetch(`/api/history/${analysisId}/rename`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: newTitle.trim() }),
+      });
+      if (res.ok) {
+        setAnalysis(prev => (prev ? { ...prev, title: newTitle.trim() } : null));
+        triggerSavedIndicator();
+      }
+    } catch (err) {
+      console.error('Failed to rename current song:', err);
+    }
+  };
+
   const handleReset = () => {
     if (audioRef.current) {
       audioRef.current.pause();
     }
     setAnalysis(null);
     setAnalysisId(null);
+    setPrefilledTitle('');
     setStatus('IDLE');
     setProgress(0);
     setCurrentTime(0);
@@ -479,12 +500,18 @@ export const App: React.FC = () => {
             {/* Active Source Zone */}
             {inputSource === 'upload' ? (
               <UploadZone
-                onStartAnalysis={handleStartAnalysis}
+                onStartAnalysis={(file, customTitle) => handleStartAnalysis(file, false, customTitle)}
                 isAnalyzing={false}
+                prefilledTitle={prefilledTitle}
               />
             ) : (
               <YouTubeSourceZone
-                onSwitchToUpload={() => setInputSource('upload')}
+                onSwitchToUpload={(suggestedTitle) => {
+                  if (suggestedTitle) {
+                    setPrefilledTitle(suggestedTitle);
+                  }
+                  setInputSource('upload');
+                }}
               />
             )}
 
@@ -513,6 +540,7 @@ export const App: React.FC = () => {
             <SongHeader
               analysis={analysis}
               onReset={handleReset}
+              onRenameTitle={handleRenameCurrentSong}
             />
 
             {/* Interactive Timeline & Audio Waveform Player with Live Indicators & Volume */}

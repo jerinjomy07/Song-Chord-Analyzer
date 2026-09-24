@@ -1,15 +1,27 @@
-import React, { useState, useRef } from 'react';
-import { UploadCloud, FileAudio, ArrowRight } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { UploadCloud, FileAudio, ArrowRight, Edit2 } from 'lucide-react';
 
 interface UploadZoneProps {
-  onStartAnalysis: (file: File) => void;
+  onStartAnalysis: (file: File, customTitle?: string) => void;
   isAnalyzing: boolean;
+  prefilledTitle?: string;
 }
 
-export const UploadZone: React.FC<UploadZoneProps> = ({ onStartAnalysis, isAnalyzing }) => {
+export const UploadZone: React.FC<UploadZoneProps> = ({
+  onStartAnalysis,
+  isAnalyzing,
+  prefilledTitle = '',
+}) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [songTitle, setSongTitle] = useState<string>(prefilledTitle);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (prefilledTitle && !songTitle) {
+      setSongTitle(prefilledTitle);
+    }
+  }, [prefilledTitle]);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -29,6 +41,9 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onStartAnalysis, isAnaly
       const file = e.dataTransfer.files[0];
       if (isValidAudio(file.name)) {
         setSelectedFile(file);
+        if (!songTitle) {
+          setSongTitle(file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' '));
+        }
       }
     }
   };
@@ -36,7 +51,11 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onStartAnalysis, isAnaly
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      if (!songTitle) {
+        setSongTitle(file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' '));
+      }
     }
   };
 
@@ -90,29 +109,49 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onStartAnalysis, isAnaly
       </div>
 
       {selectedFile && (
-        <div className="mt-6 p-5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between shadow-xl">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-              <FileAudio size={24} />
+        <div className="mt-6 p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                <FileAudio size={24} />
+              </div>
+              <div className="text-left min-w-0">
+                <p className="font-semibold text-slate-100 truncate max-w-xs sm:max-w-sm" title={selectedFile.name}>
+                  {selectedFile.name}
+                </p>
+                <p className="text-xs text-slate-400">
+                  {formatFileSize(selectedFile.size)} • {selectedFile.name.split('.').pop()?.toUpperCase()}
+                </p>
+              </div>
             </div>
-            <div className="text-left">
-              <p className="font-semibold text-slate-100 truncate max-w-sm">
-                {selectedFile.name}
-              </p>
-              <p className="text-xs text-slate-400">
-                {formatFileSize(selectedFile.size)} • {selectedFile.name.split('.').pop()?.toUpperCase()}
-              </p>
-            </div>
+
+            <button
+              onClick={() => onStartAnalysis(selectedFile, songTitle.trim() || undefined)}
+              disabled={isAnalyzing}
+              className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-50 cursor-pointer shrink-0"
+            >
+              <span>Analyze Song</span>
+              <ArrowRight size={18} />
+            </button>
           </div>
 
-          <button
-            onClick={() => onStartAnalysis(selectedFile)}
-            disabled={isAnalyzing}
-            className="px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-50 cursor-pointer"
-          >
-            <span>Analyze Song</span>
-            <ArrowRight size={18} />
-          </button>
+          {/* Option to Rename the Title of the Song */}
+          <div className="pt-3 border-t border-slate-800 text-left">
+            <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5 mb-1.5">
+              <Edit2 size={13} className="text-indigo-400" />
+              <span>Song Title (Editable):</span>
+            </label>
+            <input
+              type="text"
+              value={songTitle}
+              onChange={(e) => setSongTitle(e.target.value)}
+              placeholder="e.g. Nallaru Po"
+              className="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white focus:outline-none transition-colors"
+            />
+            <p className="text-[11px] text-slate-400 mt-1">
+              Customize the title that will appear on the chord sheet, PDF, and saved library entry.
+            </p>
+          </div>
         </div>
       )}
     </div>
