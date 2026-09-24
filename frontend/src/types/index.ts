@@ -167,6 +167,33 @@ export interface DesktopAPI {
   getBackendInfo: () => Promise<{ port: number; python: string }>;
 }
 
+export interface HistorySong {
+  id: string;
+  title: string;
+  original_filename: string;
+  file_hash: string;
+  duration: number;
+  format: string;
+  key_display: string;
+  key_mode: string;
+  bpm: number;
+  time_signature: string;
+  transpose_value: number;
+  is_favorite: number | boolean;
+  created_at: string;
+  updated_at: string;
+  last_opened_at: string;
+  model_version?: string;
+  pipeline_version?: string;
+  edit_count: number;
+}
+
+export interface DuplicateCheckResponse {
+  status: "DUPLICATE_FOUND";
+  existing_song: HistorySong;
+  message: string;
+}
+
 declare global {
   interface Window {
     desktopAPI?: DesktopAPI;

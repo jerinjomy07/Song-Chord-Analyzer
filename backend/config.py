@@ -30,8 +30,10 @@ EXPORTS_DIR = STORAGE_DIR / "exports"
 LOGS_DIR = STORAGE_DIR / "logs"
 UPLOADS_DIR = STORAGE_DIR / "uploads"
 STEMS_DIR = STORAGE_DIR / "stems"
+LIBRARY_DIR = STORAGE_DIR / "library"
+DB_PATH = STORAGE_DIR / "database.sqlite"
 
-for d in [MODELS_DIR, CACHE_DIR, TEMP_DIR, EXPORTS_DIR, LOGS_DIR, UPLOADS_DIR, STEMS_DIR]:
+for d in [MODELS_DIR, CACHE_DIR, TEMP_DIR, EXPORTS_DIR, LOGS_DIR, UPLOADS_DIR, STEMS_DIR, LIBRARY_DIR]:
     d.mkdir(parents=True, exist_ok=True)
 
 # Also check project-level models directory for bundled/downloaded weights

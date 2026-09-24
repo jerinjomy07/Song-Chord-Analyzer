@@ -31,6 +31,7 @@ from backend.transpose.transpose_engine import transpose_song, transpose_chord
 from backend.export.pdf_exporter import export_to_pdf
 from backend.export.txt_exporter import export_to_txt
 from backend.export.json_exporter import export_to_json, build_complete_json_export
+from backend.database.repository import SongRepository
 
 router = APIRouter()
 
@@ -75,6 +76,12 @@ def run_pipeline_worker(analysis_id: str, audio_path: Path, song_title: str):
         ANALYSIS_RESULTS[analysis_id] = analysis
         AUDIO_FILE_PATHS[analysis_id] = audio_path
 
+        # Auto-persist analysis and ingest audio into library
+        try:
+            SongRepository.save_analysis(analysis, audio_path, analysis_id)
+        except Exception as repo_err:
+            print(f"[Warning] Failed to persist analysis {analysis_id} to SQLite: {repo_err}")
+
         ACTIVE_TASKS[analysis_id].status = AnalysisStatusEnum.COMPLETED
         ACTIVE_TASKS[analysis_id].progress = 100
         ACTIVE_TASKS[analysis_id].message = "Analysis complete!"
@@ -92,10 +99,12 @@ def run_pipeline_worker(analysis_id: str, audio_path: Path, song_title: str):
 @router.post("/analyze")
 async def analyze_audio(
     file: UploadFile = File(...),
-    title: Optional[str] = Form(None)
+    title: Optional[str] = Form(None),
+    force: bool = Form(False)
 ):
     """
     Accepts MP3, WAV, FLAC, or M4A audio files and initiates automatic analysis.
+    Performs duplicate detection by content hash unless force=True.
     """
     valid_extensions = [".mp3", ".wav", ".flac", ".m4a", ".ogg"]
     file_ext = Path(file.filename).suffix.lower()
@@ -112,6 +121,24 @@ async def analyze_audio(
     target_path = UPLOADS_DIR / f"{analysis_id}_{file.filename}"
     with open(target_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
+
+    # Duplicate detection by content hash
+    if not force:
+        try:
+            import hashlib
+            hasher = hashlib.sha256()
+            with open(target_path, "rb") as f:
+                hasher.update(f.read(2 * 1024 * 1024))
+            file_hash = hasher.hexdigest()
+            existing = SongRepository.find_by_file_hash(file_hash)
+            if existing:
+                return {
+                    "status": "DUPLICATE_FOUND",
+                    "existing_song": existing,
+                    "message": "This song is already in your History."
+                }
+        except Exception as hash_err:
+            print(f"[Analyze] Duplicate check error: {hash_err}")
 
     # Initialize status
     ACTIVE_TASKS[analysis_id] = AnalysisStatusResponse(
@@ -167,27 +194,50 @@ async def get_analysis_status(analysis_id: str):
 
 @router.get("/analysis/{analysis_id}", response_model=SongAnalysis)
 async def get_analysis_result(analysis_id: str):
-    """Returns the completed SongAnalysis object."""
-    if analysis_id not in ANALYSIS_RESULTS:
-        # Check if still running
-        if analysis_id in ACTIVE_TASKS and ACTIVE_TASKS[analysis_id].status != AnalysisStatusEnum.COMPLETED:
-            raise HTTPException(status_code=202, detail="Analysis still in progress")
-        raise HTTPException(status_code=404, detail="Analysis not found")
-    return ANALYSIS_RESULTS[analysis_id]
+    """Returns the completed SongAnalysis object, restoring from SQLite if needed."""
+    if analysis_id in ANALYSIS_RESULTS:
+        return ANALYSIS_RESULTS[analysis_id]
+
+    # Try restoring from SQLite persistent library
+    analysis = SongRepository.get_analysis(analysis_id)
+    if analysis:
+        ANALYSIS_RESULTS[analysis_id] = analysis
+        song = SongRepository.get_song(analysis_id)
+        if song and song.get("audio_path"):
+            AUDIO_FILE_PATHS[analysis_id] = Path(song["audio_path"])
+        return analysis
+
+    # Check if still running
+    if analysis_id in ACTIVE_TASKS and ACTIVE_TASKS[analysis_id].status != AnalysisStatusEnum.COMPLETED:
+        raise HTTPException(status_code=202, detail="Analysis still in progress")
+    raise HTTPException(status_code=404, detail="Analysis not found")
 
 
 @router.post("/analysis/{analysis_id}/transpose", response_model=SongAnalysis)
 async def transpose_song_chords(analysis_id: str, req: TransposeRequest):
     """
     Transposes song chords by +/- N semitones preserving root, quality, and bass/inversion.
-    Operates instantly without re-running audio analysis.
+    Operates instantly without re-running audio analysis and auto-persists to SQLite.
     """
     if analysis_id not in ANALYSIS_RESULTS:
-        raise HTTPException(status_code=404, detail="Analysis not found")
+        analysis = SongRepository.get_analysis(analysis_id)
+        if not analysis:
+            raise HTTPException(status_code=404, detail="Analysis not found")
+        ANALYSIS_RESULTS[analysis_id] = analysis
 
     analysis = ANALYSIS_RESULTS[analysis_id]
     transposed = transpose_song(analysis, req.semitones)
     ANALYSIS_RESULTS[analysis_id] = transposed
+
+    try:
+        SongRepository.update_analysis_state(
+            song_id=analysis_id,
+            updated_analysis=transposed,
+            transpose_value=req.semitones
+        )
+    except Exception as err:
+        print(f"[Warning] Failed to record transpose in SQLite: {err}")
+
     return transposed
 
 
@@ -195,10 +245,14 @@ async def transpose_song_chords(analysis_id: str, req: TransposeRequest):
 async def edit_single_chord(analysis_id: str, req: EditChordRequest):
     """
     Edits a specific chord in the transcription.
-    Updates root, quality, bass, and musician display notation.
+    Updates root, quality, bass, and musician display notation,
+    logs manual correction for ML feedback learning, and persists to SQLite.
     """
     if analysis_id not in ANALYSIS_RESULTS:
-        raise HTTPException(status_code=404, detail="Analysis not found")
+        analysis = SongRepository.get_analysis(analysis_id)
+        if not analysis:
+            raise HTTPException(status_code=404, detail="Analysis not found")
+        ANALYSIS_RESULTS[analysis_id] = analysis
 
     analysis = ANALYSIS_RESULTS[analysis_id]
     if req.chord_index < 0 or req.chord_index >= len(analysis.chords):
@@ -235,6 +289,21 @@ async def edit_single_chord(analysis_id: str, req: EditChordRequest):
                     b.display = format_bar_str(b)
 
     ANALYSIS_RESULTS[analysis_id] = analysis
+
+    # Log manual correction and persist
+    try:
+        SongRepository.record_chord_edit(
+            song_id=analysis_id,
+            chord_index=req.chord_index,
+            original_chord=target.display,
+            updated_chord=updated_chord,
+            bar_number=updated_chord.bar_position or 1,
+            beat=updated_chord.beat_position or updated_chord.beat or 1,
+            updated_analysis=analysis
+        )
+    except Exception as err:
+        print(f"[Warning] Failed to record chord edit in SQLite: {err}")
+
     return analysis
 
 
@@ -242,7 +311,10 @@ async def edit_single_chord(analysis_id: str, req: EditChordRequest):
 async def rename_section(analysis_id: str, req: RenameSectionRequest):
     """Renames a musical section (e.g. from 'SECTION A' to 'VERSE 1' or 'CHORUS')."""
     if analysis_id not in ANALYSIS_RESULTS:
-        raise HTTPException(status_code=404, detail="Analysis not found")
+        analysis = SongRepository.get_analysis(analysis_id)
+        if not analysis:
+            raise HTTPException(status_code=404, detail="Analysis not found")
+        ANALYSIS_RESULTS[analysis_id] = analysis
 
     analysis = ANALYSIS_RESULTS[analysis_id]
     found = False
@@ -256,16 +328,150 @@ async def rename_section(analysis_id: str, req: RenameSectionRequest):
         raise HTTPException(status_code=404, detail="Section ID not found")
 
     ANALYSIS_RESULTS[analysis_id] = analysis
+    try:
+        SongRepository.update_analysis_state(
+            song_id=analysis_id,
+            updated_analysis=analysis
+        )
+    except Exception as err:
+        print(f"[Warning] Failed to persist section rename in SQLite: {err}")
+
     return analysis
 
 
 @router.get("/analysis/{analysis_id}/audio")
 async def stream_audio(analysis_id: str):
-    """Streams original uploaded audio for waveform playback."""
-    if analysis_id not in AUDIO_FILE_PATHS:
-        raise HTTPException(status_code=404, detail="Audio file not found")
-    audio_path = AUDIO_FILE_PATHS[analysis_id]
-    return FileResponse(str(audio_path))
+    """Streams original uploaded or library-managed audio for waveform playback."""
+    if analysis_id in AUDIO_FILE_PATHS and AUDIO_FILE_PATHS[analysis_id].exists():
+        return FileResponse(str(AUDIO_FILE_PATHS[analysis_id]))
+
+    # Check managed audio library in SQLite
+    song = SongRepository.get_song(analysis_id)
+    if song and song.get("audio_path") and Path(song["audio_path"]).exists():
+        audio_path = Path(song["audio_path"])
+        AUDIO_FILE_PATHS[analysis_id] = audio_path
+        return FileResponse(str(audio_path))
+
+    raise HTTPException(status_code=404, detail="Audio file not found in library")
+
+
+# ==========================================================
+# HISTORY & SONG LIBRARY ENDPOINTS
+# ==========================================================
+
+class RenameSongRequest(BaseModel):
+    title: str
+
+
+@router.get("/history")
+async def list_history_songs(
+    query: Optional[str] = None,
+    sort_by: str = "last_opened",
+    favorites_only: bool = False,
+    limit: int = 100
+):
+    """Lists songs in user's library with search, sort, and favorites filter."""
+    return SongRepository.list_songs(
+        query=query,
+        sort_by=sort_by,
+        favorites_only=favorites_only,
+        limit=limit
+    )
+
+
+@router.get("/history/recent")
+async def list_recent_songs(limit: int = 5):
+    """Fetches recent songs for quick-access cards on Home screen."""
+    return SongRepository.get_recent_songs(limit=limit)
+
+
+@router.get("/history/{song_id}/open", response_model=SongAnalysis)
+async def open_song_from_history(song_id: str):
+    """
+    Opens a previously analyzed song instantly from SQLite.
+    Does NOT rerun Demucs, BTC, or beat tracking.
+    """
+    analysis = SongRepository.get_analysis(song_id)
+    if not analysis:
+        raise HTTPException(status_code=404, detail="Song not found in library")
+
+    song = SongRepository.get_song(song_id)
+    if song and song.get("audio_path"):
+        AUDIO_FILE_PATHS[song_id] = Path(song["audio_path"])
+    ANALYSIS_RESULTS[song_id] = analysis
+    return analysis
+
+
+@router.post("/history/{song_id}/open", response_model=SongAnalysis)
+async def open_song_from_history_post(song_id: str):
+    return await open_song_from_history(song_id)
+
+
+@router.patch("/history/{song_id}/rename")
+async def rename_song_entry(song_id: str, req: RenameSongRequest):
+    """Renames a song in the library."""
+    success = SongRepository.rename_song(song_id, req.title)
+    if not success:
+        raise HTTPException(status_code=400, detail="Failed to rename song")
+    if song_id in ANALYSIS_RESULTS:
+        ANALYSIS_RESULTS[song_id].title = req.title.strip()
+    return {"success": True, "title": req.title.strip()}
+
+
+@router.post("/history/{song_id}/favorite")
+async def toggle_song_favorite(song_id: str):
+    """Toggles song favorite star."""
+    is_fav = SongRepository.toggle_favorite(song_id)
+    return {"success": True, "is_favorite": is_fav}
+
+
+@router.post("/history/{song_id}/duplicate")
+async def duplicate_song_entry(song_id: str):
+    """Duplicates a song analysis record for alternate charts / transpositions."""
+    new_id = SongRepository.duplicate_song(song_id)
+    if not new_id:
+        raise HTTPException(status_code=404, detail="Could not duplicate song")
+    return {"success": True, "new_song_id": new_id}
+
+
+@router.delete("/history/{song_id}")
+async def delete_song_entry(song_id: str):
+    """Deletes song record from SQLite and managed audio library."""
+    success = SongRepository.delete_song(song_id)
+    if song_id in ANALYSIS_RESULTS:
+        del ANALYSIS_RESULTS[song_id]
+    if song_id in AUDIO_FILE_PATHS:
+        del AUDIO_FILE_PATHS[song_id]
+    return {"success": success}
+
+
+@router.post("/history/{song_id}/reanalyze")
+async def reanalyze_song_entry(song_id: str):
+    """Explicitly re-analyzes a historical song using the stored library audio."""
+    song = SongRepository.get_song(song_id)
+    if not song:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    audio_path = Path(song["audio_path"])
+    if not audio_path.exists():
+        raise HTTPException(status_code=404, detail="Audio file missing from library")
+
+    ACTIVE_TASKS[song_id] = AnalysisStatusResponse(
+        analysis_id=song_id,
+        status=AnalysisStatusEnum.PREPROCESSING,
+        progress=5,
+        current_stage="PREPROCESSING",
+        message="Queuing re-analysis..."
+    )
+
+    worker = threading.Thread(
+        target=run_pipeline_worker,
+        args=(song_id, audio_path, song["title"]),
+        daemon=True
+    )
+    worker.start()
+
+    return {"analysis_id": song_id, "title": song["title"], "status": "QUEUED"}
 
 
 def sanitize_filename_title(title: str) -> str:
@@ -318,7 +524,10 @@ def get_safe_export_filename(title: str, extension: str) -> tuple[str, str]:
 async def export_pdf(analysis_id: str):
     """Downloads clean, printable PDF chord sheet."""
     if analysis_id not in ANALYSIS_RESULTS:
-        raise HTTPException(status_code=404, detail="Analysis not found")
+        analysis = SongRepository.get_analysis(analysis_id)
+        if not analysis:
+            raise HTTPException(status_code=404, detail="Analysis not found")
+        ANALYSIS_RESULTS[analysis_id] = analysis
     analysis = ANALYSIS_RESULTS[analysis_id]
     filename_ascii, disposition = get_safe_export_filename(analysis.title, "pdf")
     pdf_path = EXPORTS_DIR / filename_ascii
@@ -335,7 +544,10 @@ async def export_pdf(analysis_id: str):
 async def export_txt(analysis_id: str):
     """Downloads monospace plain-text chord chart."""
     if analysis_id not in ANALYSIS_RESULTS:
-        raise HTTPException(status_code=404, detail="Analysis not found")
+        analysis = SongRepository.get_analysis(analysis_id)
+        if not analysis:
+            raise HTTPException(status_code=404, detail="Analysis not found")
+        ANALYSIS_RESULTS[analysis_id] = analysis
     analysis = ANALYSIS_RESULTS[analysis_id]
     txt_content = export_to_txt(analysis)
     filename_ascii, disposition = get_safe_export_filename(analysis.title, "txt")
@@ -350,7 +562,10 @@ async def export_txt(analysis_id: str):
 async def export_json_endpoint(analysis_id: str):
     """Downloads complete structured transcription JSON."""
     if analysis_id not in ANALYSIS_RESULTS:
-        raise HTTPException(status_code=404, detail="Analysis not found")
+        analysis = SongRepository.get_analysis(analysis_id)
+        if not analysis:
+            raise HTTPException(status_code=404, detail="Analysis not found")
+        ANALYSIS_RESULTS[analysis_id] = analysis
     analysis = ANALYSIS_RESULTS[analysis_id]
     filename_ascii, disposition = get_safe_export_filename(analysis.title, "json")
     export_dict = build_complete_json_export(analysis)

@@ -8,8 +8,11 @@ import { ChordEditorModal } from './components/ChordEditorModal';
 import { TransposerToolbar } from './components/TransposerToolbar';
 import { ExportToolbar } from './components/ExportToolbar';
 import { YouTubeSourceZone } from './components/YouTubeSourceZone';
-import type { SongAnalysis, AnalysisStatus, ChordPrediction } from './types';
-import { Music2, AlertCircle, Upload } from 'lucide-react';
+import { HistoryPage } from './components/HistoryPage';
+import { RecentSongsSection } from './components/RecentSongsSection';
+import { DuplicateModal } from './components/DuplicateModal';
+import type { SongAnalysis, AnalysisStatus, ChordPrediction, HistorySong } from './types';
+import { Music2, Music, AlertCircle, Upload, Home, Library, Check } from 'lucide-react';
 
 const YoutubeIcon: React.FC<{ size?: number; className?: string }> = ({ size = 16, className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
@@ -17,13 +20,33 @@ const YoutubeIcon: React.FC<{ size?: number; className?: string }> = ({ size = 1
   </svg>
 );
 
+type NavTab = 'home' | 'history' | 'analysis';
+
 export const App: React.FC = () => {
+  const [currentTab, setCurrentTab] = useState<NavTab>('home');
   const [analysisId, setAnalysisId] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<SongAnalysis | null>(null);
   const [status, setStatus] = useState<AnalysisStatus>('IDLE');
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Library & Duplicate State
+  const [duplicateInfo, setDuplicateInfo] = useState<{ existingSong: HistorySong; file: File } | null>(null);
+  const [recentRefreshTrigger, setRecentRefreshTrigger] = useState(0);
+
+  // Auto-Save Indicator State
+  const [savedIndicator, setSavedIndicator] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const triggerSavedIndicator = () => {
+    setSavedIndicator(true);
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    savedTimerRef.current = setTimeout(() => {
+      setSavedIndicator(false);
+    }, 2500);
+    setRecentRefreshTrigger(prev => prev + 1);
+  };
 
   // Input Source State ('upload' | 'youtube')
   const [inputSource, setInputSource] = useState<'upload' | 'youtube'>('upload');
@@ -68,6 +91,8 @@ export const App: React.FC = () => {
           if (analysisRes.ok) {
             const fullData: SongAnalysis = await analysisRes.json();
             setAnalysis(fullData);
+            setCurrentTab('analysis');
+            setRecentRefreshTrigger(prev => prev + 1);
           }
         } else if (data.status === 'FAILED') {
           clearInterval(interval);
@@ -98,8 +123,9 @@ export const App: React.FC = () => {
     };
   }, [analysis]);
 
-  const handleStartAnalysis = async (file: File) => {
+  const handleStartAnalysis = async (file: File, force: boolean = false) => {
     setErrorMessage(null);
+    setDuplicateInfo(null);
     setAnalysis(null);
     setStatus('UPLOADING');
     setProgress(5);
@@ -108,6 +134,9 @@ export const App: React.FC = () => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('title', file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' '));
+    if (force) {
+      formData.append('force', 'true');
+    }
 
     try {
       const res = await fetch('/api/analyze', {
@@ -121,6 +150,13 @@ export const App: React.FC = () => {
       }
 
       const data = await res.json();
+
+      if (data.status === 'DUPLICATE_FOUND') {
+        setStatus('IDLE');
+        setDuplicateInfo({ existingSong: data.existing_song, file });
+        return;
+      }
+
       setAnalysisId(data.analysis_id);
       setStatus('PREPROCESSING');
       setProgress(10);
@@ -129,6 +165,46 @@ export const App: React.FC = () => {
       setStatus('FAILED');
       setErrorMessage(err.message || 'Could not connect to analysis service.');
     }
+  };
+
+  const openSongFromHistory = async (songId: string) => {
+    setErrorMessage(null);
+    setDuplicateInfo(null);
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    setIsPlaying(false);
+    setCurrentTime(0);
+
+    try {
+      const res = await fetch(`/api/history/${songId}/open`);
+      if (!res.ok) {
+        throw new Error('Failed to load song from history.');
+      }
+      const fullData: SongAnalysis = await res.json();
+      setAnalysisId(songId);
+      setAnalysis(fullData);
+      setStatus('COMPLETED');
+      setCurrentTab('analysis');
+      setRecentRefreshTrigger(prev => prev + 1);
+    } catch (err: any) {
+      console.error('Failed to open song:', err);
+      setErrorMessage(err.message || 'Could not open historical song.');
+    }
+  };
+
+  const handleStartReanalyze = (songId: string) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setAnalysis(null);
+    setAnalysisId(songId);
+    setStatus('PREPROCESSING');
+    setProgress(5);
+    setStatusMessage('Re-analyzing audio with Demucs & BTC...');
+    setCurrentTab('home');
   };
 
   const handlePlayPause = () => {
@@ -161,6 +237,7 @@ export const App: React.FC = () => {
       if (res.ok) {
         const updated = await res.json();
         setAnalysis(updated);
+        triggerSavedIndicator();
       }
     } catch (err) {
       console.error('Transposition error:', err);
@@ -190,6 +267,7 @@ export const App: React.FC = () => {
       if (res.ok) {
         const updated = await res.json();
         setAnalysis(updated);
+        triggerSavedIndicator();
       }
     } catch (err) {
       console.error('Error saving chord edit:', err);
@@ -210,6 +288,7 @@ export const App: React.FC = () => {
       if (res.ok) {
         const updated = await res.json();
         setAnalysis(updated);
+        triggerSavedIndicator();
       }
     } catch (err) {
       console.error('Error renaming section:', err);
@@ -227,19 +306,27 @@ export const App: React.FC = () => {
     setCurrentTime(0);
     setIsPlaying(false);
     setErrorMessage(null);
+    setCurrentTab('home');
+    setRecentRefreshTrigger(prev => prev + 1);
   };
+
+  const isProcessing = status !== 'IDLE' && status !== 'COMPLETED' && status !== 'FAILED';
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex flex-col">
       {/* Top Navbar */}
-      <header className="border-b border-slate-800/80 bg-slate-950/50 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <header className="border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+          {/* Logo & Branding */}
+          <div
+            onClick={() => setCurrentTab('home')}
+            className="flex items-center gap-3 cursor-pointer select-none shrink-0"
+          >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-400 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
               <Music2 size={22} />
             </div>
             <div>
-              <span className="font-extrabold text-lg tracking-tight text-white block">
+              <span className="font-extrabold text-base sm:text-lg tracking-tight text-white block">
                 SONG CHORD ANALYZER
               </span>
               <span className="text-[10px] font-semibold text-slate-400 tracking-wider uppercase block">
@@ -248,8 +335,59 @@ export const App: React.FC = () => {
             </div>
           </div>
 
+          {/* Navigation Tabs */}
+          <nav className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 shrink-0">
+            <button
+              onClick={() => setCurrentTab('home')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                currentTab === 'home'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+            >
+              <Home size={13} />
+              <span>Home</span>
+            </button>
+
+            <button
+              onClick={() => setCurrentTab('history')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                currentTab === 'history'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+            >
+              <Library size={13} />
+              <span>History</span>
+            </button>
+
+            {analysis && (
+              <button
+                onClick={() => setCurrentTab('analysis')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  currentTab === 'analysis'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                }`}
+                title={analysis.title}
+              >
+                <Music size={13} />
+                <span className="max-w-[110px] sm:max-w-[150px] truncate">{analysis.title}</span>
+              </button>
+            )}
+          </nav>
+
+          {/* Right Toolbar / Saved Indicator */}
           {analysis && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              {/* Auto-Save Feedback Badge */}
+              {savedIndicator && (
+                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold animate-in fade-in duration-200">
+                  <Check size={12} className="text-emerald-400" />
+                  <span>Saved</span>
+                </div>
+              )}
+
               <TransposerToolbar
                 currentOffset={analysis.transpose_semitones}
                 currentKey={analysis.key.display}
@@ -270,15 +408,35 @@ export const App: React.FC = () => {
           <div className="mb-6 p-4 rounded-xl bg-red-950/40 border border-red-800 text-red-300 flex items-start gap-3">
             <AlertCircle size={20} className="shrink-0 text-red-400 mt-0.5" />
             <div>
-              <p className="font-semibold text-sm">Analysis Notice</p>
+              <p className="font-semibold text-sm">Notice</p>
               <p className="text-xs text-red-300 mt-0.5">{errorMessage}</p>
             </div>
           </div>
         )}
 
-        {/* View 1: Input Source Selector & Upload / YouTube */}
-        {status === 'IDLE' && !analysis && (
-          <div className="py-8 sm:py-12">
+        {/* View 1: Processing in Progress */}
+        {isProcessing && (
+          <div className="py-16">
+            <ProcessingView
+              status={status}
+              progress={progress}
+              message={statusMessage}
+            />
+          </div>
+        )}
+
+        {/* View 2: History Library Page */}
+        {!isProcessing && currentTab === 'history' && (
+          <HistoryPage
+            onOpenSong={openSongFromHistory}
+            onNavigateHome={() => setCurrentTab('home')}
+            onStartReanalyze={handleStartReanalyze}
+          />
+        )}
+
+        {/* View 3: Home / Upload & Source Selection */}
+        {!isProcessing && currentTab === 'home' && (
+          <div className="py-6 sm:py-10">
             <div className="text-center max-w-xl mx-auto mb-8">
               <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
                 Automatic Music Transcription for Musicians
@@ -329,22 +487,18 @@ export const App: React.FC = () => {
                 onSwitchToUpload={() => setInputSource('upload')}
               />
             )}
-          </div>
-        )}
 
-        {/* View 2: Processing in Progress */}
-        {status !== 'IDLE' && status !== 'COMPLETED' && status !== 'FAILED' && (
-          <div className="py-16">
-            <ProcessingView
-              status={status}
-              progress={progress}
-              message={statusMessage}
+            {/* Quick Access Recent Songs */}
+            <RecentSongsSection
+              onOpenSong={openSongFromHistory}
+              onNavigateHistory={() => setCurrentTab('history')}
+              refreshTrigger={recentRefreshTrigger}
             />
           </div>
         )}
 
-        {/* View 3: Completed Analysis Results */}
-        {analysis && (
+        {/* View 4: Completed Analysis Results */}
+        {!isProcessing && currentTab === 'analysis' && analysis && (
           <div>
             {/* Audio Element */}
             {analysis.audio_url && (
@@ -385,6 +539,27 @@ export const App: React.FC = () => {
           </div>
         )}
       </main>
+
+      {/* Duplicate Detection Modal */}
+      {duplicateInfo && (
+        <DuplicateModal
+          existingSong={duplicateInfo.existingSong}
+          fileName={duplicateInfo.file.name}
+          onOpenExisting={(id) => {
+            setDuplicateInfo(null);
+            openSongFromHistory(id);
+          }}
+          onAnalyzeAgain={() => {
+            const file = duplicateInfo.file;
+            setDuplicateInfo(null);
+            handleStartAnalysis(file, true);
+          }}
+          onCancel={() => {
+            setDuplicateInfo(null);
+            setStatus('IDLE');
+          }}
+        />
+      )}
 
       {/* Chord Editor Modal */}
       {selectedChord && (
