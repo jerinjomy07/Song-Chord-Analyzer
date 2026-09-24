@@ -88,9 +88,15 @@ export const RecentSongsSection: React.FC<RecentSongsSectionProps> = ({
                   >
                     {song.title}
                   </h4>
-                  <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
-                    {song.format || 'AUDIO'}
-                  </span>
+                  {song.source_type === 'youtube_reference' ? (
+                    <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-red-500/10 text-red-300 border border-red-500/20">
+                      YT REF
+                    </span>
+                  ) : (
+                    <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
+                      {song.format || 'AUDIO'}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-3 text-[11px] text-slate-400 mb-3">

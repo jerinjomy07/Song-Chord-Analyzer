@@ -11,7 +11,7 @@ import { YouTubeSourceZone } from './components/YouTubeSourceZone';
 import { HistoryPage } from './components/HistoryPage';
 import { RecentSongsSection } from './components/RecentSongsSection';
 import { DuplicateModal } from './components/DuplicateModal';
-import type { SongAnalysis, AnalysisStatus, ChordPrediction, HistorySong } from './types';
+import type { SongAnalysis, AnalysisStatus, ChordPrediction, HistorySong, YouTubeMetadata } from './types';
 import { Music2, Music, AlertCircle, Upload, Home, Library, Check } from 'lucide-react';
 
 const YoutubeIcon: React.FC<{ size?: number; className?: string }> = ({ size = 16, className = "" }) => (
@@ -32,7 +32,12 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Library & Duplicate State
-  const [duplicateInfo, setDuplicateInfo] = useState<{ existingSong: HistorySong; file: File } | null>(null);
+  const [duplicateInfo, setDuplicateInfo] = useState<{
+    existingSong: HistorySong;
+    file: File;
+    customTitle?: string;
+    youtubeMeta?: YouTubeMetadata;
+  } | null>(null);
   const [recentRefreshTrigger, setRecentRefreshTrigger] = useState(0);
   const [prefilledTitle, setPrefilledTitle] = useState<string>('');
 
@@ -124,7 +129,12 @@ export const App: React.FC = () => {
     };
   }, [analysis]);
 
-  const handleStartAnalysis = async (file: File, force: boolean = false, customTitle?: string) => {
+  const handleStartAnalysis = async (
+    file: File,
+    force: boolean = false,
+    customTitle?: string,
+    youtubeMeta?: YouTubeMetadata
+  ) => {
     setErrorMessage(null);
     setDuplicateInfo(null);
     setAnalysis(null);
@@ -139,6 +149,15 @@ export const App: React.FC = () => {
     formData.append('title', finalTitle);
     if (force) {
       formData.append('force', 'true');
+    }
+    if (youtubeMeta && youtubeMeta.video_id) {
+      formData.append('source_type', 'youtube_reference');
+      formData.append('youtube_video_id', youtubeMeta.video_id);
+      if (youtubeMeta.canonical_url) formData.append('youtube_url', youtubeMeta.canonical_url);
+      if (youtubeMeta.title) formData.append('youtube_title', youtubeMeta.title);
+      if (youtubeMeta.channel) formData.append('youtube_channel', youtubeMeta.channel);
+    } else {
+      formData.append('source_type', 'local');
     }
 
     try {
@@ -156,7 +175,7 @@ export const App: React.FC = () => {
 
       if (data.status === 'DUPLICATE_FOUND') {
         setStatus('IDLE');
-        setDuplicateInfo({ existingSong: data.existing_song, file });
+        setDuplicateInfo({ existingSong: data.existing_song, file, customTitle, youtubeMeta });
         return;
       }
 
@@ -506,12 +525,9 @@ export const App: React.FC = () => {
               />
             ) : (
               <YouTubeSourceZone
-                onSwitchToUpload={(suggestedTitle) => {
-                  if (suggestedTitle) {
-                    setPrefilledTitle(suggestedTitle);
-                  }
-                  setInputSource('upload');
-                }}
+                onStartAnalysis={(file, customTitle, ytMeta) => handleStartAnalysis(file, false, customTitle, ytMeta)}
+                onOpenExistingSong={openSongFromHistory}
+                isAnalyzing={isProcessing}
               />
             )}
 
@@ -579,8 +595,10 @@ export const App: React.FC = () => {
           }}
           onAnalyzeAgain={() => {
             const file = duplicateInfo.file;
+            const customTitle = duplicateInfo.customTitle;
+            const ytMeta = duplicateInfo.youtubeMeta;
             setDuplicateInfo(null);
-            handleStartAnalysis(file, true);
+            handleStartAnalysis(file, true, customTitle, ytMeta);
           }}
           onCancel={() => {
             setDuplicateInfo(null);

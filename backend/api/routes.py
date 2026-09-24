@@ -44,7 +44,16 @@ AUDIO_FILE_PATHS: Dict[str, Path] = {}
 PIPELINE = SongAnalyzerPipeline()
 
 
-def run_pipeline_worker(analysis_id: str, audio_path: Path, song_title: str):
+def run_pipeline_worker(
+    analysis_id: str,
+    audio_path: Path,
+    song_title: str,
+    source_type: str = "local",
+    youtube_video_id: Optional[str] = None,
+    youtube_url: Optional[str] = None,
+    youtube_title: Optional[str] = None,
+    youtube_channel: Optional[str] = None
+):
     """Worker function running the analysis pipeline in a background thread."""
     try:
         def update_progress(status: AnalysisStatusEnum, pct: int, msg: str):
@@ -76,9 +85,18 @@ def run_pipeline_worker(analysis_id: str, audio_path: Path, song_title: str):
         ANALYSIS_RESULTS[analysis_id] = analysis
         AUDIO_FILE_PATHS[analysis_id] = audio_path
 
-        # Auto-persist analysis and ingest audio into library
+        # Auto-persist analysis and ingest user-supplied local audio into library
         try:
-            SongRepository.save_analysis(analysis, audio_path, analysis_id)
+            SongRepository.save_analysis(
+                analysis=analysis,
+                source_audio_path=audio_path,
+                song_id=analysis_id,
+                source_type=source_type,
+                youtube_video_id=youtube_video_id,
+                youtube_url=youtube_url,
+                youtube_title=youtube_title,
+                youtube_channel=youtube_channel
+            )
         except Exception as repo_err:
             print(f"[Warning] Failed to persist analysis {analysis_id} to SQLite: {repo_err}")
 
@@ -100,11 +118,16 @@ def run_pipeline_worker(analysis_id: str, audio_path: Path, song_title: str):
 async def analyze_audio(
     file: UploadFile = File(...),
     title: Optional[str] = Form(None),
-    force: bool = Form(False)
+    force: bool = Form(False),
+    source_type: str = Form("local"),
+    youtube_video_id: Optional[str] = Form(None),
+    youtube_url: Optional[str] = Form(None),
+    youtube_title: Optional[str] = Form(None),
+    youtube_channel: Optional[str] = Form(None)
 ):
     """
-    Accepts MP3, WAV, FLAC, or M4A audio files and initiates automatic analysis.
-    Performs duplicate detection by content hash unless force=True.
+    Accepts user-authorized MP3, WAV, FLAC, or M4A audio files and initiates automatic analysis.
+    Performs duplicate detection by content hash and/or YouTube Video ID unless force=True.
     """
     valid_extensions = [".mp3", ".wav", ".flac", ".m4a", ".ogg"]
     file_ext = Path(file.filename).suffix.lower()
@@ -122,9 +145,20 @@ async def analyze_audio(
     with open(target_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # Duplicate detection by content hash
+    # Duplicate detection
     if not force:
         try:
+            # 1. Check duplicate by YouTube Video ID if present
+            if youtube_video_id:
+                existing_yt = SongRepository.find_by_youtube_id(youtube_video_id)
+                if existing_yt:
+                    return {
+                        "status": "DUPLICATE_FOUND",
+                        "existing_song": existing_yt,
+                        "message": "This YouTube video has already been analyzed and is in your History library."
+                    }
+
+            # 2. Check duplicate by audio content hash
             import hashlib
             hasher = hashlib.sha256()
             with open(target_path, "rb") as f:
@@ -135,7 +169,7 @@ async def analyze_audio(
                 return {
                     "status": "DUPLICATE_FOUND",
                     "existing_song": existing,
-                    "message": "This song is already in your History."
+                    "message": "This audio file is already in your History library."
                 }
         except Exception as hash_err:
             print(f"[Analyze] Duplicate check error: {hash_err}")
@@ -146,13 +180,13 @@ async def analyze_audio(
         status=AnalysisStatusEnum.UPLOADING,
         progress=2,
         current_stage="UPLOADING",
-        message="File uploaded successfully, queuing analysis..."
+        message="Audio received successfully, queuing analysis..."
     )
 
     # Launch processing in background thread
     worker = threading.Thread(
         target=run_pipeline_worker,
-        args=(analysis_id, target_path, song_title),
+        args=(analysis_id, target_path, song_title, source_type, youtube_video_id, youtube_url, youtube_title, youtube_channel),
         daemon=True
     )
     worker.start()
@@ -169,18 +203,32 @@ async def get_youtube_info(req: YouTubeInfoRequest):
     """
     Validates a YouTube URL and retrieves public video metadata (title, channel, thumbnail)
     in strict accordance with copyright and API policies.
-    Does not extract or scrape unauthorized audio.
+    Does not extract, rip, or download unauthorized audio streams.
     """
-    from backend.sources.audio_source import YouTubeSource
+    from backend.sources.audio_source import YouTubeReferenceSource
 
-    source = YouTubeSource(req.url)
+    source = YouTubeReferenceSource(req.url)
     if not source.validate():
         raise HTTPException(
             status_code=400,
-            detail="Invalid YouTube URL. Please provide a valid link (e.g. https://www.youtube.com/watch?v=... or https://youtu.be/...)"
+            detail="Unable to retrieve information for this YouTube link. Please check the URL and try again."
         )
 
     metadata = source.get_metadata()
+    if not metadata.get("valid"):
+        raise HTTPException(
+            status_code=400,
+            detail=metadata.get("error", "Unable to retrieve information for this YouTube link.")
+        )
+
+    # Check if this YouTube video has already been analyzed in user's library
+    video_id = metadata.get("video_id")
+    if video_id:
+        existing = SongRepository.find_by_youtube_id(video_id)
+        if existing:
+            metadata["already_in_history"] = True
+            metadata["existing_song"] = existing
+
     return metadata
 
 

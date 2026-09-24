@@ -42,15 +42,22 @@ class SongRepository:
         cls,
         analysis: SongAnalysis,
         source_audio_path: Path,
-        song_id: Optional[str] = None
+        song_id: Optional[str] = None,
+        source_type: str = "local",
+        youtube_video_id: Optional[str] = None,
+        youtube_url: Optional[str] = None,
+        youtube_title: Optional[str] = None,
+        youtube_channel: Optional[str] = None,
+        local_audio_id: Optional[str] = None
     ) -> str:
         """
         Persists a newly completed song analysis into SQLite and the managed audio library.
+        Preserves YouTube reference metadata without downloading YouTube audiovisual content.
         """
         sid = song_id or analysis.id or str(uuid.uuid4())[:8]
         analysis.id = sid
 
-        # 1. Ingest audio into managed library
+        # Ingest user's authorized local audio into managed library
         managed_audio_path = cls.ingest_audio(sid, source_audio_path)
         analysis.audio_url = f"/api/analysis/{sid}/audio"
 
@@ -65,8 +72,10 @@ class SongRepository:
                         id, title, original_filename, file_hash, duration, format,
                         audio_path, key_display, key_mode, bpm, time_signature,
                         transpose_value, is_favorite, created_at, updated_at,
-                        last_opened_at, model_version, pipeline_version, edit_count
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        last_opened_at, model_version, pipeline_version, edit_count,
+                        source_type, youtube_video_id, youtube_url, youtube_title,
+                        youtube_channel, local_audio_id
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(id) DO UPDATE SET
                         title = excluded.title,
                         duration = excluded.duration,
@@ -75,7 +84,13 @@ class SongRepository:
                         bpm = excluded.bpm,
                         time_signature = excluded.time_signature,
                         updated_at = excluded.updated_at,
-                        last_opened_at = excluded.last_opened_at;
+                        last_opened_at = excluded.last_opened_at,
+                        source_type = excluded.source_type,
+                        youtube_video_id = excluded.youtube_video_id,
+                        youtube_url = excluded.youtube_url,
+                        youtube_title = excluded.youtube_title,
+                        youtube_channel = excluded.youtube_channel,
+                        local_audio_id = excluded.local_audio_id;
                     """,
                     (
                         sid,
@@ -96,9 +111,30 @@ class SongRepository:
                         now,
                         analysis.pipeline_metadata.model_version,
                         analysis.pipeline_metadata.app_version,
-                        0
+                        0,
+                        source_type,
+                        youtube_video_id,
+                        youtube_url,
+                        youtube_title,
+                        youtube_channel,
+                        local_audio_id
                     )
                 )
+
+                # Set source_metadata on analysis object for export
+                if source_type == "youtube_reference":
+                    analysis.source_metadata = {
+                        "type": "youtube_reference",
+                        "youtube_video_id": youtube_video_id,
+                        "youtube_url": youtube_url,
+                        "title": youtube_title or analysis.title,
+                        "channel": youtube_channel,
+                    }
+                else:
+                    analysis.source_metadata = {
+                        "type": "local",
+                        "filename": analysis.metadata.filename
+                    }
 
                 # Insert or update analysis record
                 analysis_json = analysis.model_dump_json()
@@ -114,7 +150,7 @@ class SongRepository:
                     (sid, analysis_json, raw_pred_json)
                 )
 
-            print(f"[Repository] Successfully persisted song '{analysis.title}' (ID: {sid})")
+            print(f"[Repository] Successfully persisted song '{analysis.title}' (ID: {sid}, Source: {source_type})")
             return sid
         finally:
             conn.close()
@@ -127,7 +163,11 @@ class SongRepository:
             cur = conn.cursor()
             cur.execute("SELECT * FROM songs WHERE id = ?;", (song_id,))
             row = cur.fetchone()
-            return dict(row) if row else None
+            if not row:
+                return None
+            data = dict(row)
+            data["audio_available"] = bool(data.get("audio_path") and Path(data["audio_path"]).exists())
+            return data
         finally:
             conn.close()
 
@@ -142,7 +182,8 @@ class SongRepository:
             cur = conn.cursor()
             cur.execute(
                 """
-                SELECT a.analysis_data, s.audio_path, s.transpose_value, s.title
+                SELECT a.analysis_data, s.audio_path, s.transpose_value, s.title,
+                       s.source_type, s.youtube_video_id, s.youtube_url, s.youtube_title, s.youtube_channel
                 FROM analyses a
                 JOIN songs s ON s.id = a.song_id
                 WHERE a.song_id = ?;
@@ -159,6 +200,23 @@ class SongRepository:
             analysis.audio_url = f"/api/analysis/{song_id}/audio"
             analysis.transpose_semitones = row["transpose_value"]
             analysis.title = row["title"]
+
+            # Attach source reference metadata
+            if row["source_type"] == "youtube_reference":
+                analysis.source_metadata = {
+                    "type": "youtube_reference",
+                    "video_id": row["youtube_video_id"],
+                    "youtube_video_id": row["youtube_video_id"],
+                    "url": row["youtube_url"],
+                    "youtube_url": row["youtube_url"],
+                    "title": row["youtube_title"] or row["title"],
+                    "channel": row["youtube_channel"],
+                }
+            else:
+                analysis.source_metadata = {
+                    "type": "local",
+                    "filename": analysis.metadata.filename
+                }
 
             # Update last_opened_at in background
             with conn:
@@ -181,13 +239,37 @@ class SongRepository:
             cur = conn.cursor()
             cur.execute(
                 """
-                SELECT id, title, key_display, bpm, time_signature, duration, created_at
+                SELECT id, title, key_display, bpm, time_signature, duration, created_at, source_type, youtube_title
                 FROM songs
                 WHERE file_hash = ?
                 ORDER BY updated_at DESC
                 LIMIT 1;
                 """,
                 (file_hash,)
+            )
+            row = cur.fetchone()
+            return dict(row) if row else None
+        finally:
+            conn.close()
+
+    @classmethod
+    def find_by_youtube_id(cls, youtube_video_id: str) -> Optional[Dict[str, Any]]:
+        """Duplicate detection: checks if this YouTube video has already been analyzed."""
+        if not youtube_video_id:
+            return None
+        conn = get_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                """
+                SELECT id, title, key_display, bpm, time_signature, duration, created_at, source_type,
+                       youtube_video_id, youtube_url, youtube_title, youtube_channel
+                FROM songs
+                WHERE youtube_video_id = ?
+                ORDER BY updated_at DESC
+                LIMIT 1;
+                """,
+                (youtube_video_id,)
             )
             row = cur.fetchone()
             return dict(row) if row else None
@@ -204,6 +286,7 @@ class SongRepository:
     ) -> List[Dict[str, Any]]:
         """
         Lists songs for the History page with search, filters, and sorting.
+        Includes YouTube reference metadata and audio file availability check.
         """
         conn = get_connection()
         try:
@@ -215,8 +298,8 @@ class SongRepository:
 
             if query and query.strip():
                 q = f"%{query.strip().lower()}%"
-                clauses.append("(LOWER(title) LIKE ? OR LOWER(original_filename) LIKE ? OR LOWER(key_display) LIKE ?)")
-                params.extend([q, q, q])
+                clauses.append("(LOWER(title) LIKE ? OR LOWER(original_filename) LIKE ? OR LOWER(key_display) LIKE ? OR LOWER(COALESCE(youtube_title, '')) LIKE ? OR LOWER(COALESCE(youtube_channel, '')) LIKE ?)")
+                params.extend([q, q, q, q, q])
 
             where_str = f"WHERE {' AND '.join(clauses)}" if clauses else ""
 
@@ -229,10 +312,11 @@ class SongRepository:
             }.get(sort_by, "last_opened_at DESC")
 
             sql = f"""
-                SELECT id, title, original_filename, file_hash, duration, format,
+                SELECT id, title, original_filename, file_hash, duration, format, audio_path,
                        key_display, key_mode, bpm, time_signature, transpose_value,
                        is_favorite, created_at, updated_at, last_opened_at,
-                       model_version, pipeline_version, edit_count
+                       model_version, pipeline_version, edit_count,
+                       source_type, youtube_video_id, youtube_url, youtube_title, youtube_channel, local_audio_id
                 FROM songs
                 {where_str}
                 ORDER BY {order_by}
@@ -243,7 +327,12 @@ class SongRepository:
             cur = conn.cursor()
             cur.execute(sql, params)
             rows = cur.fetchall()
-            return [dict(r) for r in rows]
+            results = []
+            for r in rows:
+                item = dict(r)
+                item["audio_available"] = bool(item.get("audio_path") and Path(item["audio_path"]).exists())
+                results.append(item)
+            return results
         finally:
             conn.close()
 

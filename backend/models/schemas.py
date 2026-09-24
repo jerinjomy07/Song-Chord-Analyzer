@@ -134,6 +134,7 @@ class SongAnalysis(BaseModel):
     transpose_semitones: int = 0
     audio_url: Optional[str] = None
     has_stems: bool = False
+    source_metadata: Optional[Dict[str, Any]] = None
 
 
 class AnalysisStatusResponse(BaseModel):

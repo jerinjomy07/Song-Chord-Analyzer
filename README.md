@@ -1,54 +1,62 @@
 # 🎵 SONG CHORD ANALYZER
 
-[![Release](https://img.shields.io/badge/Release-v0.1.3-indigo.svg)](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.3)
+[![Release](https://img.shields.io/badge/Release-v0.1.4-indigo.svg)](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.4)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011%20x64-blue.svg)](https://github.com/jerinjomy07/Song-Chord-Analyzer)
 [![PyTorch](https://img.shields.io/badge/PyTorch-CUDA%20Accelerated-orange.svg)](https://pytorch.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](docs/MODEL_LICENSING.md)
 
-> **Standalone Windows Desktop Application for Automated Music Information Retrieval (MIR), Automatic Chord Recognition (ACR) & Persistent Song Library**
+> **Standalone Windows Desktop Application for Automated Music Information Retrieval (MIR), Automatic Chord Recognition (ACR), YouTube Reference Workflow & Persistent Song Library**
 
-**Song Chord Analyzer** is a local-first Windows desktop application designed specifically for pianists, keyboardists, guitarists, worship teams, arrangers, and music producers. Drag and drop any music file (MP3, WAV, FLAC, M4A, AAC, OGG, WMA) or inspect a YouTube link, and the system automatically performs Demucs stem separation, BTC Transformer neural chord recognition, sub-bass inversion detection, beat/bar alignment, and musical section structuring to produce an interactive, musician-ready chord chart.
+**Song Chord Analyzer** is a local-first Windows desktop application designed specifically for pianists, keyboardists, guitarists, worship teams, arrangers, and music producers. Drag and drop any music file (MP3, WAV, FLAC, M4A, AAC, OGG, WMA) or inspect a YouTube reference link, and the system automatically performs Demucs stem separation, BTC Transformer neural chord recognition, sub-bass inversion detection, beat/bar alignment, and musical section structuring to produce an interactive, musician-ready chord chart.
 
 ---
 
 ## 📥 Downloads & Windows Executables
 
-Download the latest pre-built Windows standalone binaries from the **[v0.1.3 Release Page](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.3)**:
+Download the latest pre-built Windows standalone binaries from the **[v0.1.4 Release Page](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.4)**:
 
 | Distribution Format | Description | Download Link |
 | :--- | :--- | :--- |
-| **Windows Installer** | Standard Windows setup with Start Menu & Desktop shortcuts | [📥 SongChordAnalyzer-Setup.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.3/SongChordAnalyzer-Setup.exe) |
-| **Standalone Portable** | Single-file portable `.exe` requiring zero installation | [📥 SongChordAnalyzer.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.3/SongChordAnalyzer.exe) |
+| **Windows Installer** | Standard Windows setup with Start Menu & Desktop shortcuts | [📥 SongChordAnalyzer-Setup.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.4/SongChordAnalyzer-Setup.exe) |
+| **Standalone Portable** | Single-file portable `.exe` requiring zero installation | [📥 SongChordAnalyzer.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.4/SongChordAnalyzer.exe) |
 | **Pre-Extracted Directory** | Direct standalone folder | `dist_electron/win-unpacked/Song Chord Analyzer.exe` |
 
 ---
 
-## 🌟 Key Features & What's New in v0.1.3
+## 🌟 Key Features & What's New in v0.1.4
 
-### 1. Persistent SQLite History & Song Library
+### 1. Policy-Compliant YouTube Reference Workflow
+- **Metadata Inspection:** Paste any public YouTube URL to inspect video details including official title, creator/channel, thumbnail, and canonical URL via YouTube's official oEmbed protocol.
+- **Strict Policy Compliance:** Zero unauthorized stream ripping, zero video scraping, and no unofficial downloading (`yt-dlp` is never used).
+- **Authorized Audio Pairing:** Users provide their authorized local audio file (`MP3, WAV, FLAC, M4A`) right within the YouTube card.
+- **Smart Title Auto-Cleaning:** One-click **Auto-Clean** button automatically strips noisy tags (e.g. `(Official Video)`, `[4K Audio]`, artist channel branding).
+- **Library & History Association:** The analysis is linked to the YouTube metadata (`source_type: "youtube_reference"`, `youtube_video_id`, `youtube_url`, `youtube_title`, `youtube_channel`), with direct *"Watch on YouTube"* links on the chord sheet and in Library.
+- **YouTube Duplicate Detection:** Prevents re-running analysis when an existing song for the same YouTube link is already in the library.
+
+### 2. Persistent SQLite History & Song Library
 - **Analyze Once, Keep Forever:** Every analyzed song is automatically saved to an isolated local SQLite database (`%LOCALAPPDATA%\SongChordAnalyzer\database.sqlite`).
 - **Instant Historical Loading (<15ms):** Opening a song from History bypasses Demucs and neural model execution entirely. Audio and chord sheets load immediately.
 - **Audio Library Management:** Audio is preserved in `%LOCALAPPDATA%\SongChordAnalyzer\library\<song-id>\`, ensuring charts, waveforms, and playback continue working even if you move or delete your original file.
 - **Search & Sort:** Instant keyword search across song titles, filenames, and keys, with sorting by *Recently Opened*, *Recently Analyzed*, *Recently Modified*, and *Title (A–Z)*.
 - **Favorites & Song Duplication:** Star your favorite arrangements or duplicate charts to keep alternate keys and revisions.
 
-### 2. Full Song Title Renaming Freedom
-- **On YouTube Inspection:** Edit and clean messy video titles (e.g. stripping artist tags, `| Official Video | 4K`) using the **Auto-Clean** button before starting.
+### 3. Full Song Title Renaming Freedom
+- **On YouTube Inspection:** Edit and clean messy video titles using the **Auto-Clean** button before starting.
 - **In Upload Zone:** Edit the song title before analysis begins.
 - **On Active Chord Sheet:** Click the **edit pencil** next to the song title in the header to rename the title inline anytime. All changes auto-save immediately to SQLite and update future PDF, TXT, and JSON exports.
 
-### 3. Dedicated Automatic Chord Recognition (ACR) & Inversions
+### 4. Dedicated Automatic Chord Recognition (ACR) & Inversions
 - **BTC Transformer Model:** Evaluates CQT spectral representations against a **170-chord vocabulary** (Major, Minor, 7th, Maj7, Min7, Dim, Aug, Sus4, Sus2, 6th, etc.).
 - **Physical Bass-Stem Inversion Detection:** Isolates the Demucs bass stem and tracks sub-bass frequencies ($30\text{ Hz} - 350\text{ Hz}$) to identify true sounding bass notes (e.g. $F\sharp/A\sharp$, $A/C\sharp$, $D/F\sharp$, $E/G\sharp$, $C/E$, $G/B$).
 - **Multi-Source Evidence Fusion:** Combines original mix BTC predictions, accompaniment stem predictions, physical bass tracking, and CQT Chroma profiles.
 
-### 4. Interactive Musician Workflow
+### 5. Interactive Musician Workflow
 - **Auto-Scroll Playback:** Chord sheet automatically scrolls synchronously with audio playback, keeping active measures in view.
 - **Interactive Chord Editor:** Click any chord to edit root, quality, bass note, or choose model-predicted alternative candidates.
 - **Auto-Save Indicator:** Displays a debounced **"Saved ✓"** badge whenever chord edits, section renames, or transpositions are committed.
 - **True Musical Transposer:** Shift the entire song ($+/- 11$ semitones) instantly while preserving chord quality, root spelling, and slash inversions.
 
-### 5. Multi-Format Crash-Free Export
+### 6. Multi-Format Crash-Free Export
 - **Printable PDF:** Clean, standard sheet music with boxed measures and section headers generated via ReportLab.
 - **Monospace TXT:** Standard ASCII chart designed for stage binders and chord charts.
 - **Structured JSON:** Machine-readable transcription format containing complete chord, beat, downbeat, and confidence metrics.

@@ -13,7 +13,7 @@ from typing import Optional
 from backend.config import DB_PATH, STORAGE_DIR
 
 
-SCHEMA_SQL = """
+TABLES_SQL = """
 PRAGMA journal_mode = WAL;
 PRAGMA foreign_keys = ON;
 
@@ -36,7 +36,13 @@ CREATE TABLE IF NOT EXISTS songs (
     last_opened_at TEXT NOT NULL,
     model_version TEXT,
     pipeline_version TEXT,
-    edit_count INTEGER DEFAULT 0
+    edit_count INTEGER DEFAULT 0,
+    source_type TEXT DEFAULT 'local',
+    youtube_video_id TEXT,
+    youtube_url TEXT,
+    youtube_title TEXT,
+    youtube_channel TEXT,
+    local_audio_id TEXT
 );
 
 CREATE TABLE IF NOT EXISTS analyses (
@@ -66,8 +72,11 @@ CREATE TABLE IF NOT EXISTS chord_corrections (
     created_at TEXT NOT NULL,
     FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE
 );
+"""
 
+INDEXES_SQL = """
 CREATE INDEX IF NOT EXISTS idx_songs_hash ON songs(file_hash);
+CREATE INDEX IF NOT EXISTS idx_songs_yt_id ON songs(youtube_video_id);
 CREATE INDEX IF NOT EXISTS idx_songs_updated ON songs(updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_songs_last_opened ON songs(last_opened_at DESC);
 CREATE INDEX IF NOT EXISTS idx_songs_fav ON songs(is_favorite);
@@ -111,13 +120,35 @@ def get_connection(db_path: Path = DB_PATH) -> sqlite3.Connection:
     return conn
 
 
+def migrate_db(conn: sqlite3.Connection) -> None:
+    """Migrates existing database schemas without losing data."""
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA table_info(songs);")
+    existing_cols = {col[1] for col in cursor.fetchall()}
+    new_cols = [
+        ("source_type", "TEXT DEFAULT 'local'"),
+        ("youtube_video_id", "TEXT"),
+        ("youtube_url", "TEXT"),
+        ("youtube_title", "TEXT"),
+        ("youtube_channel", "TEXT"),
+        ("local_audio_id", "TEXT"),
+    ]
+    with conn:
+        for col_name, col_def in new_cols:
+            if col_name not in existing_cols:
+                conn.execute(f"ALTER TABLE songs ADD COLUMN {col_name} {col_def};")
+
+
 def init_db(db_path: Path = DB_PATH) -> None:
-    """Initializes schema and tables."""
+    """Initializes schema, migrations, and tables."""
     verify_and_recover_db(db_path)
     conn = get_connection(db_path)
     try:
         with conn:
-            conn.executescript(SCHEMA_SQL)
+            conn.executescript(TABLES_SQL)
+        migrate_db(conn)
+        with conn:
+            conn.executescript(INDEXES_SQL)
         print(f"[DB] Initialized database at: {db_path}")
     finally:
         conn.close()

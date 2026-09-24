@@ -16,8 +16,15 @@ import {
   Loader2,
   Check,
   X,
-  FileAudio
+  FileAudio,
+  ExternalLink
 } from 'lucide-react';
+
+const YoutubeIcon: React.FC<{ size?: number; className?: string }> = ({ size = 14, className = "" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+  </svg>
+);
 
 interface HistoryPageProps {
   onOpenSong: (songId: string) => void;
@@ -330,9 +337,22 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className="uppercase text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                          {song.format || 'AUDIO'}
-                        </span>
+                        {song.source_type === 'youtube_reference' ? (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-red-500/10 text-red-300 border border-red-500/20 flex items-center gap-1">
+                            <YoutubeIcon size={12} className="text-red-400" />
+                            <span>YouTube Ref</span>
+                          </span>
+                        ) : (
+                          <span className="uppercase text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                            {song.format || 'AUDIO'}
+                          </span>
+                        )}
+                        {song.audio_available === false && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 flex items-center gap-1" title="Local audio file not found on disk">
+                            <AlertTriangle size={11} className="text-amber-400" />
+                            <span>Audio Offline</span>
+                          </span>
+                        )}
                         {song.edit_count > 0 && (
                           <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">
                             {song.edit_count} {song.edit_count === 1 ? 'edit' : 'edits'}
@@ -354,6 +374,19 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                       <p className="text-[11px] text-slate-500 truncate" title={song.original_filename}>
                         {song.original_filename}
                       </p>
+                      {song.youtube_url && (
+                        <a
+                          href={song.youtube_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={e => e.stopPropagation()}
+                          className="inline-flex items-center gap-1 text-[11px] text-red-400/80 hover:text-red-300 transition-colors mt-0.5"
+                          title="Open YouTube video in browser"
+                        >
+                          <span>{song.youtube_channel ? `${song.youtube_channel} • ` : ''}Watch on YouTube</span>
+                          <ExternalLink size={10} />
+                        </a>
+                      )}
                     </div>
 
                     <button

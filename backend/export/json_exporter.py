@@ -86,6 +86,10 @@ def build_complete_json_export(analysis: SongAnalysis) -> dict:
             "file_size_bytes": analysis.metadata.file_size_bytes,
             "file_hash": analysis.metadata.file_hash,
         },
+        "source": analysis.source_metadata or {
+            "type": "local",
+            "filename": analysis.metadata.filename
+        },
         "musical_attributes": {
             "key": analysis.key.tonic,
             "mode": analysis.key.mode,

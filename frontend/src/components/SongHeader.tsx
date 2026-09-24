@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
-import { Music, Activity, Clock, Sliders, Cpu, RotateCcw, Edit2, Check, X, Loader2 } from 'lucide-react';
+import { Music, Activity, Clock, Sliders, Cpu, RotateCcw, Edit2, Check, X, Loader2, ExternalLink } from 'lucide-react';
 import type { SongAnalysis } from '../types';
+
+const YoutubeIcon: React.FC<{ size?: number; className?: string }> = ({ size = 14, className = "" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+  </svg>
+);
 
 interface SongHeaderProps {
   analysis: SongAnalysis;
@@ -55,7 +61,7 @@ export const SongHeader: React.FC<SongHeaderProps> = ({ analysis, onReset, onRen
     <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl mb-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1.5">
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
               Analysis Completed
             </span>
@@ -63,6 +69,19 @@ export const SongHeader: React.FC<SongHeaderProps> = ({ analysis, onReset, onRen
               <Cpu size={12} />
               <span>{analysis.pipeline_metadata.device_used.toUpperCase()} Accelerated</span>
             </span>
+            {analysis.source_metadata?.type === 'youtube_reference' && (
+              <a
+                href={analysis.source_metadata.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-300 border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/20 transition-all cursor-pointer"
+                title="View referenced video on YouTube"
+              >
+                <YoutubeIcon size={12} className="text-red-400" />
+                <span>YouTube Ref</span>
+                <ExternalLink size={10} className="text-red-400" />
+              </a>
+            )}
           </div>
 
           {/* Song Title with Option to Rename */}

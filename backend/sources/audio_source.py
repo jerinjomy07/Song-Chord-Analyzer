@@ -1,9 +1,11 @@
 """
 Pluggable AudioSource architecture for Song Chord Analyzer.
 Provides abstract AudioSource interface and implementations:
-- LocalFileSource: Analyzes user-provided audio files.
-- YouTubeSource: Policy-compliant YouTube link validator & metadata resolver.
-- FutureAuthorizedSource: Extensibility point for licensed/authorized music APIs.
+- AudioSource: Abstract base class representing an audio source provider.
+- LocalFileSource: Analyzes user-provided local audio files (MP3, WAV, FLAC, M4A).
+- YouTubeReferenceSource: Policy-compliant YouTube link validator & metadata resolver.
+  Strictly reference-only: does NOT perform unauthorized stream ripping or audio extraction.
+- FutureAuthorizedYouTubeSource: Extensibility point for future licensed/authorized APIs.
 """
 
 from abc import ABC, abstractmethod
@@ -31,8 +33,8 @@ class AudioSource(ABC):
     @abstractmethod
     def is_authorized_audio_available(self) -> bool:
         """
-        Returns True if an authorized, policy-compliant audio stream or file
-        is legally available to pass to the analysis pipeline.
+        Returns True if an authorized, policy-compliant audio file or stream
+        is available to pass to the analysis pipeline.
         """
         pass
 
@@ -40,7 +42,7 @@ class AudioSource(ABC):
     def get_audio_path(self) -> Optional[Path]:
         """
         Returns Path to the local audio file ready for Demucs and BTC processing.
-        Returns None if authorized audio is unavailable.
+        Returns None if authorized local audio is unavailable.
         """
         pass
 
@@ -57,7 +59,7 @@ class LocalFileSource(AudioSource):
 
     def get_metadata(self) -> Dict[str, Any]:
         return {
-            "source_type": "local_file",
+            "source_type": "local",
             "title": self.title,
             "filename": self.file_path.name,
             "size_bytes": self.file_path.stat().st_size if self.file_path.exists() else 0,
@@ -70,14 +72,14 @@ class LocalFileSource(AudioSource):
         return self.file_path if self.validate() else None
 
 
-class YouTubeSource(AudioSource):
+class YouTubeReferenceSource(AudioSource):
     """
-    Policy-compliant YouTube source adapter.
-    - Validates YouTube URLs
-    - Extracts video ID
-    - Resolves public video metadata via YouTube's official oEmbed endpoint (no scraping)
-    - Strictly obeys copyright policy: does NOT perform unauthorized stream ripping
-    - Guides user to provide authorized audio files
+    Policy-compliant YouTube reference source adapter.
+    - Validates YouTube URLs without downloading audiovisual streams.
+    - Resolves public video metadata via YouTube's official oEmbed endpoint.
+    - Strictly reference-only: does NOT perform unauthorized stream extraction or downloading.
+    - Guides the user to supply authorized local audio.
+    - Associates user-supplied local audio with YouTube metadata for analysis & history.
     """
 
     YOUTUBE_URL_REGEX = re.compile(
@@ -87,19 +89,22 @@ class YouTubeSource(AudioSource):
 
     OEMBED_ENDPOINT = "https://www.youtube.com/oembed"
 
-    def __init__(self, url: str):
+    def __init__(self, url: str, local_audio_path: Optional[Path] = None):
         self.raw_url = url.strip()
         self.video_id: Optional[str] = self._extract_video_id(self.raw_url)
+        self.local_audio_path: Optional[Path] = Path(local_audio_path) if local_audio_path else None
         self._cached_metadata: Optional[Dict[str, Any]] = None
 
     @classmethod
     def _extract_video_id(cls, url: str) -> Optional[str]:
-        match = cls.YOUTUBE_URL_REGEX.match(url)
+        if not url or not url.strip():
+            return None
+        match = cls.YOUTUBE_URL_REGEX.match(url.strip())
         if match:
             return match.group(5)
         # Try query parameter parse
         try:
-            parsed = urllib.parse.urlparse(url)
+            parsed = urllib.parse.urlparse(url.strip())
             if "youtube.com" in parsed.netloc:
                 qs = urllib.parse.parse_qs(parsed.query)
                 if "v" in qs and len(qs["v"][0]) == 11:
@@ -114,13 +119,13 @@ class YouTubeSource(AudioSource):
     def get_metadata(self) -> Dict[str, Any]:
         """
         Fetches public video metadata using YouTube's official oEmbed standard.
-        Does not require API keys, credentials, or scraping.
+        Does not download, rip, or scrape media streams.
         """
         if not self.validate():
             return {
-                "source_type": "youtube",
+                "source_type": "youtube_reference",
                 "valid": False,
-                "error": "Invalid YouTube URL"
+                "error": "Unable to retrieve information for this YouTube link. Please check the URL and try again."
             }
 
         if self._cached_metadata is not None:
@@ -128,17 +133,17 @@ class YouTubeSource(AudioSource):
 
         canonical_url = f"https://www.youtube.com/watch?v={self.video_id}"
         meta: Dict[str, Any] = {
-            "source_type": "youtube",
+            "source_type": "youtube_reference",
             "valid": True,
             "video_id": self.video_id,
             "canonical_url": canonical_url,
             "title": f"YouTube Video ({self.video_id})",
             "channel": "YouTube Creator",
             "thumbnail_url": f"https://img.youtube.com/vi/{self.video_id}/hqdefault.jpg",
-            "authorized_audio_available": False,
+            "authorized_audio_available": bool(self.local_audio_path and self.local_audio_path.exists()),
             "compliance_message": (
-                "This YouTube video cannot be imported directly for audio analysis. "
-                "Please upload an audio file you are authorized to analyze."
+                "This app needs audio that you are authorized to analyze. "
+                "To generate a chord sheet, provide an audio file you are authorized to analyze."
             )
         }
 
@@ -149,7 +154,7 @@ class YouTubeSource(AudioSource):
                 oembed_url,
                 headers={"User-Agent": "SongChordAnalyzer/1.0 (Windows NT 10.0; Win64; x64)"}
             )
-            with urllib.request.urlopen(req, timeout=4) as response:
+            with urllib.request.urlopen(req, timeout=5) as response:
                 if response.status == 200:
                     data = json.loads(response.read().decode("utf-8"))
                     meta["title"] = data.get("title", meta["title"])
@@ -158,29 +163,36 @@ class YouTubeSource(AudioSource):
                         meta["thumbnail_url"] = data["thumbnail_url"]
         except Exception as e:
             # Fall back to video ID metadata if offline or restricted
-            print(f"[YouTubeSource] oEmbed lookup notice for {self.video_id}: {e}")
+            print(f"[YouTubeReferenceSource] oEmbed lookup notice for {self.video_id}: {e}")
 
         self._cached_metadata = meta
         return meta
 
+    def set_authorized_local_audio(self, audio_path: Path) -> None:
+        """Associates the user's supplied local audio file with this YouTube reference."""
+        self.local_audio_path = Path(audio_path)
+
     def is_authorized_audio_available(self) -> bool:
         """
-        Returns False for standard YouTube URLs because arbitrary audio downloading
-        or stream ripping from YouTube is unauthorized.
+        True only when the user has provided a valid, existing local audio file.
+        Never performs unauthorized stream downloading.
         """
-        return False
+        return bool(self.local_audio_path and self.local_audio_path.exists() and self.local_audio_path.stat().st_size > 0)
 
     def get_audio_path(self) -> Optional[Path]:
-        """
-        Returns None: unauthorized extraction is prohibited.
-        """
-        return None
+        """Returns path to the user's authorized local audio file."""
+        return self.local_audio_path if self.is_authorized_audio_available() else None
 
 
-class FutureAuthorizedSource(AudioSource):
+# Backward-compatibility alias
+YouTubeSource = YouTubeReferenceSource
+
+
+class FutureAuthorizedYouTubeSource(AudioSource):
     """
-    Extensibility adapter for future licensed B2B music partnerships,
-    creative commons registries, or approved stem libraries.
+    Extensibility adapter for future licensed/authorized music APIs or
+    approved YouTube B2B partner integrations.
+    Unused until legally and technically available.
     """
 
     def __init__(self, source_id: str, provider_name: str, stream_url: Optional[str] = None):

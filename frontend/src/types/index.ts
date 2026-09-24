@@ -117,6 +117,7 @@ export interface SongAnalysis {
   audio_url?: string;
   has_stems: boolean;
   debug_view?: DebugViewEntry[];
+  source_metadata?: Record<string, any>;
 }
 
 export type AnalysisStatus = 
@@ -186,6 +187,23 @@ export interface HistorySong {
   model_version?: string;
   pipeline_version?: string;
   edit_count: number;
+  source_type?: 'local' | 'youtube_reference';
+  youtube_video_id?: string;
+  youtube_url?: string;
+  youtube_title?: string;
+  youtube_channel?: string;
+  audio_available?: boolean;
+}
+
+export interface YouTubeMetadata {
+  valid: boolean;
+  video_id?: string;
+  title?: string;
+  channel?: string;
+  thumbnail_url?: string;
+  canonical_url?: string;
+  compliance_message?: string;
+  authorized_audio_available?: boolean;
 }
 
 export interface DuplicateCheckResponse {

@@ -269,10 +269,53 @@ def test_delete_and_library_cleanup():
     assert not parent_dir.exists()
 
 
+def test_youtube_reference_saving_and_lookup():
+    """Test saving a song with YouTube reference metadata and finding it by YouTube video ID."""
+    analysis = create_sample_analysis("song-yt-001", "Never Gonna Give You Up")
+    dummy_audio = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+    dummy_audio.write(b"mock youtube test mp3 audio stream")
+    dummy_audio.close()
+
+    try:
+        SongRepository.save_analysis(
+            analysis,
+            source_audio_path=Path(dummy_audio.name),
+            song_id="song-yt-001",
+            source_type="youtube_reference",
+            youtube_video_id="dQw4w9WgXcQ",
+            youtube_url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            youtube_title="Rick Astley - Never Gonna Give You Up",
+            youtube_channel="RickAstleyVEVO"
+        )
+
+        # 1. Lookup by YouTube ID
+        yt_song = SongRepository.find_by_youtube_id("dQw4w9WgXcQ")
+        assert yt_song is not None
+        assert yt_song["id"] == "song-yt-001"
+        assert yt_song["source_type"] == "youtube_reference"
+        assert yt_song["youtube_video_id"] == "dQw4w9WgXcQ"
+        assert yt_song["youtube_channel"] == "RickAstleyVEVO"
+
+        # 2. Retrieve analysis and verify source_metadata
+        loaded_analysis = SongRepository.get_analysis("song-yt-001")
+        assert loaded_analysis is not None
+        assert loaded_analysis.source_metadata is not None
+        assert loaded_analysis.source_metadata["type"] == "youtube_reference"
+        assert loaded_analysis.source_metadata["video_id"] == "dQw4w9WgXcQ"
+
+        # 3. Clean up
+        SongRepository.delete_song("song-yt-001")
+    finally:
+        if Path(dummy_audio.name).exists():
+            Path(dummy_audio.name).unlink()
+
+
 if __name__ == "__main__":
     print("Running History & Library System Integration Tests...")
     test_repository_save_and_retrieve()
     print("[OK] test_repository_save_and_retrieve passed")
+    test_youtube_reference_saving_and_lookup()
+    print("[OK] test_youtube_reference_saving_and_lookup passed")
     test_duplicate_detection_by_hash()
     print("[OK] test_duplicate_detection_by_hash passed")
     test_list_songs_and_search()
