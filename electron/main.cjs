@@ -52,14 +52,31 @@ function resolvePythonExecutable() {
     return localResPython;
   }
 
-  // 4. Windows AppData StemKit venv (development environment)
+  // 4. Windows AppData SongChordAnalyzer venv (isolated app runtime)
+  const localAppData = process.env.LOCALAPPDATA || '';
+  const appVenvPython = path.join(localAppData, 'SongChordAnalyzer', 'venv', 'Scripts', 'python.exe');
+  if (fs.existsSync(appVenvPython)) {
+    return appVenvPython;
+  }
+
+  // 5. Windows AppData StemKit venv (development / companion environment)
   const appData = process.env.APPDATA || '';
   const stemkitPython = path.join(appData, 'StemKit', 'venv', 'Scripts', 'python.exe');
   if (fs.existsSync(stemkitPython)) {
     return stemkitPython;
   }
 
-  // 5. System PATH fallback
+  // 6. Project local venv (.venv or venv)
+  const localVenv = path.join(__dirname, '..', '.venv', 'Scripts', 'python.exe');
+  if (fs.existsSync(localVenv)) {
+    return localVenv;
+  }
+  const localVenv2 = path.join(__dirname, '..', 'venv', 'Scripts', 'python.exe');
+  if (fs.existsSync(localVenv2)) {
+    return localVenv2;
+  }
+
+  // 7. System PATH fallback
   return 'python';
 }
 

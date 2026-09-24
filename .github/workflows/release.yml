@@ -56,3 +56,16 @@ jobs:
             dist_electron/*.exe
             dist_electron/*.zip
           if-no-files-found: error
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist_electron/SongChordAnalyzer-Setup.exe
+            dist_electron/SongChordAnalyzer.exe
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
