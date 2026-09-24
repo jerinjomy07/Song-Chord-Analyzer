@@ -1,0 +1,52 @@
+appId: com.songchordanalyzer.app
+productName: Song Chord Analyzer
+copyright: Copyright © 2026 Song Chord Analyzer
+
+directories:
+  output: dist_electron
+  buildResources: build
+
+files:
+  - "electron/**/*"
+  - "frontend/dist/**/*"
+  - "backend/**/*"
+  - "models/**/*"
+  - "run_app.py"
+  - "package.json"
+
+extraResources:
+  - from: "resources/"
+    to: "."
+    filter:
+      - "**/*"
+
+win:
+  sign: electron/sign-noop.cjs
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  fileAssociations:
+    - ext:
+        - mp3
+        - wav
+        - flac
+        - m4a
+        - aac
+        - ogg
+      name: Audio File
+      role: Viewer
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Song Chord Analyzer
+  artifactName: "SongChordAnalyzer-Setup.${ext}"
+
+portable:
+  artifactName: "SongChordAnalyzer.${ext}"

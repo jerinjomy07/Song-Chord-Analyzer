@@ -1,0 +1,23 @@
+{
+  "name": "song-chord-analyzer",
+  "version": "1.0.0",
+  "description": "Automated Music Chord Analyzer Windows Desktop Application",
+  "main": "electron/main.cjs",
+  "author": "Song Chord Analyzer Team",
+  "license": "MIT",
+  "scripts": {
+    "frontend:install": "npm --prefix frontend install",
+    "frontend:build": "npm --prefix frontend run build",
+    "backend": "python run_app.py --no-browser",
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "dist": "npm run build:frontend && electron-builder --win",
+    "dist:dir": "npm run build:frontend && electron-builder --dir"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  }
+}
