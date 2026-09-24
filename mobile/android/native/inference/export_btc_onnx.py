@@ -30,7 +30,7 @@ class MobileBTCWrapper(torch.nn.Module):
     def forward(self, features: torch.Tensor) -> torch.Tensor:
         batch_size = features.shape[0]
         # Pass dummy labels since probs_out=True bypasses loss calculation
-        dummy_labels = torch.zeros(batch_size, 100, dtype=torch.long, device=features.device)
+        dummy_labels = torch.zeros(batch_size, 108, dtype=torch.long, device=features.device)
         return self.btc(features, dummy_labels)
 
 
@@ -44,7 +44,7 @@ def export_models(checkpoint_path: Path, output_dir: Path):
 
     config = {
         'feature_size': 144,
-        'timestep': 100,
+        'timestep': 108,
         'num_chords': 170,
         'input_dropout': 0.0,
         'layer_dropout': 0.0,
@@ -67,7 +67,7 @@ def export_models(checkpoint_path: Path, output_dir: Path):
     model = MobileBTCWrapper(base_model)
     model.eval()
 
-    dummy_input = torch.randn(1, 100, 144, dtype=torch.float32)
+    dummy_input = torch.randn(1, 108, 144, dtype=torch.float32)
 
     # 1. Export ONNX
     print("Exporting ONNX model...")
