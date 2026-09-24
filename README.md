@@ -25,13 +25,13 @@ Download the latest pre-built Windows standalone binaries from the **[v0.1.4 Rel
 
 ## 🌟 Key Features & What's New in v0.1.4
 
-### 1. Policy-Compliant YouTube Reference Workflow
-- **Metadata Inspection:** Paste any public YouTube URL to inspect video details including official title, creator/channel, thumbnail, and canonical URL via YouTube's official oEmbed protocol.
-- **Strict Policy Compliance:** Zero unauthorized stream ripping, zero video scraping, and no unofficial downloading (`yt-dlp` is never used).
-- **Authorized Audio Pairing:** Users provide their authorized local audio file (`MP3, WAV, FLAC, M4A`) right within the YouTube card.
-- **Smart Title Auto-Cleaning:** One-click **Auto-Clean** button automatically strips noisy tags (e.g. `(Official Video)`, `[4K Audio]`, artist channel branding).
-- **Library & History Association:** The analysis is linked to the YouTube metadata (`source_type: "youtube_reference"`, `youtube_video_id`, `youtube_url`, `youtube_title`, `youtube_channel`), with direct *"Watch on YouTube"* links on the chord sheet and in Library.
-- **YouTube Duplicate Detection:** Prevents re-running analysis when an existing song for the same YouTube link is already in the library.
+### 1. Direct YouTube Video Chord Recognition
+- **One-Click Video to Chords:** Paste any public YouTube URL (standard watch links, youtu.be, shorts, YouTube Music) and click **"Generate Chords from Video"** to automatically extract the audio and perform full chord transcription.
+- **Fast Metadata Inspection:** Automatically fetches and previews the video thumbnail, title, channel name, and duration.
+- **Smart Title Auto-Cleaning:** One-click **Auto-Clean** button automatically strips noisy tags (e.g. `(Official Video)`, `[4K Audio]`, artist channel branding) while allowing manual title edits.
+- **Library & History Association:** Songs analyzed from YouTube are permanently saved to SQLite with audio stored locally in `%LOCALAPPDATA%\SongChordAnalyzer\library\`, complete with *"Watch on YouTube"* links and offline playback.
+- **Duplicate Detection:** Instantly detects if the video has already been analyzed and lets you open it in <15ms without re-downloading.
+- **Local Audio Option:** Users can also optionally attach their own local audio file (MP3, WAV, FLAC, M4A) if preferred.
 
 ### 2. Persistent SQLite History & Song Library
 - **Analyze Once, Keep Forever:** Every analyzed song is automatically saved to an isolated local SQLite database (`%LOCALAPPDATA%\SongChordAnalyzer\database.sqlite`).

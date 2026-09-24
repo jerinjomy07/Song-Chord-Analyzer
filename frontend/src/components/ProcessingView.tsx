@@ -15,7 +15,7 @@ interface StepItem {
 }
 
 const PIPELINE_STEPS: StepItem[] = [
-  { key: 'upload', label: 'Loading audio', statuses: ['UPLOADING', 'VALIDATING'] },
+  { key: 'upload', label: 'Loading audio stream', statuses: ['DOWNLOADING', 'UPLOADING', 'VALIDATING'] },
   { key: 'pre', label: 'Audio preprocessing', statuses: ['PREPROCESSING'] },
   { key: 'sep', label: 'Separating stems (Demucs GPU)', statuses: ['SEPARATING'] },
   { key: 'beat', label: 'Detecting beats & downbeats', statuses: ['ANALYZING_BEATS'] },

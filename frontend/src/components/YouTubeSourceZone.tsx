@@ -9,8 +9,11 @@ import {
   Sparkles,
   FileAudio,
   ArrowRight,
-  CheckCircle2,
-  FolderOpen
+  FolderOpen,
+  Music,
+  Clock,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import type { YouTubeMetadata } from '../types';
 
@@ -21,7 +24,8 @@ const YoutubeIcon: React.FC<{ size?: number; className?: string }> = ({ size = 2
 );
 
 interface YouTubeSourceZoneProps {
-  onStartAnalysis: (
+  onStartYouTubeAnalysis: (url: string, customTitle?: string) => void;
+  onStartAnalysisWithFile?: (
     file: File,
     customTitle?: string,
     youtubeMetadata?: YouTubeMetadata
@@ -41,17 +45,19 @@ export function cleanYouTubeTitle(raw: string): string {
 }
 
 export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
-  onStartAnalysis,
+  onStartYouTubeAnalysis,
+  onStartAnalysisWithFile,
   onOpenExistingSong,
   isAnalyzing,
 }) => {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [metadata, setMetadata] = useState<YouTubeMetadata & { existing_song_id?: string; in_library?: boolean } | null>(null);
+  const [metadata, setMetadata] = useState<(YouTubeMetadata & { existing_song_id?: string; in_library?: boolean; duration?: number }) | null>(null);
   const [customTitle, setCustomTitle] = useState('');
 
-  // Audio file selection
+  // Optional local audio file override
+  const [showLocalOverride, setShowLocalOverride] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -91,6 +97,13 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
       const text = await navigator.clipboard.readText();
       if (text) {
         setUrl(text);
+        if (text.includes('youtube.com') || text.includes('youtu.be')) {
+          // Auto-trigger validate on clean paste
+          setTimeout(() => {
+            const submitBtn = document.getElementById('btn-youtube-inspect');
+            if (submitBtn) submitBtn.click();
+          }, 50);
+        }
       }
     } catch (err) {
       console.warn('Clipboard read failed:', err);
@@ -149,9 +162,21 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
     return (bytes / (1024 * 1024)).toFixed(2) + " MB";
   };
 
-  const handleSubmitAnalysis = () => {
-    if (!selectedFile) return;
-    onStartAnalysis(selectedFile, customTitle.trim() || metadata?.title, metadata || undefined);
+  const formatDuration = (secs?: number) => {
+    if (!secs) return null;
+    const mins = Math.floor(secs / 60);
+    const rem = Math.floor(secs % 60);
+    return `${mins}:${rem < 10 ? '0' : ''}${rem}`;
+  };
+
+  const handleDirectYouTubeAnalyze = () => {
+    if (!url.trim()) return;
+    onStartYouTubeAnalysis(url.trim(), customTitle.trim() || metadata?.title);
+  };
+
+  const handleFileAnalyze = () => {
+    if (!selectedFile || !onStartAnalysisWithFile) return;
+    onStartAnalysisWithFile(selectedFile, customTitle.trim() || metadata?.title, metadata || undefined);
   };
 
   return (
@@ -162,9 +187,9 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
           <YoutubeIcon size={22} />
         </div>
         <div>
-          <h3 className="text-base font-bold text-white">YouTube Link Input</h3>
+          <h3 className="text-base font-bold text-white">Analyze Directly from YouTube</h3>
           <p className="text-xs text-slate-400">
-            Paste a public YouTube link to inspect video reference details and pair with your audio.
+            Paste any YouTube video or song link to automatically extract audio and recognize chords.
           </p>
         </div>
       </div>
@@ -209,12 +234,13 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
           </button>
 
           <button
+            id="btn-youtube-inspect"
             type="submit"
             disabled={loading || !url.trim()}
             className="px-5 py-3 rounded-xl bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-red-600/30 transition-all cursor-pointer whitespace-nowrap shrink-0"
           >
             {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-            <span>Continue</span>
+            <span>Fetch Video</span>
           </button>
         </div>
       </form>
@@ -224,7 +250,7 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
         <div className="p-4 rounded-xl bg-red-950/40 border border-red-800/80 text-red-300 flex items-start gap-3">
           <AlertCircle size={18} className="shrink-0 text-red-400 mt-0.5" />
           <div className="text-xs">
-            <p className="font-semibold">Invalid YouTube Link</p>
+            <p className="font-semibold">Unable to fetch video</p>
             <p className="mt-0.5 text-red-400">{error}</p>
           </div>
         </div>
@@ -232,50 +258,60 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
 
       {/* Step 2: Validated Video Metadata Card */}
       {metadata && metadata.valid && (
-        <div className="border border-slate-800 rounded-2xl bg-slate-950/60 overflow-hidden divide-y divide-slate-800">
+        <div className="border border-slate-800 rounded-2xl bg-slate-950/70 overflow-hidden divide-y divide-slate-800 animate-in fade-in duration-200">
           <div className="p-4 sm:p-5 flex flex-col sm:flex-row gap-4">
             {metadata.thumbnail_url && (
               <img
                 src={metadata.thumbnail_url}
                 alt={metadata.title || "YouTube thumbnail"}
-                className="w-full sm:w-44 h-28 object-cover rounded-xl border border-slate-800 bg-slate-900 shrink-0"
+                className="w-full sm:w-44 h-28 object-cover rounded-xl border border-slate-800 bg-slate-900 shrink-0 shadow-md"
               />
             )}
 
             <div className="flex-1 min-w-0">
-              <span className="text-[10px] font-bold text-red-400 tracking-wider uppercase block mb-1">
-                Identified YouTube Video
-              </span>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-bold text-red-400 tracking-wider uppercase">
+                  YouTube Video
+                </span>
+                {metadata.duration && (
+                  <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">
+                    <Clock size={10} />
+                    <span>{formatDuration(metadata.duration)}</span>
+                  </span>
+                )}
+              </div>
+
               <h4 className="text-sm sm:text-base font-bold text-white line-clamp-2" title={metadata.title}>
                 {metadata.title}
               </h4>
               <p className="text-xs text-slate-400 mt-1 font-medium">
                 Channel: <span className="text-slate-200">{metadata.channel || 'Unknown Creator'}</span>
               </p>
-              {metadata.canonical_url && (
-                <div className="flex items-center gap-3 mt-3">
+
+              <div className="flex items-center gap-3 mt-3">
+                {metadata.canonical_url && (
                   <a
                     href={metadata.canonical_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 text-xs font-semibold transition-colors"
                   >
-                    <span>Open on YouTube</span>
+                    <span>Watch on YouTube</span>
                     <ExternalLink size={12} />
                   </a>
+                )}
 
-                  {metadata.in_library && metadata.existing_song_id && onOpenExistingSong && (
-                    <button
-                      type="button"
-                      onClick={() => onOpenExistingSong(metadata.existing_song_id!)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-semibold cursor-pointer transition-colors"
-                    >
-                      <FolderOpen size={12} />
-                      <span>Already in Library (Open)</span>
-                    </button>
-                  )}
-                </div>
-              )}
+                {metadata.in_library && metadata.existing_song_id && onOpenExistingSong && (
+                  <button
+                    type="button"
+                    onClick={() => onOpenExistingSong(metadata.existing_song_id!)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-semibold cursor-pointer transition-colors"
+                  >
+                    <FolderOpen size={12} />
+                    <span>In Library (Open Chart)</span>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -284,14 +320,14 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                 <Edit2 size={13} className="text-indigo-400" />
-                <span>Song Title for Analysis & Sheet:</span>
+                <span>Song Title for Chord Sheet & Library:</span>
               </label>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handleResetToClean}
                   className="text-[10px] font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
-                  title="Auto-clean title by stripping artist tags and suffixes"
+                  title="Auto-clean title by stripping artist tags and video suffixes"
                 >
                   <Sparkles size={11} />
                   <span>Auto-Clean</span>
@@ -315,100 +351,114 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
               className="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white focus:outline-none transition-colors"
             />
             <p className="text-[11px] text-slate-400 mt-1.5">
-              Customize how the song name will appear on your chord chart, library, and exports.
+              The title will appear on your interactive chord chart, PDF export, and saved song library.
             </p>
           </div>
 
-          {/* Audio Selection Area (Policy Compliant) */}
-          <div className="p-4 sm:p-5 bg-amber-950/20 space-y-4">
-            <div className="flex items-start gap-3">
-              <AlertCircle size={20} className="text-amber-400 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-bold text-amber-200 uppercase tracking-wide">
-                  This app needs audio that you are authorized to analyze
-                </p>
-                <p className="text-xs text-amber-300/90 mt-1 leading-relaxed">
-                  Direct stream ripping/downloading from YouTube is restricted by copyright and terms of service.
-                  Please choose your local audio file (<span className="font-mono text-amber-200">MP3, WAV, FLAC, M4A</span>)
-                  for this song to begin chord recognition.
-                </p>
-              </div>
+          {/* Primary Action Button: Direct Video Analysis */}
+          <div className="p-4 sm:p-5 bg-slate-950/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                <Sparkles size={14} className="text-red-400" />
+                <span>Ready to recognize chords from this video</span>
+              </p>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Extracts the audio stream automatically and processes with Demucs GPU stem separation & BTC Transformer models.
+              </p>
             </div>
 
-            {/* Local Audio File Selector */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".mp3,.wav,.flac,.m4a,.aac,.ogg,.wma"
-              className="hidden"
-              onChange={handleFileChange}
-            />
+            <button
+              type="button"
+              onClick={handleDirectYouTubeAnalyze}
+              disabled={isAnalyzing}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-indigo-600 hover:from-red-500 hover:via-rose-500 hover:to-indigo-500 disabled:opacity-50 text-white text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-xl shadow-red-600/25 cursor-pointer transition-all whitespace-nowrap"
+            >
+              <Music size={16} />
+              <span>Generate Chords from Video</span>
+              <ArrowRight size={16} />
+            </button>
+          </div>
 
-            {!selectedFile ? (
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
-                  dragActive
-                    ? 'border-amber-400 bg-amber-950/40'
-                    : 'border-amber-500/40 hover:border-amber-400 bg-slate-950/60'
-                }`}
-              >
-                <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center mx-auto mb-2">
-                  <Upload size={20} />
-                </div>
-                <p className="text-sm font-bold text-slate-200 mb-1">
-                  Choose Local Audio File
-                </p>
-                <p className="text-xs text-slate-400">
-                  Click to browse or drag & drop MP3, WAV, FLAC, or M4A
-                </p>
-              </div>
-            ) : (
-              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-emerald-500/30 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                    <FileAudio size={20} />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold text-white truncate max-w-xs sm:max-w-md" title={selectedFile.name}>
-                        {selectedFile.name}
-                      </span>
-                      <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
-                    </div>
-                    <p className="text-[11px] text-slate-400">
-                      {formatFileSize(selectedFile.size)} • {selectedFile.name.split('.').pop()?.toUpperCase()}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer shrink-0 transition-colors"
-                >
-                  Change File
-                </button>
-              </div>
-            )}
-
-            {/* Final Action Button */}
-            <div className="pt-2 flex justify-end">
+          {/* Optional Local File Override Accordion */}
+          {onStartAnalysisWithFile && (
+            <div className="p-4 bg-slate-900/40 border-t border-slate-800">
               <button
                 type="button"
-                onClick={handleSubmitAnalysis}
-                disabled={!selectedFile || isAnalyzing}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-red-600 to-indigo-600 hover:from-red-500 hover:to-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 cursor-pointer transition-all"
+                onClick={() => setShowLocalOverride(!showLocalOverride)}
+                className="w-full flex items-center justify-between text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors py-1 cursor-pointer"
               >
-                <span>Analyze Song</span>
-                <ArrowRight size={16} />
+                <span>Prefer to attach your own local audio file instead?</span>
+                {showLocalOverride ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
+
+              {showLocalOverride && (
+                <div className="mt-3 pt-3 border-t border-slate-800/60 space-y-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".mp3,.wav,.flac,.m4a,.aac,.ogg,.wma"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+
+                  {!selectedFile ? (
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      onDragEnter={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDragOver={handleDrag}
+                      onDrop={handleDrop}
+                      className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
+                        dragActive
+                          ? 'border-indigo-500 bg-indigo-950/30'
+                          : 'border-slate-700 hover:border-slate-500 bg-slate-950/60'
+                      }`}
+                    >
+                      <Upload size={18} className="mx-auto text-slate-400 mb-1" />
+                      <p className="text-xs font-bold text-slate-200">
+                        Select Local Audio (MP3, WAV, FLAC, M4A)
+                      </p>
+                      <p className="text-[10px] text-slate-500">
+                        Click to browse or drag & drop
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-xl bg-slate-950 border border-emerald-500/30 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <FileAudio size={18} className="text-emerald-400 shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-white truncate max-w-xs" title={selectedFile.name}>
+                            {selectedFile.name}
+                          </p>
+                          <p className="text-[10px] text-slate-400">
+                            {formatFileSize(selectedFile.size)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-semibold transition-colors"
+                        >
+                          Change
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleFileAnalyze}
+                          disabled={isAnalyzing}
+                          className="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all"
+                        >
+                          Analyze Local Audio
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>

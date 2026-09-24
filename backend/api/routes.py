@@ -114,6 +114,100 @@ def run_pipeline_worker(
             ACTIVE_TASKS[analysis_id].message = f"Analysis failed: {str(e)}"
 
 
+def run_youtube_pipeline_worker(
+    analysis_id: str,
+    youtube_url: str,
+    song_title: Optional[str] = None
+):
+    """Downloads audio directly from YouTube and runs end-to-end MIR chord pipeline."""
+    try:
+        from backend.sources.audio_source import YouTubeAudioExtractor
+
+        def update_download_progress(pct: int, msg: str):
+            if analysis_id in ACTIVE_TASKS:
+                ACTIVE_TASKS[analysis_id].status = AnalysisStatusEnum.DOWNLOADING
+                ACTIVE_TASKS[analysis_id].progress = max(5, int(pct * 0.15))
+                ACTIVE_TASKS[analysis_id].message = msg
+                ACTIVE_TASKS[analysis_id].current_stage = "DOWNLOADING"
+
+        ACTIVE_TASKS[analysis_id] = AnalysisStatusResponse(
+            analysis_id=analysis_id,
+            status=AnalysisStatusEnum.DOWNLOADING,
+            progress=5,
+            current_stage="DOWNLOADING",
+            message="Connecting to YouTube and extracting audio stream..."
+        )
+
+        audio_path, meta = YouTubeAudioExtractor.download_audio(
+            url=youtube_url,
+            progress_cb=update_download_progress
+        )
+
+        final_title = song_title.strip() if song_title and song_title.strip() else meta.get("title", "YouTube Song")
+
+        def update_progress(status: AnalysisStatusEnum, pct: int, msg: str):
+            if analysis_id in ACTIVE_TASKS:
+                scaled_pct = 15 + int(pct * 0.85)
+                ACTIVE_TASKS[analysis_id].status = status
+                ACTIVE_TASKS[analysis_id].progress = scaled_pct
+                ACTIVE_TASKS[analysis_id].message = msg
+                ACTIVE_TASKS[analysis_id].current_stage = status.value
+
+        ACTIVE_TASKS[analysis_id].status = AnalysisStatusEnum.PREPROCESSING
+        ACTIVE_TASKS[analysis_id].progress = 15
+        ACTIVE_TASKS[analysis_id].message = "Audio extracted. Preprocessing audio..."
+        ACTIVE_TASKS[analysis_id].current_stage = "PREPROCESSING"
+
+        analysis = PIPELINE.process(
+            audio_file_path=audio_path,
+            song_title=final_title,
+            enable_separation=True,
+            progress_callback=update_progress
+        )
+
+        analysis.id = analysis_id
+        analysis.audio_url = f"/api/analysis/{analysis_id}/audio"
+        analysis.source_metadata = {
+            "type": "youtube",
+            "video_id": meta.get("video_id"),
+            "youtube_video_id": meta.get("video_id"),
+            "url": meta.get("canonical_url", youtube_url),
+            "youtube_url": meta.get("canonical_url", youtube_url),
+            "title": meta.get("title"),
+            "channel": meta.get("channel"),
+        }
+
+        ANALYSIS_RESULTS[analysis_id] = analysis
+        AUDIO_FILE_PATHS[analysis_id] = audio_path
+
+        try:
+            SongRepository.save_analysis(
+                analysis=analysis,
+                source_audio_path=audio_path,
+                song_id=analysis_id,
+                source_type="youtube",
+                youtube_video_id=meta.get("video_id"),
+                youtube_url=meta.get("canonical_url", youtube_url),
+                youtube_title=meta.get("title"),
+                youtube_channel=meta.get("channel")
+            )
+        except Exception as repo_err:
+            print(f"[Warning] Failed to persist YouTube analysis {analysis_id}: {repo_err}")
+
+        ACTIVE_TASKS[analysis_id].status = AnalysisStatusEnum.COMPLETED
+        ACTIVE_TASKS[analysis_id].progress = 100
+        ACTIVE_TASKS[analysis_id].message = "Analysis complete!"
+        ACTIVE_TASKS[analysis_id].current_stage = "COMPLETED"
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        if analysis_id in ACTIVE_TASKS:
+            ACTIVE_TASKS[analysis_id].status = AnalysisStatusEnum.FAILED
+            ACTIVE_TASKS[analysis_id].error = str(e)
+            ACTIVE_TASKS[analysis_id].message = f"YouTube audio analysis failed: {str(e)}"
+
+
 @router.post("/analyze")
 async def analyze_audio(
     file: UploadFile = File(...),
@@ -198,38 +292,101 @@ class YouTubeInfoRequest(BaseModel):
     url: str
 
 
+class YouTubeAnalyzeRequest(BaseModel):
+    url: str
+    title: Optional[str] = None
+    force: bool = False
+
+
 @router.post("/sources/youtube/info")
 async def get_youtube_info(req: YouTubeInfoRequest):
     """
-    Validates a YouTube URL and retrieves public video metadata (title, channel, thumbnail)
-    in strict accordance with copyright and API policies.
-    Does not extract, rip, or download unauthorized audio streams.
+    Validates a YouTube URL and retrieves public video metadata (title, channel, thumbnail, duration).
+    Uses fast direct inspection with oEmbed fallback.
+    """
+    from backend.sources.audio_source import YouTubeReferenceSource, YouTubeAudioExtractor
+
+    clean_url = req.url.strip()
+    video_id = YouTubeReferenceSource._extract_video_id(clean_url)
+    if not video_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Unable to parse this YouTube link. Please check the URL and try again."
+        )
+
+    try:
+        metadata = YouTubeAudioExtractor.get_video_info(clean_url)
+    except Exception:
+        source = YouTubeReferenceSource(clean_url)
+        metadata = source.get_metadata()
+        if not metadata.get("valid"):
+            raise HTTPException(
+                status_code=400,
+                detail=metadata.get("error", "Unable to retrieve information for this YouTube link.")
+            )
+
+    # Check if this YouTube video has already been analyzed in user's library
+    existing = SongRepository.find_by_youtube_id(video_id)
+    if existing:
+        metadata["already_in_history"] = True
+        metadata["in_library"] = True
+        metadata["existing_song"] = existing
+        metadata["existing_song_id"] = existing["id"]
+        metadata["existing_song_title"] = existing["title"]
+    else:
+        metadata["in_library"] = False
+
+    return metadata
+
+
+@router.post("/analyze/youtube")
+async def analyze_youtube_endpoint(req: YouTubeAnalyzeRequest):
+    """
+    Directly extracts audio from a YouTube video and runs full automatic chord recognition.
+    Performs duplicate check in SQLite library unless force=True.
     """
     from backend.sources.audio_source import YouTubeReferenceSource
 
-    source = YouTubeReferenceSource(req.url)
-    if not source.validate():
+    clean_url = req.url.strip()
+    video_id = YouTubeReferenceSource._extract_video_id(clean_url)
+    if not video_id:
         raise HTTPException(
             status_code=400,
-            detail="Unable to retrieve information for this YouTube link. Please check the URL and try again."
+            detail="Invalid YouTube link. Please enter a valid YouTube video or music URL."
         )
 
-    metadata = source.get_metadata()
-    if not metadata.get("valid"):
-        raise HTTPException(
-            status_code=400,
-            detail=metadata.get("error", "Unable to retrieve information for this YouTube link.")
-        )
-
-    # Check if this YouTube video has already been analyzed in user's library
-    video_id = metadata.get("video_id")
-    if video_id:
+    # Duplicate check by video ID unless force=True
+    if not req.force:
         existing = SongRepository.find_by_youtube_id(video_id)
         if existing:
-            metadata["already_in_history"] = True
-            metadata["existing_song"] = existing
+            return {
+                "status": "DUPLICATE_FOUND",
+                "existing_song": existing,
+                "message": f"This YouTube video ('{existing['title']}') was already analyzed."
+            }
 
-    return metadata
+    analysis_id = str(uuid.uuid4())[:8]
+
+    ACTIVE_TASKS[analysis_id] = AnalysisStatusResponse(
+        analysis_id=analysis_id,
+        status=AnalysisStatusEnum.DOWNLOADING,
+        progress=5,
+        current_stage="DOWNLOADING",
+        message="Connecting to YouTube and extracting audio stream..."
+    )
+
+    worker = threading.Thread(
+        target=run_youtube_pipeline_worker,
+        args=(analysis_id, clean_url, req.title),
+        daemon=True
+    )
+    worker.start()
+
+    return {
+        "analysis_id": analysis_id,
+        "title": req.title or "YouTube Video",
+        "status": "QUEUED"
+    }
 
 
 @router.get("/analysis/{analysis_id}/status", response_model=AnalysisStatusResponse)

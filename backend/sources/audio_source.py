@@ -175,7 +175,6 @@ class YouTubeReferenceSource(AudioSource):
     def is_authorized_audio_available(self) -> bool:
         """
         True only when the user has provided a valid, existing local audio file.
-        Never performs unauthorized stream downloading.
         """
         return bool(self.local_audio_path and self.local_audio_path.exists() and self.local_audio_path.stat().st_size > 0)
 
@@ -184,15 +183,163 @@ class YouTubeReferenceSource(AudioSource):
         return self.local_audio_path if self.is_authorized_audio_available() else None
 
 
-# Backward-compatibility alias
-YouTubeSource = YouTubeReferenceSource
+class YouTubeAudioExtractor:
+    """
+    Dedicated YouTube audio extraction service using yt-dlp and bundled FFmpeg.
+    Downloads audio directly into temporary storage for instant MIR analysis.
+    """
+
+    @staticmethod
+    def get_ffmpeg_dir() -> Optional[str]:
+        from backend.config import FFMPEG_PATH
+        if FFMPEG_PATH and FFMPEG_PATH.exists():
+            return str(FFMPEG_PATH.parent)
+        import shutil
+        which_ffmpeg = shutil.which("ffmpeg")
+        if which_ffmpeg:
+            return str(Path(which_ffmpeg).parent)
+        return None
+
+    @classmethod
+    def get_video_info(cls, url: str) -> Dict[str, Any]:
+        """Extracts video metadata quickly without downloading media."""
+        import yt_dlp
+        ffmpeg_dir = cls.get_ffmpeg_dir()
+        opts: Dict[str, Any] = {
+            'skip_download': True,
+            'quiet': True,
+            'no_warnings': True,
+            'noplaylist': True,
+        }
+        if ffmpeg_dir:
+            opts['ffmpeg_location'] = ffmpeg_dir
+
+        try:
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                info = ydl.extract_info(url.strip(), download=False)
+                vid = info.get("id", "")
+                return {
+                    "valid": True,
+                    "video_id": vid,
+                    "title": info.get("title", ""),
+                    "channel": info.get("uploader") or info.get("channel") or "Unknown Creator",
+                    "duration": info.get("duration", 0),
+                    "thumbnail_url": info.get("thumbnail") or f"https://img.youtube.com/vi/{vid}/hqdefault.jpg",
+                    "canonical_url": info.get("webpage_url") or f"https://www.youtube.com/watch?v={vid}"
+                }
+        except Exception as e:
+            # Fall back to oEmbed if yt-dlp hits quick extraction issue
+            ref_src = YouTubeReferenceSource(url)
+            meta = ref_src.get_metadata()
+            if meta.get("valid"):
+                return meta
+            raise ValueError(f"Could not retrieve YouTube video info: {e}")
+
+    @classmethod
+    def download_audio(
+        cls,
+        url: str,
+        output_dir: Optional[Path] = None,
+        progress_cb=None
+    ) -> tuple[Path, Dict[str, Any]]:
+        """
+        Downloads audio stream directly from YouTube and converts to high-quality MP3.
+        Returns the downloaded MP3 Path and video metadata.
+        """
+        import yt_dlp
+        from backend.config import STORAGE_DIR
+
+        target_dir = Path(output_dir) if output_dir else (STORAGE_DIR / "temp")
+        target_dir.mkdir(parents=True, exist_ok=True)
+        ffmpeg_dir = cls.get_ffmpeg_dir()
+
+        out_template = str(target_dir / "yt_%(id)s.%(ext)s")
+
+        def hook(d):
+            if progress_cb and d.get('status') == 'downloading':
+                total = d.get('total_bytes') or d.get('total_bytes_estimate') or 1
+                downloaded = d.get('downloaded_bytes', 0)
+                pct = min(99, int((downloaded / total) * 100))
+                progress_cb(pct, f"Downloading YouTube audio ({pct}%)...")
+
+        opts: Dict[str, Any] = {
+            'format': 'bestaudio/best',
+            'outtmpl': out_template,
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'quiet': True,
+            'no_warnings': True,
+            'noplaylist': True,
+            'progress_hooks': [hook],
+        }
+        if ffmpeg_dir:
+            opts['ffmpeg_location'] = ffmpeg_dir
+
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(url.strip(), download=True)
+            video_id = info['id']
+            expected_mp3 = target_dir / f"yt_{video_id}.mp3"
+
+            if not expected_mp3.exists():
+                # Check if file has another audio extension
+                matches = list(target_dir.glob(f"yt_{video_id}.*"))
+                if matches:
+                    expected_mp3 = matches[0]
+                else:
+                    raise FileNotFoundError(f"Failed to locate extracted audio for YouTube video {video_id}")
+
+            meta = {
+                "video_id": video_id,
+                "title": info.get("title", ""),
+                "channel": info.get("uploader") or info.get("channel") or "Unknown Creator",
+                "duration": info.get("duration", 0),
+                "thumbnail_url": info.get("thumbnail") or f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",
+                "canonical_url": info.get("webpage_url") or f"https://www.youtube.com/watch?v={video_id}"
+            }
+            return expected_mp3, meta
+
+
+class YouTubeSource(AudioSource):
+    """
+    Direct YouTube AudioSource that extracts audio streams for automatic MIR chord analysis.
+    """
+
+    def __init__(self, url: str):
+        self.url = url.strip()
+        self.video_id = YouTubeReferenceSource._extract_video_id(self.url)
+        self.downloaded_audio_path: Optional[Path] = None
+        self._cached_meta: Optional[Dict[str, Any]] = None
+
+    def validate(self) -> bool:
+        return self.video_id is not None and len(self.video_id) == 11
+
+    def get_metadata(self) -> Dict[str, Any]:
+        if not self.validate():
+            return {"valid": False, "error": "Invalid YouTube URL"}
+        if self._cached_meta is None:
+            self._cached_meta = YouTubeAudioExtractor.get_video_info(self.url)
+        return self._cached_meta
+
+    def download(self, output_dir: Optional[Path] = None, progress_cb=None) -> Path:
+        audio_path, meta = YouTubeAudioExtractor.download_audio(self.url, output_dir, progress_cb)
+        self.downloaded_audio_path = audio_path
+        self._cached_meta = meta
+        return audio_path
+
+    def is_authorized_audio_available(self) -> bool:
+        return bool(self.downloaded_audio_path and self.downloaded_audio_path.exists())
+
+    def get_audio_path(self) -> Optional[Path]:
+        return self.downloaded_audio_path
 
 
 class FutureAuthorizedYouTubeSource(AudioSource):
     """
     Extensibility adapter for future licensed/authorized music APIs or
     approved YouTube B2B partner integrations.
-    Unused until legally and technically available.
     """
 
     def __init__(self, source_id: str, provider_name: str, stream_url: Optional[str] = None):
@@ -215,3 +362,7 @@ class FutureAuthorizedYouTubeSource(AudioSource):
 
     def get_audio_path(self) -> Optional[Path]:
         return None
+
+
+# Backward-compatibility aliases
+FutureAuthorizedSource = FutureAuthorizedYouTubeSource

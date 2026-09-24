@@ -34,7 +34,8 @@ export const App: React.FC = () => {
   // Library & Duplicate State
   const [duplicateInfo, setDuplicateInfo] = useState<{
     existingSong: HistorySong;
-    file: File;
+    file?: File;
+    youtubeUrl?: string;
     customTitle?: string;
     youtubeMeta?: YouTubeMetadata;
   } | null>(null);
@@ -186,6 +187,47 @@ export const App: React.FC = () => {
     } catch (err: any) {
       setStatus('FAILED');
       setErrorMessage(err.message || 'Could not connect to analysis service.');
+    }
+  };
+
+  const handleStartYouTubeAnalysis = async (url: string, customTitle?: string, force: boolean = false) => {
+    setErrorMessage(null);
+    setDuplicateInfo(null);
+    setAnalysis(null);
+    setStatus('DOWNLOADING');
+    setProgress(5);
+    setStatusMessage('Connecting to YouTube and extracting audio stream...');
+
+    try {
+      const res = await fetch('/api/analyze/youtube', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url,
+          title: customTitle?.trim() || undefined,
+          force
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.detail || 'Failed to start YouTube analysis');
+      }
+
+      const data = await res.json();
+
+      if (data.status === 'DUPLICATE_FOUND') {
+        setStatus('IDLE');
+        setDuplicateInfo({ existingSong: data.existing_song, youtubeUrl: url, customTitle });
+        return;
+      }
+
+      setAnalysisId(data.analysis_id);
+      setProgress(10);
+      setStatusMessage('Extracting audio from YouTube video...');
+    } catch (err: any) {
+      setStatus('FAILED');
+      setErrorMessage(err.message || 'Could not connect to YouTube analysis service.');
     }
   };
 
@@ -525,7 +567,8 @@ export const App: React.FC = () => {
               />
             ) : (
               <YouTubeSourceZone
-                onStartAnalysis={(file, customTitle, ytMeta) => handleStartAnalysis(file, false, customTitle, ytMeta)}
+                onStartYouTubeAnalysis={handleStartYouTubeAnalysis}
+                onStartAnalysisWithFile={(file, customTitle, ytMeta) => handleStartAnalysis(file, false, customTitle, ytMeta)}
                 onOpenExistingSong={openSongFromHistory}
                 isAnalyzing={isProcessing}
               />
@@ -588,17 +631,22 @@ export const App: React.FC = () => {
       {duplicateInfo && (
         <DuplicateModal
           existingSong={duplicateInfo.existingSong}
-          fileName={duplicateInfo.file.name}
+          fileName={duplicateInfo.file ? duplicateInfo.file.name : (duplicateInfo.existingSong.title || 'YouTube Video')}
           onOpenExisting={(id) => {
             setDuplicateInfo(null);
             openSongFromHistory(id);
           }}
           onAnalyzeAgain={() => {
             const file = duplicateInfo.file;
+            const ytUrl = duplicateInfo.youtubeUrl;
             const customTitle = duplicateInfo.customTitle;
             const ytMeta = duplicateInfo.youtubeMeta;
             setDuplicateInfo(null);
-            handleStartAnalysis(file, true, customTitle, ytMeta);
+            if (ytUrl) {
+              handleStartYouTubeAnalysis(ytUrl, customTitle, true);
+            } else if (file) {
+              handleStartAnalysis(file, true, customTitle, ytMeta);
+            }
           }}
           onCancel={() => {
             setDuplicateInfo(null);

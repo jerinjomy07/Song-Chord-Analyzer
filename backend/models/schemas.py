@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 
 class AnalysisStatusEnum(str, Enum):
     IDLE = "IDLE"
+    DOWNLOADING = "DOWNLOADING"
     UPLOADING = "UPLOADING"
     VALIDATING = "VALIDATING"
     PREPROCESSING = "PREPROCESSING"

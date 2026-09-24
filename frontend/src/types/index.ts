@@ -122,6 +122,7 @@ export interface SongAnalysis {
 
 export type AnalysisStatus = 
   | "IDLE"
+  | "DOWNLOADING"
   | "UPLOADING"
   | "VALIDATING"
   | "PREPROCESSING"
