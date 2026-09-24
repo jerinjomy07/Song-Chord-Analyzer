@@ -1,0 +1,58 @@
+{
+  "A. BTC Only (Raw Mix Argmax)": {
+    "root_accuracy_pct": 84.33,
+    "quality_accuracy_pct": 61.68,
+    "inversion_accuracy_pct": 73.5,
+    "full_chord_accuracy_pct": 52.56,
+    "timing_accuracy_sec": 0.0,
+    "slash_chords_detected": 0
+  },
+  "B. BTC + Chroma": {
+    "root_accuracy_pct": 84.76,
+    "quality_accuracy_pct": 62.68,
+    "inversion_accuracy_pct": 73.93,
+    "full_chord_accuracy_pct": 53.13,
+    "timing_accuracy_sec": 0.0,
+    "slash_chords_detected": 0
+  },
+  "C. BTC + Sub-Bass Tracking": {
+    "root_accuracy_pct": 84.47,
+    "quality_accuracy_pct": 61.68,
+    "inversion_accuracy_pct": 77.35,
+    "full_chord_accuracy_pct": 55.13,
+    "timing_accuracy_sec": 0.0,
+    "slash_chords_detected": 67
+  },
+  "D. BTC + Chroma + Sub-Bass": {
+    "root_accuracy_pct": 84.9,
+    "quality_accuracy_pct": 62.68,
+    "inversion_accuracy_pct": 77.78,
+    "full_chord_accuracy_pct": 55.56,
+    "timing_accuracy_sec": 0.0,
+    "slash_chords_detected": 65
+  },
+  "E. BTC + Chroma + Sub-Bass + Simplicity Regularizer": {
+    "root_accuracy_pct": 84.9,
+    "quality_accuracy_pct": 78.21,
+    "inversion_accuracy_pct": 77.78,
+    "full_chord_accuracy_pct": 67.09,
+    "timing_accuracy_sec": 0.0,
+    "slash_chords_detected": 65
+  },
+  "F. Lightweight Side-Channel + Sub-Bass + Simplicity": {
+    "root_accuracy_pct": 86.61,
+    "quality_accuracy_pct": 83.19,
+    "inversion_accuracy_pct": 79.06,
+    "full_chord_accuracy_pct": 71.94,
+    "timing_accuracy_sec": 0.0,
+    "slash_chords_detected": 70
+  },
+  "G. Stems (Demucs Accompaniment) + BTC + Sub-Bass": {
+    "root_accuracy_pct": 39.74,
+    "quality_accuracy_pct": 44.59,
+    "inversion_accuracy_pct": 36.89,
+    "full_chord_accuracy_pct": 26.07,
+    "timing_accuracy_sec": 0.0,
+    "slash_chords_detected": 212
+  }
+}

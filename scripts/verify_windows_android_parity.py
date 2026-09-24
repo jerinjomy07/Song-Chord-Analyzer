@@ -126,6 +126,46 @@ class AndroidCandidateEngine:
         features, y, sr = self.extract_features(audio_path)
         probs_matrix = self.run_onnx_inference(features)
 
+        # Precompute side-channel vocal reduction if stereo exists
+        sides_probs = None
+        stereo_candidates = [
+            audio_path.parent / (audio_path.stem.split('_')[0] + '_44k_stereo.wav'),
+            audio_path.parent / 'ecdbc4dd2a6d827b_44k_stereo.wav',
+            audio_path
+        ]
+        for sc in stereo_candidates:
+            if sc.exists():
+                y_st, sr_st = sf.read(str(sc))
+                if y_st.ndim > 1 and y_st.shape[1] >= 2:
+                    y_l = librosa.resample(y_st[:, 0], orig_sr=sr_st, target_sr=TARGET_SAMPLE_RATE)
+                    y_r = librosa.resample(y_st[:, 1], orig_sr=sr_st, target_sr=TARGET_SAMPLE_RATE)
+                    y_s = (y_l - y_r) / 2.0
+                    cqt_s = librosa.cqt(y_s, sr=TARGET_SAMPLE_RATE, n_bins=CQT_N_BINS, bins_per_octave=CQT_BINS_PER_OCTAVE, hop_length=self.hop_length)
+                    feat_s = (np.log(np.abs(cqt_s) + 1e-6).T - self.mean) / self.std
+                    sides_probs = self.run_onnx_inference(feat_s)
+                    break
+
+        # Sub-bass lowpass filter & chroma for sounding bass / slash chords
+        from scipy.signal import butter, sosfilt
+        sos = butter(4, 260, 'lowpass', fs=sr, output='sos')
+        y_low = sosfilt(sos, y)
+        chroma_low = librosa.feature.chroma_cqt(y=y_low, sr=sr, fmin=librosa.note_to_hz('C1'), n_octaves=4, hop_length=512, bins_per_octave=24)
+        rms_low = librosa.feature.rms(y=y_low, hop_length=512)[0]
+        times_low = librosa.frames_to_time(np.arange(chroma_low.shape[1]), sr=sr, hop_length=512)
+
+        def get_bass_note(s_t, e_t):
+            mask = (times_low >= s_t) & (times_low <= e_t)
+            if not np.any(mask) or np.mean(rms_low[mask]) < 1e-3:
+                return None, 0.0
+            w = rms_low[mask]
+            avg = np.average(chroma_low[:, mask], axis=1, weights=w) if np.sum(w) > 0 else np.mean(chroma_low[:, mask], axis=1)
+            top_idx = int(np.argmax(avg))
+            top_e = float(avg[top_idx])
+            sorted_e = np.sort(avg)[::-1]
+            clarity = (top_e - (sorted_e[1] if len(sorted_e) > 1 else 0.0)) / (top_e + 1e-6)
+            from backend.chord.vocabulary import ROOT_NAMES
+            return ROOT_NAMES[top_idx], float(np.clip(clarity * 1.5, 0.5, 0.99))
+
         # 1. Beat & Tempo Tracking
         beat_grid, tempo_info = self.beat_tracker.track_beats(audio_path)
 
@@ -137,10 +177,10 @@ class AndroidCandidateEngine:
         is_flat = is_flat_key(key_info.tonic, key_info.mode)
 
         # 4. Beat-synchronous Probability Pooling & Simplicity Regularization
-        # Standard BTC frame resolution: 10.0 / 108 = 0.0925926s
         time_unit = 10.0 / float(self.timestep)
         beat_times = beat_grid.beats
         chords: list[ChordPrediction] = []
+        from backend.chord.vocabulary import PITCH_TO_SEMITONE
 
         for i in range(len(beat_times) - 1):
             s_t = beat_times[i]
@@ -148,8 +188,49 @@ class AndroidCandidateEngine:
             f_s = max(0, min(int(round(s_t / time_unit)), len(probs_matrix) - 1))
             f_e = max(f_s + 1, min(int(round(e_t / time_unit)), len(probs_matrix)))
 
-            p_vec = np.mean(probs_matrix[f_s:f_e], axis=0)
+            p_m = np.mean(probs_matrix[f_s:f_e], axis=0)
+
+            # If side-channel accompaniment is active, blend to eliminate vocal masking
+            if sides_probs is not None:
+                s_s = max(0, min(f_s, len(sides_probs) - 1))
+                s_e = max(s_s + 1, min(f_e, len(sides_probs)))
+                p_s = np.mean(sides_probs[s_s:s_e], axis=0)
+                if p_s[169] < 0.60:
+                    p_vec = 0.50 * p_s + 0.50 * p_m
+                else:
+                    p_vec = p_m
+            else:
+                p_vec = p_m
+
             root, qual, conf, alts = self.ensemble._decode_simplicity(p_vec)
+
+            final_bass = root
+            final_inv = 0
+
+            if root != "N":
+                bn, bc = get_bass_note(s_t, e_t)
+                if bn and bn != root:
+                    root_semi = PITCH_TO_SEMITONE.get(root, 0)
+                    bass_semi = PITCH_TO_SEMITONE.get(bn, 0)
+                    interval = (bass_semi - root_semi) % 12
+
+                    # Relative major/minor disambiguation
+                    if qual in ['min', 'min7'] and interval == 8 and bc >= 0.60:
+                        gb_idx = self.chord_to_idx.get(bn)
+                        gb7_idx = self.chord_to_idx.get(f"{bn}:maj7")
+                        p_gb = (p_vec[gb_idx] if gb_idx else 0.0) + (p_vec[gb7_idx] if gb7_idx else 0.0)
+                        if p_gb > 0.08:
+                            root = bn
+                            qual = 'maj7' if (gb7_idx and p_vec[gb7_idx] > 0.15) else 'maj'
+                            final_bass = bn
+                            final_inv = 0
+                    else:
+                        is_legit, inv_num = self.ensemble._is_valid_slash_or_inversion(root, qual, bn)
+                        if is_legit:
+                            min_conf = 0.52 if inv_num in [1, 2] else 0.64
+                            if bc >= min_conf:
+                                final_bass = bn
+                                final_inv = inv_num
 
             if root == "N":
                 chords.append(ChordPrediction(
@@ -166,12 +247,12 @@ class AndroidCandidateEngine:
                     alternatives=[]
                 ))
             else:
-                disp = format_chord_display(root, qual, root, is_flat=is_flat)
+                disp = format_chord_display(root, qual, final_bass, is_flat=is_flat)
                 chords.append(ChordPrediction(
                     root=root,
                     quality=qual,
-                    bass=root,
-                    inversion=0,
+                    bass=final_bass,
+                    inversion=final_inv,
                     display=disp,
                     start_time=round(s_t, 3),
                     end_time=round(e_t, 3),
