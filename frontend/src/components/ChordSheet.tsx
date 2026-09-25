@@ -280,6 +280,19 @@ export const ChordSheet: React.FC<ChordSheetProps> = ({
                         const validChords = bar.chords.filter(c => c.display !== 'N');
                         const isNoChordBar = validChords.length === 0;
 
+                        // Deduplicate consecutive identical chords within this bar defensively
+                        const displayChords: ChordPrediction[] = [];
+                        for (const c of bar.chords) {
+                          if (displayChords.length > 0 && displayChords[displayChords.length - 1].display === c.display) {
+                            const prev = displayChords[displayChords.length - 1];
+                            prev.beat_duration = (prev.beat_duration || 1) + (c.beat_duration || 1);
+                            prev.end_time = c.end_time;
+                            prev.duration = (c.end_time || 0) - (prev.start_time || 0);
+                          } else {
+                            displayChords.push({ ...c });
+                          }
+                        }
+
                         return (
                           <div
                             key={bar.bar_number}
@@ -289,7 +302,7 @@ export const ChordSheet: React.FC<ChordSheetProps> = ({
                             onClick={() => {
                               if (onSeek) onSeek(bar.start_time);
                             }}
-                            className={`relative flex-1 min-w-0 border-r border-slate-700/80 last:border-r-0 h-11 sm:h-12 flex items-center transition-all px-1 sm:px-2 cursor-pointer select-none ${
+                            className={`relative flex-1 min-w-0 border-r border-slate-700/80 last:border-r-0 h-11 sm:h-12 flex items-center transition-all px-1 sm:px-1.5 cursor-pointer select-none overflow-hidden ${
                               isBarActive 
                                 ? 'bg-indigo-950/80 ring-2 ring-indigo-500/60 shadow-lg z-10' 
                                 : 'hover:bg-slate-800/50'
@@ -306,49 +319,54 @@ export const ChordSheet: React.FC<ChordSheetProps> = ({
                                 —
                               </div>
                             ) : (
-                              /* Beat-positioned chords on single horizontal line */
-                              <div className="w-full flex items-center h-full">
-                                {bar.chords.map((chord, cIdx) => {
+                              /* Beat-positioned chords on single horizontal line with overflow protection */
+                              <div className={`w-full flex items-center h-full min-w-0 overflow-hidden ${
+                                displayChords.length === 1 ? 'justify-center' : 'justify-between'
+                              }`}>
+                                {displayChords.map((chord, cIdx) => {
                                   const isChordPlaying = currentTime >= chord.start_time && currentTime <= chord.end_time;
                                   const globalIdx = getGlobalChordIndex(chord);
-                                  const chordBeats = chord.beat_duration || (totalBeats / bar.chords.length);
-                                  const widthPct = Math.max(15, (chordBeats / totalBeats) * 100);
+                                  const chordBeats = chord.beat_duration || (totalBeats / displayChords.length);
+                                  const widthPct = Math.min(100, Math.max(10, (chordBeats / totalBeats) * 100));
 
                                   if (chord.display === 'N') {
                                     return (
                                       <div
                                         key={cIdx}
                                         style={{ width: `${widthPct}%` }}
-                                        className="flex items-center justify-center text-slate-600 text-xs font-bold select-none"
+                                        className="flex items-center justify-center text-slate-600 text-xs font-bold select-none min-w-0 overflow-hidden"
                                       >
                                         —
                                       </div>
                                     );
                                   }
 
+                                  const chordSizeClass = displayChords.length >= 4
+                                    ? 'text-[10px] sm:text-xs px-1 py-0.5'
+                                    : displayChords.length === 3
+                                    ? 'text-xs sm:text-xs px-1 sm:px-1.5 py-0.5'
+                                    : 'text-xs sm:text-sm px-1.5 sm:px-2 py-0.5 sm:py-1';
+
                                   return (
                                     <div
                                       key={cIdx}
-                                      style={{ width: `${widthPct}%` }}
-                                      className="flex items-center pl-0.5 sm:pl-1"
+                                      style={{ width: displayChords.length === 1 ? 'auto' : `${widthPct}%` }}
+                                      className="flex items-center justify-center min-w-0 overflow-hidden px-0.5"
                                     >
-                                      {cIdx > 0 && (
-                                        <span className="text-slate-500 font-bold text-xs select-none pr-1">/</span>
-                                      )}
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           if (onSeek) onSeek(chord.start_time);
                                           onSelectChord(chord, globalIdx);
                                         }}
-                                        className={`group relative inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-extrabold tracking-tight transition-all cursor-pointer ${
+                                        className={`group relative inline-flex items-center justify-center max-w-full rounded font-extrabold tracking-tight transition-all cursor-pointer ${chordSizeClass} ${
                                           isChordPlaying
                                             ? 'bg-amber-400 text-slate-950 font-black shadow-lg shadow-amber-400/50 ring-2 ring-amber-300 scale-105 z-20'
                                             : 'text-slate-100 hover:text-indigo-300 hover:bg-slate-800'
                                         }`}
                                         title={`Bar ${bar.bar_number}, Beat ${chord.beat || chord.beat_position || 1}: ${chord.display} (${Math.round(chord.confidence * 100)}% conf - Click to jump)`}
                                       >
-                                        <span>{chord.display}</span>
+                                        <span className="truncate">{chord.display}</span>
 
                                         {/* Low-confidence review flag */}
                                         {chord.needs_review && (

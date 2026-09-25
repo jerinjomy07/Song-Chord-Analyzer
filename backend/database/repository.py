@@ -201,6 +201,25 @@ class SongRepository:
             analysis.transpose_semitones = row["transpose_value"]
             analysis.title = row["title"]
 
+            # Ensure historical analysis records don't contain un-consolidated identical chords inside bars
+            if analysis.sections:
+                for sec in analysis.sections:
+                    for bar in sec.bars:
+                        if not bar.chords:
+                            continue
+                        merged = []
+                        for c in bar.chords:
+                            if merged and merged[-1].display == c.display:
+                                prev = merged[-1]
+                                prev.beat_duration = (prev.beat_duration or 1.0) + (c.beat_duration or 1.0)
+                                prev.end_time = c.end_time
+                                prev.duration = round(prev.end_time - prev.start_time, 3)
+                            else:
+                                merged.append(c.model_copy())
+                        bar.chords = merged
+                        if bar.chords:
+                            bar.display = "   ".join([c.display for c in bar.chords if c.display != 'N']) or "N"
+
             # Attach source reference metadata
             if row["source_type"] == "youtube_reference":
                 analysis.source_metadata = {

@@ -1,6 +1,6 @@
 # 🎵 SONG CHORD ANALYZER
 
-[![Release](https://img.shields.io/badge/Release-v0.1.6-indigo.svg)](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.6)
+[![Release](https://img.shields.io/badge/Release-v0.1.7-indigo.svg)](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.7)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011%20x64-blue.svg)](https://github.com/jerinjomy07/Song-Chord-Analyzer)
 [![PyTorch](https://img.shields.io/badge/PyTorch-CUDA%20Accelerated-orange.svg)](https://pytorch.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](docs/MODEL_LICENSING.md)
@@ -13,17 +13,23 @@
 
 ## 📥 Downloads & Windows Executables
 
-Download the latest pre-built Windows standalone binaries from the **[v0.1.6 Release Page](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.6)**:
+Download the latest pre-built Windows standalone binaries from the **[v0.1.7 Release Page](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.7)**:
 
 | Distribution Format | Description | Download Link |
 | :--- | :--- | :--- |
-| **Windows Installer** | Standard Windows setup with Start Menu & Desktop shortcuts | [📥 SongChordAnalyzer-Setup.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.6/SongChordAnalyzer-Setup.exe) |
-| **Standalone Portable** | Single-file portable `.exe` requiring zero installation | [📥 SongChordAnalyzer.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.6/SongChordAnalyzer.exe) |
+| **Windows Installer** | Standard Windows setup with Start Menu & Desktop shortcuts | [📥 SongChordAnalyzer-Setup.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.7/SongChordAnalyzer-Setup.exe) |
+| **Standalone Portable** | Single-file portable `.exe` requiring zero installation | [📥 SongChordAnalyzer.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.7/SongChordAnalyzer.exe) |
 | **Pre-Extracted Directory** | Direct standalone folder | `dist_electron/win-unpacked/Song Chord Analyzer.exe` |
 
 ---
 
-## 🌟 Key Features & What's New in v0.1.6
+## 🌟 Key Features & What's New in v0.1.7
+
+### 1. Measure-Level Chord Consolidation & Overflow Elimination
+- **Run-Length Chord Grouping:** Automatically consolidates consecutive beats sharing the identical chord within a measure into single sustained chord events with combined duration, eliminating redundant repeated chords (`A# / A# / A#` -> `A# (3 beats)`).
+- **Measure Overflow & Collision Elimination:** Fixed visual boundary blowouts where dense measures (such as 7/8, 6/8, and 12/8) overflowed across bar lines into adjacent measures.
+- **Enhanced Lead-Sheet Typography:** Removed confusing slash separators (`/`) between chords inside bars, preventing visual collisions with slash inversions (`D/G`, `Bm/F#`) and improving measure readability.
+- **Backward-Compatible SQLite Sanitize:** Automatically consolidates historical measures upon load so previously analyzed library songs immediately render with clean, uncluttered measures without requiring re-analysis.
 
 ### 1. Advanced Multi-Meter & Harmonic Downbeat Engine
 - **Six Supported Time Signatures:** Explicitly evaluates candidate meters across **`2/4`**, **`3/4`**, **`4/4`**, **`6/8`**, **`7/8`**, and **`12/8`** instead of forcing 4/4 assumptions.
