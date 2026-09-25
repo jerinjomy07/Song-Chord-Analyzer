@@ -1,0 +1,369 @@
+{
+  "meter": "7/8",
+  "numerator": 7,
+  "denominator": 8,
+  "expected_bpm": 140.0,
+  "subgrouping": "2+2+3",
+  "total_bars": 16,
+  "duration_seconds": 48.0,
+  "downbeats": [
+    0.0,
+    3.0,
+    6.0,
+    9.0,
+    12.0,
+    15.0,
+    18.0,
+    21.0,
+    24.0,
+    27.0,
+    30.0,
+    33.0,
+    36.0,
+    39.0,
+    42.0,
+    45.0
+  ],
+  "beats": [
+    0.0,
+    0.429,
+    0.857,
+    1.286,
+    1.714,
+    2.143,
+    2.571,
+    3.0,
+    3.429,
+    3.857,
+    4.286,
+    4.714,
+    5.143,
+    5.571,
+    6.0,
+    6.429,
+    6.857,
+    7.286,
+    7.714,
+    8.143,
+    8.571,
+    9.0,
+    9.429,
+    9.857,
+    10.286,
+    10.714,
+    11.143,
+    11.571,
+    12.0,
+    12.429,
+    12.857,
+    13.286,
+    13.714,
+    14.143,
+    14.571,
+    15.0,
+    15.429,
+    15.857,
+    16.286,
+    16.714,
+    17.143,
+    17.571,
+    18.0,
+    18.429,
+    18.857,
+    19.286,
+    19.714,
+    20.143,
+    20.571,
+    21.0,
+    21.429,
+    21.857,
+    22.286,
+    22.714,
+    23.143,
+    23.571,
+    24.0,
+    24.429,
+    24.857,
+    25.286,
+    25.714,
+    26.143,
+    26.571,
+    27.0,
+    27.429,
+    27.857,
+    28.286,
+    28.714,
+    29.143,
+    29.571,
+    30.0,
+    30.429,
+    30.857,
+    31.286,
+    31.714,
+    32.143,
+    32.571,
+    33.0,
+    33.429,
+    33.857,
+    34.286,
+    34.714,
+    35.143,
+    35.571,
+    36.0,
+    36.429,
+    36.857,
+    37.286,
+    37.714,
+    38.143,
+    38.571,
+    39.0,
+    39.429,
+    39.857,
+    40.286,
+    40.714,
+    41.143,
+    41.571,
+    42.0,
+    42.429,
+    42.857,
+    43.286,
+    43.714,
+    44.143,
+    44.571,
+    45.0,
+    45.429,
+    45.857,
+    46.286,
+    46.714,
+    47.143,
+    47.571
+  ],
+  "bars": [
+    {
+      "bar_number": 1,
+      "start_time": 0.0,
+      "end_time": 3.0,
+      "chord": "Am"
+    },
+    {
+      "bar_number": 2,
+      "start_time": 3.0,
+      "end_time": 6.0,
+      "chord": "G"
+    },
+    {
+      "bar_number": 3,
+      "start_time": 6.0,
+      "end_time": 9.0,
+      "chord": "F"
+    },
+    {
+      "bar_number": 4,
+      "start_time": 9.0,
+      "end_time": 12.0,
+      "chord": "Em"
+    },
+    {
+      "bar_number": 5,
+      "start_time": 12.0,
+      "end_time": 15.0,
+      "chord": "Am"
+    },
+    {
+      "bar_number": 6,
+      "start_time": 15.0,
+      "end_time": 18.0,
+      "chord": "G"
+    },
+    {
+      "bar_number": 7,
+      "start_time": 18.0,
+      "end_time": 21.0,
+      "chord": "F"
+    },
+    {
+      "bar_number": 8,
+      "start_time": 21.0,
+      "end_time": 24.0,
+      "chord": "Em"
+    },
+    {
+      "bar_number": 9,
+      "start_time": 24.0,
+      "end_time": 27.0,
+      "chord": "Am"
+    },
+    {
+      "bar_number": 10,
+      "start_time": 27.0,
+      "end_time": 30.0,
+      "chord": "G"
+    },
+    {
+      "bar_number": 11,
+      "start_time": 30.0,
+      "end_time": 33.0,
+      "chord": "F"
+    },
+    {
+      "bar_number": 12,
+      "start_time": 33.0,
+      "end_time": 36.0,
+      "chord": "Em"
+    },
+    {
+      "bar_number": 13,
+      "start_time": 36.0,
+      "end_time": 39.0,
+      "chord": "Am"
+    },
+    {
+      "bar_number": 14,
+      "start_time": 39.0,
+      "end_time": 42.0,
+      "chord": "G"
+    },
+    {
+      "bar_number": 15,
+      "start_time": 42.0,
+      "end_time": 45.0,
+      "chord": "F"
+    },
+    {
+      "bar_number": 16,
+      "start_time": 45.0,
+      "end_time": 48.0,
+      "chord": "Em"
+    }
+  ],
+  "chords": [
+    {
+      "root": "A",
+      "quality": "minor",
+      "display": "Am",
+      "start_time": 0.0,
+      "end_time": 3.0,
+      "bar": 1
+    },
+    {
+      "root": "G",
+      "quality": "major",
+      "display": "G",
+      "start_time": 3.0,
+      "end_time": 6.0,
+      "bar": 2
+    },
+    {
+      "root": "F",
+      "quality": "major",
+      "display": "F",
+      "start_time": 6.0,
+      "end_time": 9.0,
+      "bar": 3
+    },
+    {
+      "root": "E",
+      "quality": "minor",
+      "display": "Em",
+      "start_time": 9.0,
+      "end_time": 12.0,
+      "bar": 4
+    },
+    {
+      "root": "A",
+      "quality": "minor",
+      "display": "Am",
+      "start_time": 12.0,
+      "end_time": 15.0,
+      "bar": 5
+    },
+    {
+      "root": "G",
+      "quality": "major",
+      "display": "G",
+      "start_time": 15.0,
+      "end_time": 18.0,
+      "bar": 6
+    },
+    {
+      "root": "F",
+      "quality": "major",
+      "display": "F",
+      "start_time": 18.0,
+      "end_time": 21.0,
+      "bar": 7
+    },
+    {
+      "root": "E",
+      "quality": "minor",
+      "display": "Em",
+      "start_time": 21.0,
+      "end_time": 24.0,
+      "bar": 8
+    },
+    {
+      "root": "A",
+      "quality": "minor",
+      "display": "Am",
+      "start_time": 24.0,
+      "end_time": 27.0,
+      "bar": 9
+    },
+    {
+      "root": "G",
+      "quality": "major",
+      "display": "G",
+      "start_time": 27.0,
+      "end_time": 30.0,
+      "bar": 10
+    },
+    {
+      "root": "F",
+      "quality": "major",
+      "display": "F",
+      "start_time": 30.0,
+      "end_time": 33.0,
+      "bar": 11
+    },
+    {
+      "root": "E",
+      "quality": "minor",
+      "display": "Em",
+      "start_time": 33.0,
+      "end_time": 36.0,
+      "bar": 12
+    },
+    {
+      "root": "A",
+      "quality": "minor",
+      "display": "Am",
+      "start_time": 36.0,
+      "end_time": 39.0,
+      "bar": 13
+    },
+    {
+      "root": "G",
+      "quality": "major",
+      "display": "G",
+      "start_time": 39.0,
+      "end_time": 42.0,
+      "bar": 14
+    },
+    {
+      "root": "F",
+      "quality": "major",
+      "display": "F",
+      "start_time": 42.0,
+      "end_time": 45.0,
+      "bar": 15
+    },
+    {
+      "root": "E",
+      "quality": "minor",
+      "display": "Em",
+      "start_time": 45.0,
+      "end_time": 48.0,
+      "bar": 16
+    }
+  ]
+}

@@ -84,6 +84,10 @@ class TempoAnalysis(BaseModel):
     bpm: float = Field(..., description="Detected Beats Per Minute")
     confidence: float = Field(..., description="Tempo confidence score")
     is_estimated: bool = False
+    primary_bpm: Optional[float] = None
+    selected_bpm: Optional[float] = None
+    beat_period: Optional[float] = None
+    alternative_hypotheses: List[Dict[str, Any]] = Field(default_factory=list, description="Alternative tempo candidates with scores")
 
 
 class MeterAnalysis(BaseModel):
@@ -92,12 +96,18 @@ class MeterAnalysis(BaseModel):
     display: str = "4/4"
     confidence: float = 0.95
     is_estimated: bool = False
+    candidate_scores: Dict[str, float] = Field(default_factory=dict, description="Confidence scores for 2/4, 3/4, 4/4, 6/8, 7/8, 12/8")
+    downbeat_confidence: float = 0.0
+    meter_evidence: str = ""
+    subgrouping: Optional[str] = None
 
 
 class BeatGrid(BaseModel):
     bpm: float
     beats: List[float] = Field(default_factory=list, description="Timestamp in seconds for each detected beat")
     downbeats: List[float] = Field(default_factory=list, description="Timestamp in seconds for each bar downbeat")
+    pickup_beats: int = 0
+    bar_boundaries: List[List[float]] = Field(default_factory=list)
 
 
 class AudioMetadata(BaseModel):

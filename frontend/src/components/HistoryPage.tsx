@@ -52,7 +52,6 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const [reanalyzeTarget, setReanalyzeTarget] = useState<HistorySong | null>(null);
-  const [isReanalyzing, setIsReanalyzing] = useState(false);
 
   const [openingSongId, setOpeningSongId] = useState<string | null>(null);
   const [duplicatingSongId, setDuplicatingSongId] = useState<string | null>(null);
@@ -157,24 +156,14 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
     }
   };
 
-  const handleConfirmReanalyze = async () => {
+  const handleConfirmReanalyze = () => {
     if (!reanalyzeTarget) return;
-    setIsReanalyzing(true);
-    try {
-      const res = await fetch(`/api/history/${reanalyzeTarget.id}/reanalyze`, { method: 'POST' });
-      if (res.ok) {
-        const songId = reanalyzeTarget.id;
-        setReanalyzeTarget(null);
-        if (onStartReanalyze) {
-          onStartReanalyze(songId);
-        } else {
-          onOpenSong(songId);
-        }
-      }
-    } catch (err) {
-      console.error('Failed to trigger re-analyze:', err);
-    } finally {
-      setIsReanalyzing(false);
+    const songId = reanalyzeTarget.id;
+    setReanalyzeTarget(null);
+    if (onStartReanalyze) {
+      onStartReanalyze(songId);
+    } else {
+      onOpenSong(songId);
     }
   };
 
@@ -583,8 +572,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
             </div>
             <h3 className="text-lg font-bold text-white mb-2">Re-analyze "{reanalyzeTarget.title}"?</h3>
             <p className="text-xs text-slate-300 mb-4 leading-relaxed">
-              Re-analyzing will re-run Demucs stem separation and BTC chord recognition from scratch.
-              Any manual chord edits you made to this song will be replaced with fresh model predictions.
+              This will re-run harmonic tempo estimation, meter & downbeat detection, and BTC neural chord recognition on this song using the latest music engine. Any manual chord edits will be refreshed.
             </p>
             <div className="flex items-center justify-end gap-2">
               <button
@@ -595,10 +583,9 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
               </button>
               <button
                 onClick={handleConfirmReanalyze}
-                disabled={isReanalyzing}
-                className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-600/30"
+                className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-600/30"
               >
-                {isReanalyzing ? <Loader2 size={13} className="animate-spin" /> : <RotateCcw size={13} />}
+                <RotateCcw size={13} />
                 <span>Re-analyze Audio</span>
               </button>
             </div>

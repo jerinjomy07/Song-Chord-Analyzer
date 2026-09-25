@@ -257,18 +257,31 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleStartReanalyze = (songId: string) => {
+  const handleStartReanalyze = async (songId: string) => {
     if (audioRef.current) {
       audioRef.current.pause();
     }
     setIsPlaying(false);
     setCurrentTime(0);
+    setErrorMessage(null);
     setAnalysis(null);
     setAnalysisId(songId);
     setStatus('PREPROCESSING');
     setProgress(5);
-    setStatusMessage('Re-analyzing audio with Demucs & BTC...');
+    setStatusMessage('Re-analyzing audio with latest music engine...');
     setCurrentTab('home');
+
+    try {
+      const res = await fetch(`/api/history/${songId}/reanalyze`, { method: 'POST' });
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.detail || 'Failed to start re-analysis');
+      }
+    } catch (err: any) {
+      console.error('Re-analyze error:', err);
+      setStatus('FAILED');
+      setErrorMessage(err.message || 'Could not trigger re-analysis.');
+    }
   };
 
   const handlePlayPause = () => {
@@ -577,6 +590,7 @@ export const App: React.FC = () => {
             {/* Quick Access Recent Songs */}
             <RecentSongsSection
               onOpenSong={openSongFromHistory}
+              onReanalyzeSong={handleStartReanalyze}
               onNavigateHistory={() => setCurrentTab('history')}
               refreshTrigger={recentRefreshTrigger}
             />
@@ -600,6 +614,7 @@ export const App: React.FC = () => {
               analysis={analysis}
               onReset={handleReset}
               onRenameTitle={handleRenameCurrentSong}
+              onReanalyze={handleStartReanalyze}
             />
 
             {/* Interactive Timeline & Audio Waveform Player with Live Indicators & Volume */}

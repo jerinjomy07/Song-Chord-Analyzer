@@ -12,12 +12,14 @@ interface SongHeaderProps {
   analysis: SongAnalysis;
   onReset: () => void;
   onRenameTitle?: (newTitle: string) => Promise<void> | void;
+  onReanalyze?: (songId: string) => void;
 }
 
-export const SongHeader: React.FC<SongHeaderProps> = ({ analysis, onReset, onRenameTitle }) => {
+export const SongHeader: React.FC<SongHeaderProps> = ({ analysis, onReset, onRenameTitle, onReanalyze }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [titleInput, setTitleInput] = useState(analysis.title);
   const [isSaving, setIsSaving] = useState(false);
+  const [showReanalyzeConfirm, setShowReanalyzeConfirm] = useState(false);
 
   const formatTime = (secs: number) => {
     const mins = Math.floor(secs / 60);
@@ -134,13 +136,26 @@ export const SongHeader: React.FC<SongHeaderProps> = ({ analysis, onReset, onRen
           )}
         </div>
 
-        <button
-          onClick={onReset}
-          className="self-start md:self-auto px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium flex items-center gap-2 transition-all cursor-pointer shrink-0"
-        >
-          <RotateCcw size={16} />
-          <span>New Song</span>
-        </button>
+        <div className="flex items-center gap-2.5 self-start md:self-auto shrink-0 flex-wrap">
+          {onReanalyze && (
+            <button
+              onClick={() => setShowReanalyzeConfirm(true)}
+              className="px-3.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-500/50 text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-sm shadow-amber-500/10"
+              title="Re-analyze this song using the latest music analysis engine"
+            >
+              <RotateCcw size={15} className="text-amber-400" />
+              <span>Re-analyze</span>
+            </button>
+          )}
+
+          <button
+            onClick={onReset}
+            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium flex items-center gap-2 transition-all cursor-pointer"
+          >
+            <Music size={16} />
+            <span>New Song</span>
+          </button>
+        </div>
       </div>
 
       {/* Metrics Grid */}
@@ -191,6 +206,44 @@ export const SongHeader: React.FC<SongHeaderProps> = ({ analysis, onReset, onRen
           </div>
         </div>
       </div>
+
+      {/* RE-ANALYZE CONFIRMATION MODAL */}
+      {showReanalyzeConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-amber-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
+                <RotateCcw size={20} />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Re-analyze Song?</h3>
+                <p className="text-xs text-slate-400">Re-run audio through latest analysis engine</p>
+              </div>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed mb-6">
+              This will re-run harmonic tempo estimation, meter & downbeat detection, and BTC chord recognition on <span className="font-semibold text-white">"{analysis.title}"</span> using its stored audio file. Any manual chord edits will be refreshed.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowReanalyzeConfirm(false)}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowReanalyzeConfirm(false);
+                  if (onReanalyze) onReanalyze(analysis.id);
+                }}
+                className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all shadow-lg shadow-amber-600/30 flex items-center gap-1.5 cursor-pointer"
+              >
+                <RotateCcw size={14} />
+                <span>Re-analyze Now</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

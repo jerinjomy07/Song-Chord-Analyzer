@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import type { HistorySong } from '../types';
-import { History, Music, ArrowRight, Clock, Activity, FolderOpen, Loader2 } from 'lucide-react';
+import { History, Music, ArrowRight, Clock, Activity, FolderOpen, Loader2, RotateCcw } from 'lucide-react';
 
 interface RecentSongsSectionProps {
   onOpenSong: (songId: string) => void;
   onNavigateHistory: () => void;
+  onReanalyzeSong?: (songId: string) => void;
   refreshTrigger?: number;
 }
 
 export const RecentSongsSection: React.FC<RecentSongsSectionProps> = ({
   onOpenSong,
   onNavigateHistory,
+  onReanalyzeSong,
   refreshTrigger = 0,
 }) => {
   const [recentSongs, setRecentSongs] = useState<HistorySong[]>([]);
@@ -115,17 +117,33 @@ export const RecentSongsSection: React.FC<RecentSongsSectionProps> = ({
                 </div>
               </div>
 
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleOpen(song.id);
-                }}
-                disabled={isOpening}
-                className="w-full py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-indigo-600 disabled:opacity-50 text-slate-200 hover:text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-              >
-                {isOpening ? <Loader2 size={12} className="animate-spin" /> : <FolderOpen size={12} />}
-                <span>Open Song</span>
-              </button>
+              <div className="flex items-center gap-1.5 mt-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpen(song.id);
+                  }}
+                  disabled={isOpening}
+                  className="flex-1 py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-indigo-600 disabled:opacity-50 text-slate-200 hover:text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  {isOpening ? <Loader2 size={12} className="animate-spin" /> : <FolderOpen size={12} />}
+                  <span>Open</span>
+                </button>
+                {onReanalyzeSong && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onReanalyzeSong(song.id);
+                    }}
+                    disabled={isOpening}
+                    className="py-1.5 px-2.5 rounded-lg bg-slate-800/80 hover:bg-amber-500/20 text-slate-400 hover:text-amber-300 border border-slate-700/60 hover:border-amber-500/40 disabled:opacity-50 text-[11px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer"
+                    title="Re-analyze with latest music engine"
+                  >
+                    <RotateCcw size={12} className="text-amber-400" />
+                    <span>Re-analyze</span>
+                  </button>
+                )}
+              </div>
             </div>
           );
         })}

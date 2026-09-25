@@ -1,0 +1,289 @@
+{
+  "meter": "6/8",
+  "numerator": 6,
+  "denominator": 8,
+  "expected_bpm": 55.0,
+  "subgrouping": null,
+  "total_bars": 16,
+  "duration_seconds": 34.909,
+  "downbeats": [
+    0.0,
+    2.182,
+    4.364,
+    6.545,
+    8.727,
+    10.909,
+    13.091,
+    15.273,
+    17.455,
+    19.636,
+    21.818,
+    24.0,
+    26.182,
+    28.364,
+    30.545,
+    32.727
+  ],
+  "beats": [
+    0.0,
+    1.091,
+    2.182,
+    3.273,
+    4.364,
+    5.455,
+    6.545,
+    7.636,
+    8.727,
+    9.818,
+    10.909,
+    12.0,
+    13.091,
+    14.182,
+    15.273,
+    16.364,
+    17.455,
+    18.545,
+    19.636,
+    20.727,
+    21.818,
+    22.909,
+    24.0,
+    25.091,
+    26.182,
+    27.273,
+    28.364,
+    29.455,
+    30.545,
+    31.636,
+    32.727,
+    33.818
+  ],
+  "bars": [
+    {
+      "bar_number": 1,
+      "start_time": 0.0,
+      "end_time": 2.182,
+      "chord": "Am"
+    },
+    {
+      "bar_number": 2,
+      "start_time": 2.182,
+      "end_time": 4.364,
+      "chord": "G"
+    },
+    {
+      "bar_number": 3,
+      "start_time": 4.364,
+      "end_time": 6.545,
+      "chord": "F"
+    },
+    {
+      "bar_number": 4,
+      "start_time": 6.545,
+      "end_time": 8.727,
+      "chord": "Em"
+    },
+    {
+      "bar_number": 5,
+      "start_time": 8.727,
+      "end_time": 10.909,
+      "chord": "Am"
+    },
+    {
+      "bar_number": 6,
+      "start_time": 10.909,
+      "end_time": 13.091,
+      "chord": "G"
+    },
+    {
+      "bar_number": 7,
+      "start_time": 13.091,
+      "end_time": 15.273,
+      "chord": "F"
+    },
+    {
+      "bar_number": 8,
+      "start_time": 15.273,
+      "end_time": 17.455,
+      "chord": "Em"
+    },
+    {
+      "bar_number": 9,
+      "start_time": 17.455,
+      "end_time": 19.636,
+      "chord": "Am"
+    },
+    {
+      "bar_number": 10,
+      "start_time": 19.636,
+      "end_time": 21.818,
+      "chord": "G"
+    },
+    {
+      "bar_number": 11,
+      "start_time": 21.818,
+      "end_time": 24.0,
+      "chord": "F"
+    },
+    {
+      "bar_number": 12,
+      "start_time": 24.0,
+      "end_time": 26.182,
+      "chord": "Em"
+    },
+    {
+      "bar_number": 13,
+      "start_time": 26.182,
+      "end_time": 28.364,
+      "chord": "Am"
+    },
+    {
+      "bar_number": 14,
+      "start_time": 28.364,
+      "end_time": 30.545,
+      "chord": "G"
+    },
+    {
+      "bar_number": 15,
+      "start_time": 30.545,
+      "end_time": 32.727,
+      "chord": "F"
+    },
+    {
+      "bar_number": 16,
+      "start_time": 32.727,
+      "end_time": 34.909,
+      "chord": "Em"
+    }
+  ],
+  "chords": [
+    {
+      "root": "A",
+      "quality": "minor",
+      "display": "Am",
+      "start_time": 0.0,
+      "end_time": 2.182,
+      "bar": 1
+    },
+    {
+      "root": "G",
+      "quality": "major",
+      "display": "G",
+      "start_time": 2.182,
+      "end_time": 4.364,
+      "bar": 2
+    },
+    {
+      "root": "F",
+      "quality": "major",
+      "display": "F",
+      "start_time": 4.364,
+      "end_time": 6.545,
+      "bar": 3
+    },
+    {
+      "root": "E",
+      "quality": "minor",
+      "display": "Em",
+      "start_time": 6.545,
+      "end_time": 8.727,
+      "bar": 4
+    },
+    {
+      "root": "A",
+      "quality": "minor",
+      "display": "Am",
+      "start_time": 8.727,
+      "end_time": 10.909,
+      "bar": 5
+    },
+    {
+      "root": "G",
+      "quality": "major",
+      "display": "G",
+      "start_time": 10.909,
+      "end_time": 13.091,
+      "bar": 6
+    },
+    {
+      "root": "F",
+      "quality": "major",
+      "display": "F",
+      "start_time": 13.091,
+      "end_time": 15.273,
+      "bar": 7
+    },
+    {
+      "root": "E",
+      "quality": "minor",
+      "display": "Em",
+      "start_time": 15.273,
+      "end_time": 17.455,
+      "bar": 8
+    },
+    {
+      "root": "A",
+      "quality": "minor",
+      "display": "Am",
+      "start_time": 17.455,
+      "end_time": 19.636,
+      "bar": 9
+    },
+    {
+      "root": "G",
+      "quality": "major",
+      "display": "G",
+      "start_time": 19.636,
+      "end_time": 21.818,
+      "bar": 10
+    },
+    {
+      "root": "F",
+      "quality": "major",
+      "display": "F",
+      "start_time": 21.818,
+      "end_time": 24.0,
+      "bar": 11
+    },
+    {
+      "root": "E",
+      "quality": "minor",
+      "display": "Em",
+      "start_time": 24.0,
+      "end_time": 26.182,
+      "bar": 12
+    },
+    {
+      "root": "A",
+      "quality": "minor",
+      "display": "Am",
+      "start_time": 26.182,
+      "end_time": 28.364,
+      "bar": 13
+    },
+    {
+      "root": "G",
+      "quality": "major",
+      "display": "G",
+      "start_time": 28.364,
+      "end_time": 30.545,
+      "bar": 14
+    },
+    {
+      "root": "F",
+      "quality": "major",
+      "display": "F",
+      "start_time": 30.545,
+      "end_time": 32.727,
+      "bar": 15
+    },
+    {
+      "root": "E",
+      "quality": "minor",
+      "display": "Em",
+      "start_time": 32.727,
+      "end_time": 34.909,
+      "bar": 16
+    }
+  ]
+}

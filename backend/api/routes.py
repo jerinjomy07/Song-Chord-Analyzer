@@ -651,9 +651,10 @@ async def delete_song_entry(song_id: str):
     return {"success": success}
 
 
+@router.post("/analysis/{song_id}/reanalyze")
 @router.post("/history/{song_id}/reanalyze")
 async def reanalyze_song_entry(song_id: str):
-    """Explicitly re-analyzes a historical song using the stored library audio."""
+    """Explicitly re-analyzes a historical song using the stored library audio and latest music engine."""
     song = SongRepository.get_song(song_id)
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
@@ -662,17 +663,30 @@ async def reanalyze_song_entry(song_id: str):
     if not audio_path.exists():
         raise HTTPException(status_code=404, detail="Audio file missing from library")
 
+    # Clear cached in-memory analysis so fresh results are picked up
+    if song_id in ANALYSIS_RESULTS:
+        del ANALYSIS_RESULTS[song_id]
+
     ACTIVE_TASKS[song_id] = AnalysisStatusResponse(
         analysis_id=song_id,
         status=AnalysisStatusEnum.PREPROCESSING,
         progress=5,
         current_stage="PREPROCESSING",
-        message="Queuing re-analysis..."
+        message="Queuing re-analysis with latest music engine..."
     )
 
     worker = threading.Thread(
         target=run_pipeline_worker,
-        args=(song_id, audio_path, song["title"]),
+        kwargs={
+            "analysis_id": song_id,
+            "audio_path": audio_path,
+            "song_title": song["title"],
+            "source_type": song.get("source_type", "local"),
+            "youtube_video_id": song.get("youtube_video_id"),
+            "youtube_url": song.get("youtube_url"),
+            "youtube_title": song.get("youtube_title"),
+            "youtube_channel": song.get("youtube_channel")
+        },
         daemon=True
     )
     worker.start()

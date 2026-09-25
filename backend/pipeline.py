@@ -112,13 +112,24 @@ class SongAnalyzerPipeline:
                 # CRITICAL VRAM RELEASE: Release separation model and flush GPU cache
                 VRAMManager.release_gpu()
 
-            # Stage 3: Beat Tracking & Downbeat Alignment
-            report(AnalysisStatusEnum.ANALYZING_BEATS, 45, "Detecting BPM, beats, and downbeats...")
+            # Stage 3: Multi-Hypothesis Tempo Estimation & Beat Tracking
+            report(AnalysisStatusEnum.ANALYZING_BEATS, 45, "Estimating multi-hypothesis tempo and beat grid...")
             beat_grid, tempo_info = self.beat_tracker.track_beats(mono_22k)
 
-            # Stage 4: Meter / Time Signature Estimation
-            report(AnalysisStatusEnum.ANALYZING_BEATS, 52, "Estimating time signature...")
-            meter_info = self.meter_detector.detect_meter(mono_22k, beat_grid.beats, tempo_info.bpm)
+            # Stage 4: Multi-Meter Evaluation (2/4, 3/4, 4/4, 6/8, 7/8, 12/8) & Downbeat Phase
+            report(AnalysisStatusEnum.ANALYZING_BEATS, 52, "Evaluating time signatures (2/4, 3/4, 4/4, 6/8, 7/8, 12/8) & downbeats...")
+            meter_res = self.meter_detector.detect_meter(
+                mono_22k, beat_grid.beats, tempo_info.bpm, tempo_info=tempo_info
+            )
+            meter_info, downbeats, pickup_beats = meter_res
+            beat_grid.downbeats = downbeats
+            beat_grid.pickup_beats = pickup_beats
+            if getattr(meter_res, "selected_bpm", None) and getattr(meter_res, "selected_beats", None):
+                beat_grid.bpm = meter_res.selected_bpm
+                beat_grid.beats = meter_res.selected_beats
+                tempo_info.selected_bpm = meter_res.selected_bpm
+                tempo_info.bpm = meter_res.selected_bpm
+                tempo_info.beat_period = 60.0 / max(30.0, meter_res.selected_bpm)
 
             # Stage 5: Sequential Chord Recognition (BTC Model loaded onto GPU)
             report(AnalysisStatusEnum.ANALYZING_CHORDS, 60, "Loading BTC Neural Chord Recognizer...")
@@ -182,8 +193,7 @@ class SongAnalyzerPipeline:
                     raw_sample = ["N"]
 
                 # Beat pooled chords in this bar
-                b_start_idx = (b.bar_number - 1) * beats_per_bar
-                b_slice = fused_beat_chords[b_start_idx : b_start_idx + beats_per_bar]
+                b_slice = [c for c in fused_beat_chords if c.start_time >= b.start_time - 0.05 and c.end_time <= b.end_time + 0.05]
                 beat_pooled_str = [c.display for c in b_slice]
 
                 # Sounding bass note in this bar

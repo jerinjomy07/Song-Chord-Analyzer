@@ -166,7 +166,16 @@ class AndroidCandidateEngine:
         beat_grid, tempo_info = self.beat_tracker.track_beats(audio_path)
 
         # 2. Time Signature / Meter Detection
-        meter_info = self.meter_detector.detect_meter(audio_path, beat_grid.beats, tempo_info.bpm)
+        meter_res = self.meter_detector.detect_meter(audio_path, beat_grid.beats, tempo_info.bpm, tempo_info=tempo_info)
+        meter_info, downbeats, pickup_beats = meter_res
+        beat_grid.downbeats = downbeats
+        beat_grid.pickup_beats = pickup_beats
+        if getattr(meter_res, "selected_bpm", None) and getattr(meter_res, "selected_beats", None):
+            beat_grid.bpm = meter_res.selected_bpm
+            beat_grid.beats = meter_res.selected_beats
+            tempo_info.selected_bpm = meter_res.selected_bpm
+            tempo_info.bpm = meter_res.selected_bpm
+            tempo_info.beat_period = 60.0 / max(30.0, meter_res.selected_bpm)
 
         # 3. Key & Enharmonic Scale Detection
         key_info = self.key_detector.detect_key(audio_path)

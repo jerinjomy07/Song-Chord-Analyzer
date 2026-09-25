@@ -97,10 +97,16 @@ def test_repository_save_and_retrieve():
     """Test saving a song analysis to SQLite and retrieving it instantly."""
     analysis = create_sample_analysis("song-001", "Autumn Leaves")
     
-    # Create a temporary dummy audio file to ingest
-    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f:
-        f.write(b"dummy audio content for testing 12345")
-        temp_audio = Path(f.name)
+    # Create a temporary valid WAV audio file to ingest
+    import wave
+    import struct
+    temp_wav = Path(tempfile.gettempdir()) / "test_dummy_audio.wav"
+    with wave.open(str(temp_wav), 'wb') as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(44100)
+        wf.writeframes(struct.pack('<' + ('h' * 22050), *([0] * 22050)))
+    temp_audio = temp_wav
 
     try:
         saved_id = SongRepository.save_analysis(analysis, temp_audio, "song-001")
@@ -253,6 +259,18 @@ def test_api_history_endpoints():
     # 7. DELETE duplicate
     del_res = asyncio.run(routes.delete_song_entry(new_song_id))
     assert del_res["success"] is True
+
+    # 8. POST /api/history/{id}/reanalyze
+    from unittest.mock import patch, MagicMock
+    with patch("threading.Thread") as mock_thread_cls:
+        mock_instance = MagicMock()
+        mock_thread_cls.return_value = mock_instance
+        re_res = asyncio.run(routes.reanalyze_song_entry("song-001"))
+        assert re_res["analysis_id"] == "song-001"
+        assert re_res["status"] == "QUEUED"
+        assert "song-001" in routes.ACTIVE_TASKS
+        assert mock_thread_cls.called
+        assert mock_instance.start.called
 
 
 def test_delete_and_library_cleanup():

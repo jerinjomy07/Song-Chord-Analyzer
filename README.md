@@ -1,6 +1,6 @@
 # 🎵 SONG CHORD ANALYZER
 
-[![Release](https://img.shields.io/badge/Release-v0.1.5-indigo.svg)](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.5)
+[![Release](https://img.shields.io/badge/Release-v0.1.6-indigo.svg)](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.6)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011%20x64-blue.svg)](https://github.com/jerinjomy07/Song-Chord-Analyzer)
 [![PyTorch](https://img.shields.io/badge/PyTorch-CUDA%20Accelerated-orange.svg)](https://pytorch.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](docs/MODEL_LICENSING.md)
@@ -13,17 +13,29 @@
 
 ## 📥 Downloads & Windows Executables
 
-Download the latest pre-built Windows standalone binaries from the **[v0.1.5 Release Page](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.5)**:
+Download the latest pre-built Windows standalone binaries from the **[v0.1.6 Release Page](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/tag/v0.1.6)**:
 
 | Distribution Format | Description | Download Link |
 | :--- | :--- | :--- |
-| **Windows Installer** | Standard Windows setup with Start Menu & Desktop shortcuts | [📥 SongChordAnalyzer-Setup.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.5/SongChordAnalyzer-Setup.exe) |
-| **Standalone Portable** | Single-file portable `.exe` requiring zero installation | [📥 SongChordAnalyzer.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.5/SongChordAnalyzer.exe) |
+| **Windows Installer** | Standard Windows setup with Start Menu & Desktop shortcuts | [📥 SongChordAnalyzer-Setup.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.6/SongChordAnalyzer-Setup.exe) |
+| **Standalone Portable** | Single-file portable `.exe` requiring zero installation | [📥 SongChordAnalyzer.exe](https://github.com/jerinjomy07/Song-Chord-Analyzer/releases/download/v0.1.6/SongChordAnalyzer.exe) |
 | **Pre-Extracted Directory** | Direct standalone folder | `dist_electron/win-unpacked/Song Chord Analyzer.exe` |
 
 ---
 
-## 🌟 Key Features & What's New in v0.1.5
+## 🌟 Key Features & What's New in v0.1.6
+
+### 1. Advanced Multi-Meter & Harmonic Downbeat Engine
+- **Six Supported Time Signatures:** Explicitly evaluates candidate meters across **`2/4`**, **`3/4`**, **`4/4`**, **`6/8`**, **`7/8`**, and **`12/8`** instead of forcing 4/4 assumptions.
+- **Harmonic & Onset Periodicity:** Combines chromagram harmonic transition rate, pulse autocorrelation, and onset energy to accurately distinguish waltzes/ballads in 3/4 from compound 6/8 and standard 4/4.
+- **Harmonic Downbeat Tracking:** Evaluates beat-synchronous harmonic changes across candidate phase offsets to determine the true measure boundary (Beat 1).
+- **10/10 Golden Meter Validation:** Passes 100% of benchmark tests across both synthetic multi-meter tracks and real studio productions.
+
+### 2. Universal 1-Click Re-Analyze Across All Views
+- **Active Song View:** "Re-analyze" button in the song header allows instant re-analysis with confirmation modal.
+- **Recent Songs Dashboard:** Every card features both "Open" (instant <15ms cached load) and "Re-analyze".
+- **History Library:** Re-run analysis on any archived song directly from the library list or grid.
+- **Stem Cache Reuse:** Leverages existing separated stems (`file_hash` cache) so re-analysis skips heavy GPU separation and completes in seconds.
 
 ### 1. Direct 1-Click YouTube Video-to-Chords Transcription
 - **One-Click Video to Chords:** Paste any public YouTube URL (standard watch links, youtu.be, shorts, YouTube Music) and click **"Generate Chords from Video"** to automatically extract the audio and perform full chord transcription.
@@ -150,6 +162,9 @@ npm start
 ## 🧪 Testing & Verification
 
 ```powershell
+# Run 10/10 Golden Meter & Time Signature test suite
+python tests/test_golden_meter.py
+
 # Run SQLite History & Library test suite
 python tests/test_history_library.py
 
