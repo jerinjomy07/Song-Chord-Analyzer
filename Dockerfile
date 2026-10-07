@@ -15,10 +15,12 @@ WORKDIR /app
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PORT=8000 \
+    CORS_ALLOWED_ORIGINS=* \
     SONG_CHORD_ANALYZER_DATA_DIR=/app/data \
     TORCH_HOME=/app/cache/torch \
     NUMBA_CACHE_DIR=/tmp/numba_cache \
-    PYTHONPATH=/app
+    PYTHONPATH=/app \
+    MAX_UPLOAD_MB=32
 
 # Create necessary directories
 RUN mkdir -p /app/data /app/cache/torch /tmp/numba_cache
@@ -29,6 +31,9 @@ COPY requirements.txt .
 # Install CPU PyTorch first to keep image lightweight for serverless Cloud Run
 RUN pip install --no-cache-dir torch torchaudio --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir -r requirements.txt
+
+# Pre-cache Demucs weights in image layer so Cloud Run instances don't download them on cold-start
+RUN python -c "import demucs.pretrained; demucs.pretrained.get_model('htdemucs')"
 
 # Copy backend, shared schemas/contracts, and model weights
 COPY backend/ ./backend/

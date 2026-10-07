@@ -47,7 +47,7 @@ AUDIO_FILE_PATHS: Dict[str, Path] = {}
 # Pipeline singleton & bounded background executor
 PIPELINE = SongAnalyzerPipeline()
 MAX_PENDING_JOBS = 5
-MAX_UPLOAD_BYTES = 500 * 1024 * 1024
+MAX_UPLOAD_BYTES = int(os.environ.get("MAX_UPLOAD_MB", "500")) * 1024 * 1024
 UPLOAD_COPY_CHUNK_BYTES = 1024 * 1024
 ANALYSIS_EXECUTOR = ThreadPoolExecutor(max_workers=1, thread_name_prefix="analysis_worker")
 PENDING_LOCK = threading.Lock()
@@ -474,8 +474,11 @@ async def get_youtube_downloaded_audio(video_id: str):
 @router.get("/apk")
 @router.get("/api/apk")
 async def download_apk():
-    """Serves the latest compiled Android debug APK for direct over-the-air installation."""
-    apk_path = Path("mobile/flutter_app/build/app/outputs/flutter-apk/app-debug.apk")
+    """Serves the latest compiled Android APK for direct over-the-air installation."""
+    release_path = Path("mobile/flutter_app/build/app/outputs/flutter-apk/app-release.apk")
+    debug_path = Path("mobile/flutter_app/build/app/outputs/flutter-apk/app-debug.apk")
+    apk_path = release_path if release_path.exists() else debug_path
+
     if not apk_path.exists():
         raise HTTPException(status_code=404, detail="APK not found on server")
     return FileResponse(

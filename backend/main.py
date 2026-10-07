@@ -63,6 +63,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+API_AUTH_KEY = os.environ.get("API_AUTH_KEY", "").strip() or os.environ.get("SONG_CHORD_ANALYZER_API_KEY", "").strip()
+
+@app.middleware("http")
+async def api_key_auth_middleware(request, call_next):
+    """Protects remote tunnel endpoints from unauthorized compute access if API_AUTH_KEY is set."""
+    if API_AUTH_KEY:
+        path = request.url.path
+        # Exclude health probe and static assets
+        if not (path in ["/health", "/api/health", "/docs", "/openapi.json", "/redoc"] or path.startswith("/assets/")):
+            req_key = request.headers.get("x-api-key", "").strip()
+            if req_key != API_AUTH_KEY:
+                from fastapi.responses import JSONResponse
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Unauthorized: Invalid or missing X-API-Key header"}
+                )
+    return await call_next(request)
+
 # Mount API routes
 app.include_router(router, prefix="/api")
 app.include_router(router)
@@ -86,6 +104,7 @@ async def health_check():
         "schema_version": "1.0.0",
         "analysis_engine": "WindowsAnalysisEngine (Authoritative MIR Pipeline)",
         "analysis_engine_available": True,
+        "auth_required": bool(API_AUTH_KEY),
         "models_available": {
             "btc": btc_ready,
             "demucs": True

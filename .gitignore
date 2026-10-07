@@ -27,6 +27,7 @@ mobile/flutter_app/android/app/build/
 *.AppImage
 *.deb
 *.zip
+*.apk
 
 # Static heavy binaries
 resources/ffmpeg/*.exe

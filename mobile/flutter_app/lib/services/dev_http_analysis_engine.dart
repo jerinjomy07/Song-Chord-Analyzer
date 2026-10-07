@@ -4,20 +4,66 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'analysis_engine.dart';
 import 'transpose_service.dart';
+import 'server_config_service.dart';
+import '../models/server_config.dart';
 import '../models/song_analysis.dart';
 import '../models/analysis_status.dart';
 
 class DevHttpAnalysisEngine implements AnalysisEngine {
   String baseUrl;
+  final ServerConfigService? configService;
 
   DevHttpAnalysisEngine({
     String? baseUrl,
+    this.configService,
   }) : baseUrl = baseUrl ??
             const String.fromEnvironment('API_BASE_URL',
-                defaultValue: 'http://10.0.2.2:8000');
+                defaultValue: 'http://192.168.0.180:8000');
 
   void updateBaseUrl(String newUrl) {
     baseUrl = newUrl.replaceAll(RegExp(r'/+$'), '');
+  }
+
+  Future<String> _getEffectiveBaseUrl() async {
+    if (configService != null) {
+      try {
+        final url = await configService!.resolveActiveUrl();
+        baseUrl = url;
+        return url;
+      } catch (e) {
+        // Fallback to currently held baseUrl if resolution throws
+        if (baseUrl.isNotEmpty) return baseUrl;
+        rethrow;
+      }
+    }
+    return baseUrl;
+  }
+
+  Map<String, String> _getHeaders() {
+    if (configService != null) {
+      return configService!.config.getHeaders();
+    }
+    return {};
+  }
+
+  String _formatConnectionError(String url, Object error) {
+    final mode = configService?.config.mode ?? ConnectionMode.local;
+    if (mode == ConnectionMode.local) {
+      return 'Local analysis server unavailable at $url.\n'
+          '• Verify that your phone and laptop are on the same Wi-Fi.\n'
+          '• Check that FastAPI is running on port 8000.\n'
+          '• Check Windows Firewall settings.\n'
+          'Details: $error';
+    } else if (mode == ConnectionMode.remote) {
+      return 'Remote analysis server unavailable at $url.\n'
+          '• Verify that the laptop is ON and connected to the internet.\n'
+          '• Verify that FastAPI and Cloudflare Tunnel are active.\n'
+          'Details: $error';
+    } else {
+      return 'Analysis server unavailable in Auto mode.\n'
+          'Neither Local nor Remote server could be reached.\n'
+          'Details: $error';
+    }
   }
 
   @override
@@ -25,8 +71,10 @@ class DevHttpAnalysisEngine implements AnalysisEngine {
     required File audioFile,
     required String songTitle,
   }) async {
-    final uri = Uri.parse('$baseUrl/api/analyze');
+    final effectiveUrl = await _getEffectiveBaseUrl();
+    final uri = Uri.parse('$effectiveUrl/api/analyze');
     final request = http.MultipartRequest('POST', uri);
+    request.headers.addAll(_getHeaders());
     request.fields['title'] = songTitle;
     request.fields['song_title'] = songTitle;
     request.fields['force'] = 'true';
@@ -38,20 +86,19 @@ class DevHttpAnalysisEngine implements AnalysisEngine {
 
     http.Response response;
     try {
-      final streamedResponse = await request.send().timeout(const Duration(seconds: 60));
+      final streamedResponse = await request.send().timeout(const Duration(seconds: 90));
       response = await http.Response.fromStream(streamedResponse).timeout(const Duration(seconds: 30));
     } on SocketException catch (e) {
-      throw Exception(
-        'Cannot connect to analysis server at $baseUrl.\n'
-        'Please verify that the backend is running and your device is on the same network.\n'
-        'Details: ${e.message}',
-      );
-    } on TimeoutException {
-      throw Exception('Connection to analysis server at $baseUrl timed out while uploading audio.');
+      throw Exception(_formatConnectionError(effectiveUrl, e));
+    } on TimeoutException catch (e) {
+      throw Exception('Connection to analysis server at $effectiveUrl timed out while uploading audio.\nDetails: $e');
     } catch (e) {
-      throw Exception('Network error during upload to $baseUrl: $e');
+      throw Exception(_formatConnectionError(effectiveUrl, e));
     }
 
+    if (response.statusCode == 401 || response.statusCode == 403) {
+      throw Exception('Server rejected request: Authentication failed (HTTP ${response.statusCode}). Please check API key in Settings.');
+    }
     if (response.statusCode == 413) {
       throw Exception('Audio file exceeds the maximum allowed file size limit (500 MB).');
     }
@@ -88,10 +135,13 @@ class DevHttpAnalysisEngine implements AnalysisEngine {
 
   @override
   Future<AnalysisStatus> getStatus(String analysisId) async {
+    final effectiveUrl = await _getEffectiveBaseUrl();
+    final headers = _getHeaders();
+
     // Primary: status endpoint
     try {
-      final uri = Uri.parse('$baseUrl/api/analysis/$analysisId/status');
-      final response = await http.get(uri).timeout(const Duration(seconds: 5));
+      final uri = Uri.parse('$effectiveUrl/api/analysis/$analysisId/status');
+      final response = await http.get(uri, headers: headers).timeout(const Duration(seconds: 8));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -103,25 +153,28 @@ class DevHttpAnalysisEngine implements AnalysisEngine {
 
     // Fallback: unified analyze job endpoint
     try {
-      final fallbackUri = Uri.parse('$baseUrl/analyze/$analysisId');
-      final fallbackRes = await http.get(fallbackUri).timeout(const Duration(seconds: 5));
+      final fallbackUri = Uri.parse('$effectiveUrl/analyze/$analysisId');
+      final fallbackRes = await http.get(fallbackUri, headers: headers).timeout(const Duration(seconds: 8));
       if (fallbackRes.statusCode == 200) {
         final data = jsonDecode(fallbackRes.body) as Map<String, dynamic>;
         return AnalysisStatus.fromJson(data);
       }
     } catch (e) {
-      throw Exception('Failed to get status from $baseUrl: $e');
+      throw Exception(_formatConnectionError(effectiveUrl, e));
     }
 
-    throw Exception('Failed to get analysis status for $analysisId');
+    throw Exception('Failed to get analysis status for $analysisId from $effectiveUrl');
   }
 
   @override
   Future<SongAnalysis> getResult(String analysisId) async {
+    final effectiveUrl = await _getEffectiveBaseUrl();
+    final headers = _getHeaders();
+
     // Primary: direct GET /api/analysis/{id}
     try {
-      final uri = Uri.parse('$baseUrl/api/analysis/$analysisId');
-      final response = await http.get(uri).timeout(const Duration(seconds: 15));
+      final uri = Uri.parse('$effectiveUrl/api/analysis/$analysisId');
+      final response = await http.get(uri, headers: headers).timeout(const Duration(seconds: 20));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -133,8 +186,8 @@ class DevHttpAnalysisEngine implements AnalysisEngine {
 
     // Fallback: unified analyze job endpoint containing result object
     try {
-      final fallbackUri = Uri.parse('$baseUrl/analyze/$analysisId');
-      final fallbackRes = await http.get(fallbackUri).timeout(const Duration(seconds: 15));
+      final fallbackUri = Uri.parse('$effectiveUrl/analyze/$analysisId');
+      final fallbackRes = await http.get(fallbackUri, headers: headers).timeout(const Duration(seconds: 20));
       if (fallbackRes.statusCode == 200) {
         final data = jsonDecode(fallbackRes.body) as Map<String, dynamic>;
         if (data['result'] != null) {
@@ -142,10 +195,10 @@ class DevHttpAnalysisEngine implements AnalysisEngine {
         }
       }
     } catch (e) {
-      throw Exception('Failed to retrieve analysis result from $baseUrl: $e');
+      throw Exception(_formatConnectionError(effectiveUrl, e));
     }
 
-    throw Exception('Analysis result not ready or not found for: $analysisId');
+    throw Exception('Analysis result not ready or not found for: $analysisId from $effectiveUrl');
   }
 
   @override
@@ -153,11 +206,14 @@ class DevHttpAnalysisEngine implements AnalysisEngine {
     required SongAnalysis currentAnalysis,
     required int semitones,
   }) async {
+    final effectiveUrl = await _getEffectiveBaseUrl();
+    final headers = {'Content-Type': 'application/json', ..._getHeaders()};
+
     try {
-      final uri = Uri.parse('$baseUrl/api/analysis/${currentAnalysis.id}/transpose');
+      final uri = Uri.parse('$effectiveUrl/api/analysis/${currentAnalysis.id}/transpose');
       final response = await http.post(
         uri,
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
         body: jsonEncode({'semitones': semitones}),
       ).timeout(const Duration(seconds: 5));
 
@@ -181,13 +237,15 @@ class DevHttpAnalysisEngine implements AnalysisEngine {
     String? bass,
     String? display,
   }) async {
+    final effectiveUrl = await _getEffectiveBaseUrl();
+    final headers = {'Content-Type': 'application/json', ..._getHeaders()};
     final newDisplay = display ?? (bass != null && bass != root ? '$root$quality/$bass' : '$root$quality');
 
     try {
-      final uri = Uri.parse('$baseUrl/api/analysis/${currentAnalysis.id}/edit');
+      final uri = Uri.parse('$effectiveUrl/api/analysis/${currentAnalysis.id}/edit');
       final response = await http.post(
         uri,
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
         body: jsonEncode({
           'chord_index': chordIndex,
           'new_root': root,
@@ -237,13 +295,15 @@ class DevHttpAnalysisEngine implements AnalysisEngine {
     required String sectionId,
     required String newName,
   }) async {
+    final effectiveUrl = await _getEffectiveBaseUrl();
+    final headers = {'Content-Type': 'application/json', ..._getHeaders()};
     final cleanName = newName.trim().toUpperCase();
 
     try {
-      final uri = Uri.parse('$baseUrl/api/analysis/${currentAnalysis.id}/rename-section');
+      final uri = Uri.parse('$effectiveUrl/api/analysis/${currentAnalysis.id}/rename-section');
       final response = await http.post(
         uri,
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
         body: jsonEncode({
           'section_id': sectionId,
           'new_name': cleanName,
@@ -275,11 +335,14 @@ class DevHttpAnalysisEngine implements AnalysisEngine {
     required int denominator,
     String? subgrouping,
   }) async {
+    final effectiveUrl = await _getEffectiveBaseUrl();
+    final headers = {'Content-Type': 'application/json', ..._getHeaders()};
+
     try {
-      final uri = Uri.parse('$baseUrl/api/analysis/${currentAnalysis.id}/meter');
+      final uri = Uri.parse('$effectiveUrl/api/analysis/${currentAnalysis.id}/meter');
       final response = await http.post(
         uri,
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
         body: jsonEncode({
           'numerator': numerator,
           'denominator': denominator,

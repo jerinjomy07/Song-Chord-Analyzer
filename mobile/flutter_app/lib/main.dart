@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'services/analysis_engine.dart';
 import 'services/dev_http_analysis_engine.dart';
+import 'services/server_config_service.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
+  final configService = ServerConfigService.instance;
+  await configService.init();
 
-  const envBaseUrl = String.fromEnvironment('API_BASE_URL', defaultValue: '');
-  final defaultUrl = envBaseUrl.isNotEmpty ? envBaseUrl : 'http://10.0.2.2:8000';
-  final devUrl = prefs.getString('dev_server_url') ?? defaultUrl;
-
-  // Authoritative MIR Engine: FastAPI Server Analysis Engine
-  final AnalysisEngine engine = DevHttpAnalysisEngine(baseUrl: devUrl);
+  // Authoritative MIR Engine: FastAPI Server Analysis Engine with dual-mode support
+  final AnalysisEngine engine = DevHttpAnalysisEngine(configService: configService);
 
   runApp(SongChordAnalyzerApp(analysisEngine: engine));
 }

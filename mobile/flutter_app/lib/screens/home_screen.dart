@@ -6,6 +6,8 @@ import '../models/history_song.dart';
 import '../services/history_service.dart';
 import '../services/analysis_engine.dart';
 import '../services/youtube_downloader_service.dart';
+import '../models/server_config.dart';
+import '../services/server_config_service.dart';
 import 'analysis_progress_screen.dart';
 import 'chord_sheet_screen.dart';
 import 'history_screen.dart';
@@ -222,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
+              ).then((_) => setState(() {}));
             },
           ),
         ],
@@ -232,6 +234,9 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Active Server Connection Mode Banner
+            _buildServerConnectionBanner(),
+
             // Mode Selector Toggle
             Container(
               decoration: BoxDecoration(
@@ -756,6 +761,82 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildServerConnectionBanner() {
+    final cfg = ServerConfigService.instance.config;
+    final isLocal = cfg.mode == ConnectionMode.local;
+    final isRemote = cfg.mode == ConnectionMode.remote;
+    final isAuto = cfg.mode == ConnectionMode.auto;
+
+    final IconData icon = isLocal
+        ? Icons.wifi
+        : isRemote
+            ? Icons.cloud_outlined
+            : Icons.auto_mode;
+
+    final String modeLabel = isLocal
+        ? 'LOCAL NETWORK'
+        : isRemote
+            ? 'REMOTE INTERNET'
+            : 'AUTO DETECT';
+
+    final String url = isRemote ? cfg.remoteUrl : cfg.localUrl;
+    final String displayUrl = url.isNotEmpty ? url : 'Not configured';
+
+    final color = isRemote ? Colors.teal : isAuto ? Colors.purple : Colors.indigo;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: color.shade700),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Connected via: $modeLabel',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: color.shade900,
+                  ),
+                ),
+                Text(
+                  displayUrl,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey.shade700,
+                    fontFamily: 'monospace',
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings, size: 18),
+            tooltip: 'Configure Server',
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              ).then((_) => setState(() {}));
+            },
+          ),
+        ],
+      ),
     );
   }
 }
