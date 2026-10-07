@@ -14,20 +14,32 @@ import soundfile as sf
 from backend.config import FFMPEG_PATH
 
 
-def compute_audio_hash(filepath: Path) -> str:
-    """Computes SHA256 of the first 2MB and last 2MB + file size to quickly uniquely identify audio files."""
+def compute_audio_hash(filepath: Path, chunk_size: int = 1024 * 1024) -> str:
+    """
+    Computes a canonical streaming SHA-256 hexadecimal digest of the full audio file.
+    Streams in chunks (default 1MB) for minimal memory consumption.
+    Returns 64-character lowercase hexadecimal string.
+    """
+    hasher = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        while chunk := f.read(chunk_size):
+            hasher.update(chunk)
+    return hasher.hexdigest().lower()
+
+
+def compute_legacy_audio_hash(filepath: Path) -> str:
+    """Computes legacy SHA256 of first 2MB and last 2MB + file size (16-char prefix)."""
     hasher = hashlib.sha256()
     size = os.path.getsize(filepath)
     hasher.update(str(size).encode())
     
     with open(filepath, "rb") as f:
-        # Read initial chunk
         hasher.update(f.read(2 * 1024 * 1024))
         if size > 4 * 1024 * 1024:
             f.seek(size - 2 * 1024 * 1024)
             hasher.update(f.read(2 * 1024 * 1024))
             
-    return hasher.hexdigest()[:16]
+    return hasher.hexdigest()[:16].lower()
 
 
 def get_audio_metadata(filepath: Path) -> Dict[str, Any]:

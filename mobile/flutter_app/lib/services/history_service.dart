@@ -66,21 +66,25 @@ class HistoryService {
 
   static Future<void> saveAnalysis({
     required SongAnalysis analysis,
-    required File sourceAudio,
+    File? sourceAudio,
   }) async {
     final db = await database;
     final docsDir = await getApplicationDocumentsDirectory();
     final libraryDir = Directory(p.join(docsDir.path, 'library', analysis.id));
     if (!libraryDir.existsSync()) {
-      libraryDir.createSync(parents: true);
+      libraryDir.createSync(recursive: true);
     }
 
-    final ext = p.extension(sourceAudio.path);
-    final targetAudio = File(p.join(libraryDir.path, 'audio$ext'));
-    if (!targetAudio.existsSync()) {
-      await sourceAudio.copy(targetAudio.path);
+    String? audioPath = analysis.localAudioPath;
+    if (sourceAudio != null && sourceAudio.path.isNotEmpty && sourceAudio.existsSync()) {
+      final ext = p.extension(sourceAudio.path);
+      final targetAudio = File(p.join(libraryDir.path, 'audio$ext'));
+      if (!targetAudio.existsSync() || targetAudio.path != sourceAudio.path) {
+        await sourceAudio.copy(targetAudio.path);
+      }
+      audioPath = targetAudio.path;
+      analysis.localAudioPath = audioPath;
     }
-    analysis.localAudioPath = targetAudio.path;
 
     final now = DateTime.now().toIso8601String();
     final existing = await db.query('songs', where: 'id = ?', whereArgs: [analysis.id]);
@@ -99,7 +103,7 @@ class HistoryService {
       'transpose_value': analysis.transposeSemitones,
       'updated_at': now,
       'last_opened_at': now,
-      'local_audio_path': targetAudio.path,
+      'local_audio_path': audioPath,
       'source_type': 'local',
       'analysis_json': jsonEncode(analysis.toJson()),
     };

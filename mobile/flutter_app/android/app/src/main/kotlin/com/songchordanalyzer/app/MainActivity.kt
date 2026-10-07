@@ -18,9 +18,50 @@ class MainActivity: FlutterActivity() {
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+        val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+        channel.setMethodCallHandler { call, result ->
             when (call.method) {
+                "analyzeAudio" -> {
+                    val filePath = call.argument<String>("filePath")
+                    val songTitle = call.argument<String>("songTitle")
+
+                    if (filePath == null || !File(filePath).exists()) {
+                        result.error("FILE_NOT_FOUND", "Audio file not found at: $filePath", null)
+                        return@setMethodCallHandler
+                    }
+
+                    Thread {
+                        try {
+                            val jsonResult = AudioAnalysisPipeline.analyze(
+                                context = applicationContext,
+                                filePath = filePath,
+                                songTitle = songTitle
+                            ) { stage, percent, message ->
+                                mainHandler.post {
+                                    channel.invokeMethod(
+                                        "onAnalysisProgress",
+                                        mapOf(
+                                            "stage" to stage,
+                                            "percent" to percent,
+                                            "message" to message
+                                        )
+                                    )
+                                }
+                            }
+
+                            mainHandler.post {
+                                result.success(jsonResult)
+                            }
+                        } catch (e: Exception) {
+                            mainHandler.post {
+                                result.error("ANALYSIS_ERROR", e.localizedMessage ?: e.toString(), null)
+                            }
+                        }
+                    }.start()
+                }
+
                 "getDeviceInfo" -> {
                     try {
                         val actManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager

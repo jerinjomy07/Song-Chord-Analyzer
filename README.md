@@ -43,13 +43,12 @@ Download the latest pre-built Windows standalone binaries from the **[v0.1.7 Rel
 - **History Library:** Re-run analysis on any archived song directly from the library list or grid.
 - **Stem Cache Reuse:** Leverages existing separated stems (`file_hash` cache) so re-analysis skips heavy GPU separation and completes in seconds.
 
-### 1. Direct 1-Click YouTube Video-to-Chords Transcription
-- **One-Click Video to Chords:** Paste any public YouTube URL (standard watch links, youtu.be, shorts, YouTube Music) and click **"Generate Chords from Video"** to automatically extract the audio and perform full chord transcription.
-- **Fast Metadata Inspection:** Automatically fetches and previews the video thumbnail, title, channel name, and duration.
+### 1. YouTube Reference Linking & Metadata Inspection
+- **Reference-First Metadata Association:** Users analyze songs by supplying their local audio files, with optional YouTube link attachment to pull official track metadata (title, artist, channel, thumbnail).
+- **Policy-Compliant oEmbed Inspection:** Resolves video details using YouTube's standard oEmbed protocol without unauthorized media ripping or stream scraping.
 - **Smart Title Auto-Cleaning:** One-click **Auto-Clean** button automatically strips noisy tags (e.g. `(Official Video)`, `[4K Audio]`, artist channel branding) while allowing manual title edits.
-- **Library & History Association:** Songs analyzed from YouTube are permanently saved to SQLite with audio stored locally in `%LOCALAPPDATA%\SongChordAnalyzer\library\`, complete with *"Watch on YouTube"* links and offline playback.
-- **Duplicate Detection:** Instantly detects if the video has already been analyzed and lets you open it in <15ms without re-downloading.
-- **Local Audio Option:** Users can also optionally attach their own local audio file (MP3, WAV, FLAC, M4A) if preferred.
+- **Library & History Association:** Songs are saved to SQLite with audio stored locally in `%LOCALAPPDATA%\SongChordAnalyzer\library\`, complete with optional *"Watch on YouTube"* reference links and offline playback.
+- **Duplicate Detection:** Instantly detects if the song or video reference has already been analyzed and lets you open it in <15ms without re-analyzing.
 
 ### 2. Persistent SQLite History & Song Library
 - **Analyze Once, Keep Forever:** Every analyzed song is automatically saved to an isolated local SQLite database (`%LOCALAPPDATA%\SongChordAnalyzer\database.sqlite`).
@@ -135,6 +134,11 @@ song-chord-analyzer/
 │       │   ├── AudioPlayerTimeline.tsx  # Waveform scrubber & playback
 │       │   ├── TransposerToolbar.tsx    # Semitone transposer
 │       │   └── ExportToolbar.tsx        # PDF, TXT, JSON exporter
+├── shared/
+│   ├── music_schema/            # Canonical JSON schema for cross-platform song analysis
+│   └── analysis_contracts/      # IAnalysisEngine shared Python & Dart interface
+├── mobile/
+│   └── flutter_app/             # Flutter Android / cross-platform client app
 ├── resources/ffmpeg/            # Bundled standalone FFmpeg binary
 ├── models/btc/                  # Pretrained BTC Transformer weights
 ├── dist_electron/               # Packaged Windows standalone executables & installer

@@ -28,7 +28,9 @@ extraResources:
       - "**/*"
 
 win:
-  sign: electron/sign-noop.cjs
+  icon: build/app.ico
+  signtoolOptions:
+    sign: electron/sign-noop.cjs
   target:
     - target: nsis
       arch:

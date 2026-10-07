@@ -1,0 +1,15 @@
+{
+  "audio_file": "storage\\cache\\ecdbc4dd2a6d827b_22k_mono.wav",
+  "duration_seconds": 271.09,
+  "windows_frames": 11676,
+  "android_frames": 11676,
+  "frame_count_diff": 0,
+  "mean_absolute_error": 0.000104,
+  "max_absolute_error": 1.135448,
+  "pearson_correlation": 0.999961,
+  "windows_mean": 1.2277,
+  "android_mean": 1.2276,
+  "windows_max": 12.3782,
+  "android_max": 12.3782,
+  "passed": true
+}

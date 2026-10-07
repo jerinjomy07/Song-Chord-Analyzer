@@ -29,16 +29,30 @@ class DemucsSeparator:
         Returns dict with paths: {"bass": Path, "other": Path}
         """
         song_stems_dir = self.stems_root / file_hash
-        song_stems_dir.mkdir(parents=True, exist_ok=True)
 
+        # 1. Check local cache (full hash or legacy 16-char / audio stem fallback)
+        potential_dirs = [
+            song_stems_dir,
+            self.stems_root / file_hash[:16],
+            self.stems_root / audio_path.stem.split("_")[0]
+        ]
+        try:
+            from backend.audio.ffmpeg_utils import compute_legacy_audio_hash
+            potential_dirs.append(self.stems_root / compute_legacy_audio_hash(audio_path))
+        except Exception:
+            pass
+
+        for pdir in potential_dirs:
+            b_cand = pdir / "bass.wav"
+            o_cand = pdir / "other.wav"
+            if b_cand.exists() and o_cand.exists():
+                if progress_callback:
+                    progress_callback(100, "Using cached separated stems")
+                return {"bass": b_cand, "other": o_cand}
+
+        song_stems_dir.mkdir(parents=True, exist_ok=True)
         bass_stem = song_stems_dir / "bass.wav"
         other_stem = song_stems_dir / "other.wav"
-
-        # 1. Check local cache
-        if bass_stem.exists() and other_stem.exists():
-            if progress_callback:
-                progress_callback(100, "Using cached separated stems")
-            return {"bass": bass_stem, "other": other_stem}
 
         if progress_callback:
             progress_callback(5, "Initializing stem separation (bass + accompaniment)...")

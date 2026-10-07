@@ -9,12 +9,17 @@ frontend/node_modules/
 .pnp.js
 
 # Build and distribution directories
+build/
 dist/
 dist_electron/
 out/
 release/
 frontend/dist/
 frontend/build/
+mobile/flutter_app/build/
+mobile/flutter_app/android/build/
+mobile/flutter_app/android/.gradle/
+mobile/flutter_app/android/app/build/
 
 # Packaging outputs
 *.exe
@@ -55,6 +60,12 @@ storage/exports/*
 !storage/exports/.gitkeep
 storage/temp/*
 !storage/temp/.gitkeep
+*.mp3
+*.wav
+*.flac
+*.m4a
+validation_worktree_*.txt
+phone_screenshot*.png
 
 # Large ML Weights & Checkpoints (downloaded on demand)
 *.pt

@@ -113,14 +113,14 @@
       "default": 0
     },
     "audio_url": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "has_stems": {
       "type": "boolean",
       "default": false
     },
     "source_metadata": {
-      "type": "object"
+      "type": ["object", "null"]
     }
   },
   "$defs": {
@@ -194,7 +194,7 @@
           "items": { "$ref": "#/$defs/Bar" }
         },
         "is_repeated": { "type": "boolean", "default": false },
-        "repeat_of_section_id": { "type": "string" }
+        "repeat_of_section_id": { "type": ["string", "null"] }
       }
     },
     "UserCorrection": {

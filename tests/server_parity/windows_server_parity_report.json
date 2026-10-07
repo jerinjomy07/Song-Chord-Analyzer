@@ -1,0 +1,133 @@
+{
+  "timestamp": "2026-10-07 00:43:31",
+  "metrics": {
+    "Key Tonic": {
+      "passed": true,
+      "expected": "Bb",
+      "actual": "Bb",
+      "details": ""
+    },
+    "Key Mode": {
+      "passed": true,
+      "expected": "minor",
+      "actual": "minor",
+      "details": ""
+    },
+    "Key Display": {
+      "passed": true,
+      "expected": "Bb Minor",
+      "actual": "Bb Minor",
+      "details": ""
+    },
+    "Key Confidence": {
+      "passed": true,
+      "expected": 0.75,
+      "actual": 0.75,
+      "details": ""
+    },
+    "BPM": {
+      "passed": true,
+      "expected": 86.1,
+      "actual": 86.1,
+      "details": ""
+    },
+    "Meter Numerator": {
+      "passed": true,
+      "expected": 4,
+      "actual": 4,
+      "details": ""
+    },
+    "Meter Denominator": {
+      "passed": true,
+      "expected": 4,
+      "actual": 4,
+      "details": ""
+    },
+    "Meter Display": {
+      "passed": true,
+      "expected": "4/4",
+      "actual": "4/4",
+      "details": ""
+    },
+    "Beats Count": {
+      "passed": true,
+      "expected": 353,
+      "actual": 353,
+      "details": ""
+    },
+    "Beats Alignment (Max Diff)": {
+      "passed": true,
+      "expected": "< 0.01s",
+      "actual": "0.000000s",
+      "details": ""
+    },
+    "Downbeats Count": {
+      "passed": true,
+      "expected": 89,
+      "actual": 89,
+      "details": ""
+    },
+    "Downbeats Alignment (Max Diff)": {
+      "passed": true,
+      "expected": "< 0.01s",
+      "actual": "0.000000s",
+      "details": ""
+    },
+    "Chords Count": {
+      "passed": true,
+      "expected": 352,
+      "actual": 352,
+      "details": ""
+    },
+    "Chord Display Match %": {
+      "passed": true,
+      "expected": "100.0%",
+      "actual": "100.00%",
+      "details": ""
+    },
+    "Chord Root Match %": {
+      "passed": true,
+      "expected": "100.0%",
+      "actual": "100.00%",
+      "details": ""
+    },
+    "Chord Bass Match %": {
+      "passed": true,
+      "expected": "100.0%",
+      "actual": "100.00%",
+      "details": ""
+    },
+    "Chord Timing (Max Diff)": {
+      "passed": true,
+      "expected": "< 0.01s",
+      "actual": "0.000000s",
+      "details": ""
+    },
+    "Sections Count": {
+      "passed": true,
+      "expected": 11,
+      "actual": 11,
+      "details": ""
+    },
+    "Section Names Match": {
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": ""
+    },
+    "JSON Schema Conformance": {
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": "Error: None"
+    },
+    "Pydantic Deserialization": {
+      "passed": true,
+      "expected": true,
+      "actual": true,
+      "details": "Error: None"
+    }
+  },
+  "all_passed": true,
+  "failures": []
+}

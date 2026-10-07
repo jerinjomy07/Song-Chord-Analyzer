@@ -106,7 +106,7 @@ class AudioPlaybackBar extends StatelessWidget {
                       scale: 0.7,
                       child: Switch(
                         value: autoScrollEnabled,
-                        activeColor: Colors.indigoAccent,
+                        activeThumbColor: Colors.indigoAccent,
                         onChanged: onAutoScrollChanged,
                       ),
                     ),

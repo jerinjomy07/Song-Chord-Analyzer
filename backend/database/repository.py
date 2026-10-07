@@ -256,15 +256,16 @@ class SongRepository:
         conn = get_connection()
         try:
             cur = conn.cursor()
+            prefix16 = file_hash[:16]
             cur.execute(
                 """
                 SELECT id, title, key_display, bpm, time_signature, duration, created_at, source_type, youtube_title
                 FROM songs
-                WHERE file_hash = ?
+                WHERE file_hash = ? OR file_hash = ? OR SUBSTR(file_hash, 1, 16) = ?
                 ORDER BY updated_at DESC
                 LIMIT 1;
                 """,
-                (file_hash,)
+                (file_hash, prefix16, prefix16)
             )
             row = cur.fetchone()
             return dict(row) if row else None
@@ -322,13 +323,18 @@ class SongRepository:
 
             where_str = f"WHERE {' AND '.join(clauses)}" if clauses else ""
 
-            # Sort mapping
-            order_by = {
+            # Sort mapping whitelist
+            sort_map = {
                 "last_opened": "last_opened_at DESC",
                 "recently_analyzed": "created_at DESC",
+                "created_at": "created_at DESC",
                 "recently_modified": "updated_at DESC",
                 "title": "title ASC",
-            }.get(sort_by, "last_opened_at DESC")
+                "duration": "duration DESC",
+            }
+            order_by = sort_map.get(sort_by, "last_opened_at DESC")
+
+            safe_limit = max(1, min(int(limit), 100))
 
             sql = f"""
                 SELECT id, title, original_filename, file_hash, duration, format, audio_path,
@@ -341,7 +347,7 @@ class SongRepository:
                 ORDER BY {order_by}
                 LIMIT ?;
             """
-            params.append(limit)
+            params.append(safe_limit)
 
             cur = conn.cursor()
             cur.execute(sql, params)

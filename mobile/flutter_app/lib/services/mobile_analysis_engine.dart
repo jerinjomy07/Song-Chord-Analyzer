@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/services.dart';
@@ -52,7 +53,7 @@ class MobileAnalysisEngine implements AnalysisEngine {
 
       // If model not in app docs, load from bundled asset or app directory
       if (!modelFile.existsSync()) {
-        modelFile.parent.createSync(parents: true);
+        modelFile.parent.createSync(recursive: true);
         try {
           final byteData = await rootBundle.load('assets/models/btc_model_170voca.onnx');
           await modelFile.writeAsBytes(byteData.buffer.asUint8List());
@@ -103,8 +104,53 @@ class MobileAnalysisEngine implements AnalysisEngine {
         );
       }
 
-      // 1. Preprocessing
-      updateProgress(AnalysisStage.preprocessing, 10, 'Decoding audio samples (22.05 kHz)...');
+      // Listen for progress callbacks from native Android engine
+      _platform.setMethodCallHandler((call) async {
+        if (call.method == 'onAnalysisProgress') {
+          final args = call.arguments as Map<dynamic, dynamic>?;
+          if (args != null) {
+            final stageStr = args['stage'] as String? ?? 'ANALYZING_CHORDS';
+            final pct = (args['percent'] as num?)?.toInt() ?? 50;
+            final msg = args['message'] as String? ?? 'Processing...';
+
+            final stageEnum = switch (stageStr.toUpperCase()) {
+              'PREPROCESSING' => AnalysisStage.preprocessing,
+              'ANALYZING_BEATS' => AnalysisStage.analyzingBeats,
+              'ANALYZING_KEY' => AnalysisStage.analyzingKey,
+              'ANALYZING_CHORDS' => AnalysisStage.analyzingChords,
+              'ANALYZING_INVERSION' => AnalysisStage.analyzingInversion,
+              'ALIGNING_BARS' => AnalysisStage.aligningBars,
+              'BUILDING_SHEET' => AnalysisStage.buildingSheet,
+              'COMPLETED' => AnalysisStage.completed,
+              _ => AnalysisStage.analyzingChords,
+            };
+
+            updateProgress(stageEnum, pct, msg);
+          }
+        }
+      });
+
+      // 1. Attempt Native Android On-Device Pipeline
+      try {
+        updateProgress(AnalysisStage.preprocessing, 10, 'Initializing native on-device audio pipeline...');
+        final jsonResult = await _platform.invokeMethod<String>('analyzeAudio', {
+          'filePath': audioFile.path,
+          'songTitle': songTitle,
+        });
+
+        if (jsonResult != null && jsonResult.isNotEmpty) {
+          final Map<String, dynamic> data = jsonDecode(jsonResult);
+          final finalAnalysis = SongAnalysis.fromJson(data);
+          _completedJobs[analysisId] = finalAnalysis;
+          updateProgress(AnalysisStage.completed, 100, 'Analysis completed successfully!');
+          return;
+        }
+      } catch (nativeErr) {
+        // Fallback to internal engine if native channel not present
+      }
+
+      // Fallback Engine
+      updateProgress(AnalysisStage.preprocessing, 15, 'Decoding audio samples (22.05 kHz)...');
       await Future.delayed(const Duration(milliseconds: 250));
 
       final fileBytes = await audioFile.readAsBytes();
@@ -156,6 +202,7 @@ class MobileAnalysisEngine implements AnalysisEngine {
           fileSize: fileSize,
           fileHash: 'sha256_${analysisId.substring(0, 8)}',
         ),
+        pipelineMetadata: PipelineMetadata(),
         key: keyAnalysis,
         tempo: TempoAnalysis(bpm: bpm, confidence: 0.92),
         meter: MeterAnalysis(numerator: 4, denominator: 4, display: '4/4'),
@@ -399,5 +446,26 @@ class MobileAnalysisEngine implements AnalysisEngine {
     }
 
     return sections;
+  }
+
+  @override
+  Future<SongAnalysis> changeMeter({
+    required SongAnalysis currentAnalysis,
+    required int numerator,
+    required int denominator,
+    String? subgrouping,
+  }) async {
+    currentAnalysis.meter = MeterAnalysis(
+      numerator: numerator,
+      denominator: denominator,
+      display: '$numerator/$denominator',
+      confidence: currentAnalysis.meter.confidence,
+      isEstimated: false,
+      candidateScores: currentAnalysis.meter.candidateScores,
+      downbeatConfidence: currentAnalysis.meter.downbeatConfidence,
+      meterEvidence: currentAnalysis.meter.meterEvidence,
+      subgrouping: subgrouping,
+    );
+    return currentAnalysis;
   }
 }

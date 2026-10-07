@@ -1,5 +1,7 @@
 import '../models/song_analysis.dart';
 import '../models/chord_prediction.dart';
+import '../models/bar.dart';
+import '../models/musical_section.dart';
 
 class TransposeService {
   static const List<String> chromaticSharps = [
@@ -10,7 +12,23 @@ class TransposeService {
     'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'
   ];
 
-  static const Map<String, int> noteToPitch = {
+  static const Map<String, String> enharmonicSharpToFlat = {
+    'C#': 'Db',
+    'D#': 'Eb',
+    'F#': 'Gb',
+    'G#': 'Ab',
+    'A#': 'Bb',
+  };
+
+  static const Map<String, String> enharmonicFlatToSharp = {
+    'Db': 'C#',
+    'Eb': 'D#',
+    'Gb': 'F#',
+    'Ab': 'G#',
+    'Bb': 'A#',
+  };
+
+  static const Map<String, int> pitchToSemitone = {
     'C': 0, 'B#': 0,
     'C#': 1, 'Db': 1,
     'D': 2,
@@ -25,32 +43,69 @@ class TransposeService {
     'B': 11, 'Cb': 11,
   };
 
+  static const List<String> flatKeys = [
+    'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Dm', 'Gm', 'Cm', 'Fm', 'Bbm'
+  ];
+
+  static const Map<String, String> qualityDisplayMap = {
+    'maj': '',
+    'major': '',
+    'min': 'm',
+    'minor': 'm',
+    'dim': 'dim',
+    'aug': 'aug',
+    '7': '7',
+    'maj7': 'maj7',
+    'min7': 'm7',
+    'dim7': 'dim7',
+    'hdim7': 'm7b5',
+    'sus2': 'sus2',
+    'sus4': 'sus4',
+    'none': '',
+  };
+
+  static int normalizeTransposeSemitones(int totalSemitones) {
+    final mod = totalSemitones % 12;
+    if (totalSemitones < 0 && mod != 0) {
+      return mod - 12;
+    }
+    return mod;
+  }
+
   static String transposePitch(String pitch, int semitones, {bool preferFlats = false}) {
     final clean = pitch.trim();
-    if (clean == 'N' || clean.isEmpty) return clean;
+    if (clean == 'N' || clean == 'X' || clean.isEmpty) return clean;
 
-    final base = noteToPitch[clean];
-    if (base == null) return clean;
+    final normalized = enharmonicFlatToSharp[clean] ?? clean;
+    final currSemi = pitchToSemitone[normalized] ?? 0;
+    final newSemi = (currSemi + semitones) % 12;
+    final nonNegative = (newSemi + 12) % 12;
 
-    final newPitchClass = ((base + semitones) % 12 + 12) % 12;
-    return preferFlats ? chromaticFlats[newPitchClass] : chromaticSharps[newPitchClass];
+    var transposed = chromaticSharps[nonNegative];
+    if (preferFlats && enharmonicSharpToFlat.containsKey(transposed)) {
+      transposed = enharmonicSharpToFlat[transposed]!;
+    }
+
+    return transposed;
   }
 
   static ChordPrediction transposeChord(ChordPrediction chord, int semitones, {bool preferFlats = false}) {
-    if (chord.root == 'N') return chord;
+    if (chord.root == 'N' || chord.root == 'X' || semitones == 0) {
+      return chord;
+    }
 
     final newRoot = transposePitch(chord.root, semitones, preferFlats: preferFlats);
     final newBass = chord.bass.isNotEmpty && chord.bass != chord.root
         ? transposePitch(chord.bass, semitones, preferFlats: preferFlats)
         : newRoot;
 
-    var newDisplay = '$newRoot${chord.quality}';
+    final qualDisplay = qualityDisplayMap[chord.quality.toLowerCase()] ?? chord.quality;
+    var newDisplay = '$newRoot$qualDisplay';
     if (newBass != newRoot) {
       newDisplay += '/$newBass';
     }
 
     final newAlternatives = chord.alternatives.map((alt) {
-      // Basic transposing of alternatives
       return ChordCandidate(
         chord: alt.chord,
         probability: alt.probability,
@@ -66,6 +121,8 @@ class TransposeService {
       startTime: chord.startTime,
       endTime: chord.endTime,
       duration: chord.duration,
+      beatPosition: chord.beatPosition,
+      barPosition: chord.barPosition,
       beat: chord.beat,
       beatDuration: chord.beatDuration,
       confidence: chord.confidence,
@@ -77,14 +134,20 @@ class TransposeService {
   static SongAnalysis transposeSong(SongAnalysis analysis, int semitones) {
     if (semitones == 0) return analysis;
 
-    final bool preferFlats = analysis.key.tonic.contains('b') ||
-        ['F', 'Bb', 'Eb', 'Ab', 'Db'].contains(analysis.key.tonic);
+    // Determine if target key is a flat key
+    final targetTonicInitial = transposePitch(analysis.key.tonic, semitones, preferFlats: false);
+    final isMinor = analysis.key.mode.toLowerCase() == 'minor';
+    final testKeyStr = '$targetTonicInitial${isMinor ? "m" : ""}';
+    final preferFlats = flatKeys.contains(testKeyStr);
+    final targetTonic = transposePitch(analysis.key.tonic, semitones, preferFlats: preferFlats);
 
-    final newKeyTonic = transposePitch(analysis.key.tonic, semitones, preferFlats: preferFlats);
-    final newKeyDisplay = '$newKeyTonic ${analysis.key.mode.substring(0, 1).toUpperCase()}${analysis.key.mode.substring(1)}';
+    final modeName = analysis.key.mode.isNotEmpty
+        ? '${analysis.key.mode[0].toUpperCase()}${analysis.key.mode.substring(1)}'
+        : 'Major';
+    final newKeyDisplay = '$targetTonic $modeName';
 
     final newKey = KeyAnalysis(
-      tonic: newKeyTonic,
+      tonic: targetTonic,
       mode: analysis.key.mode,
       display: newKeyDisplay,
       confidence: analysis.key.confidence,
@@ -125,19 +188,27 @@ class TransposeService {
       );
     }).toList();
 
+    final cumulativeTranspose = normalizeTransposeSemitones(analysis.transposeSemitones + semitones);
+
     return SongAnalysis(
+      schemaVersion: analysis.schemaVersion,
       id: analysis.id,
       title: analysis.title,
       metadata: analysis.metadata,
+      pipelineMetadata: analysis.pipelineMetadata,
       key: newKey,
       tempo: analysis.tempo,
       meter: analysis.meter,
       beatGrid: analysis.beatGrid,
       sections: newSections,
       chords: newChords,
-      transposeSemitones: semitones,
+      transposeSemitones: cumulativeTranspose,
       audioUrl: analysis.audioUrl,
       localAudioPath: analysis.localAudioPath,
+      hasStems: analysis.hasStems,
+      sourceMetadata: analysis.sourceMetadata,
+      rawPredictions: analysis.rawPredictions,
+      debugView: analysis.debugView,
     );
   }
 }

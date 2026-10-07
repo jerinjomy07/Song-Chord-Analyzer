@@ -84,11 +84,8 @@ class YouTubeReferenceSource(AudioSource):
     - Associates user-supplied local audio with YouTube metadata for analysis & history.
     """
 
-    YOUTUBE_URL_REGEX = re.compile(
-        r"^(https?://)?(www\.|m\.)?(youtube\.com/(watch\?v=|embed/|v/|shorts/)|youtu\.be/)([\w-]{11})([&?].*)?$",
-        re.IGNORECASE
-    )
-
+    ALLOWED_HOSTS = {"youtube.com", "www.youtube.com", "m.youtube.com", "music.youtube.com", "youtu.be"}
+    VIDEO_ID_REGEX = re.compile(r"^[a-zA-Z0-9_-]{11}$")
     OEMBED_ENDPOINT = "https://www.youtube.com/oembed"
 
     def __init__(self, url: str, local_audio_path: Optional[Path] = None):
@@ -101,18 +98,44 @@ class YouTubeReferenceSource(AudioSource):
     def _extract_video_id(cls, url: str) -> Optional[str]:
         if not url or not url.strip():
             return None
-        match = cls.YOUTUBE_URL_REGEX.match(url.strip())
-        if match:
-            return match.group(5)
-        # Try query parameter parse
+        url_str = url.strip()
         try:
-            parsed = urllib.parse.urlparse(url.strip())
-            if "youtube.com" in parsed.netloc:
-                qs = urllib.parse.parse_qs(parsed.query)
-                if "v" in qs and len(qs["v"][0]) == 11:
-                    return qs["v"][0]
+            if not url_str.startswith(("http://", "https://")):
+                url_str = f"https://{url_str}"
+            parsed = urllib.parse.urlparse(url_str)
         except Exception:
-            pass
+            return None
+
+        # Disallow credentials in authority
+        if parsed.username or parsed.password:
+            return None
+
+        # Disallow non-standard ports
+        if parsed.port not in (None, 80, 443):
+            return None
+
+        hostname = (parsed.hostname or "").lower()
+        if hostname not in cls.ALLOWED_HOSTS:
+            return None
+
+        candidate_id: Optional[str] = None
+        if hostname == "youtu.be":
+            path_parts = [p for p in parsed.path.split("/") if p]
+            if path_parts:
+                candidate_id = path_parts[0]
+        else:
+            if parsed.path in ("/watch", "/watch/"):
+                qs = urllib.parse.parse_qs(parsed.query)
+                if "v" in qs and qs["v"]:
+                    candidate_id = qs["v"][0]
+            elif parsed.path.startswith(("/embed/", "/v/", "/shorts/")):
+                parts = [p for p in parsed.path.split("/") if p]
+                if len(parts) >= 2:
+                    candidate_id = parts[1]
+
+        if candidate_id and cls.VIDEO_ID_REGEX.match(candidate_id):
+            return candidate_id
+
         return None
 
     def validate(self) -> bool:
@@ -142,7 +165,7 @@ class YouTubeReferenceSource(AudioSource):
             "title": f"YouTube Video ({self.video_id})",
             "channel": "YouTube Creator",
             "thumbnail_url": f"https://img.youtube.com/vi/{self.video_id}/hqdefault.jpg",
-            "authorized_audio_available": True
+            "authorized_audio_available": self.is_authorized_audio_available()
         }
 
         # Query official oEmbed endpoint with short timeout

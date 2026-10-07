@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import '../models/song_analysis.dart';
 import '../models/chord_prediction.dart';
-import '../models/bar.dart';
 
 class AudioPlayerService {
   final AudioPlayer _player = AudioPlayer();

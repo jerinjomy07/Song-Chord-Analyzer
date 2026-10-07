@@ -5,26 +5,30 @@ transposition, chord editing, section renaming, audio streaming, and exports.
 """
 
 import os
-import shutil
 import uuid
 import threading
 import re
+from datetime import datetime, timezone
+from enum import Enum
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import quote
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Annotated, Dict, Any, Optional
 
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks, Query
 from fastapi.responses import FileResponse, PlainTextResponse, JSONResponse
 from pydantic import BaseModel
 
 from backend.config import UPLOADS_DIR, EXPORTS_DIR
+from backend.audio.ffmpeg_utils import compute_audio_hash
 from backend.models.schemas import (
     SongAnalysis,
     AnalysisStatusResponse,
     AnalysisStatusEnum,
     TransposeRequest,
     EditChordRequest,
-    RenameSectionRequest
+    RenameSectionRequest,
+    ChangeMeterRequest
 )
 from backend.pipeline import SongAnalyzerPipeline
 from backend.transpose.transpose_engine import transpose_song, transpose_chord
@@ -40,8 +44,66 @@ ACTIVE_TASKS: Dict[str, AnalysisStatusResponse] = {}
 ANALYSIS_RESULTS: Dict[str, SongAnalysis] = {}
 AUDIO_FILE_PATHS: Dict[str, Path] = {}
 
-# Pipeline singleton
+# Pipeline singleton & bounded background executor
 PIPELINE = SongAnalyzerPipeline()
+MAX_PENDING_JOBS = 5
+MAX_UPLOAD_BYTES = 500 * 1024 * 1024
+UPLOAD_COPY_CHUNK_BYTES = 1024 * 1024
+ANALYSIS_EXECUTOR = ThreadPoolExecutor(max_workers=1, thread_name_prefix="analysis_worker")
+PENDING_LOCK = threading.Lock()
+
+
+def shutdown_analysis_executor() -> None:
+    """Drain already accepted jobs before the FastAPI process exits."""
+    ANALYSIS_EXECUTOR.shutdown(wait=True, cancel_futures=False)
+
+
+class HistorySortBy(str, Enum):
+    LAST_OPENED = "last_opened"
+    RECENTLY_ANALYZED = "recently_analyzed"
+    RECENTLY_MODIFIED = "recently_modified"
+    CREATED_AT = "created_at"
+    TITLE = "title"
+    DURATION = "duration"
+
+
+def reserve_analysis_slot() -> str:
+    """Atomically reserve one of the bounded in-flight analysis slots."""
+    with PENDING_LOCK:
+        active_in_flight = sum(
+            1 for task in ACTIVE_TASKS.values()
+            if task.status not in (AnalysisStatusEnum.COMPLETED, AnalysisStatusEnum.FAILED)
+        )
+        if active_in_flight >= MAX_PENDING_JOBS:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Analysis queue is full ({active_in_flight} jobs in flight). Please wait for current analyses to complete."
+            )
+
+        analysis_id = str(uuid.uuid4())[:8]
+        ACTIVE_TASKS[analysis_id] = AnalysisStatusResponse(
+            analysis_id=analysis_id,
+            status=AnalysisStatusEnum.QUEUED,
+            progress=0,
+            current_stage="QUEUED",
+            message="Audio received successfully, queued for analysis...",
+            created_at=datetime.now(timezone.utc).isoformat()
+        )
+        return analysis_id
+
+
+def save_upload_file(source, target_path: Path) -> None:
+    """Stream an upload to disk while enforcing the configured byte limit."""
+    uploaded_bytes = 0
+    with open(target_path, "wb") as destination:
+        while chunk := source.read(UPLOAD_COPY_CHUNK_BYTES):
+            uploaded_bytes += len(chunk)
+            if uploaded_bytes > MAX_UPLOAD_BYTES:
+                raise HTTPException(
+                    status_code=413,
+                    detail=f"Audio upload exceeds the {MAX_UPLOAD_BYTES // (1024 * 1024)} MB limit.",
+                )
+            destination.write(chunk)
 
 
 def run_pipeline_worker(
@@ -55,6 +117,13 @@ def run_pipeline_worker(
     youtube_channel: Optional[str] = None
 ):
     """Worker function running the analysis pipeline in a background thread."""
+    if analysis_id in ACTIVE_TASKS:
+        ACTIVE_TASKS[analysis_id].started_at = datetime.now(timezone.utc).isoformat()
+        ACTIVE_TASKS[analysis_id].status = AnalysisStatusEnum.PREPROCESSING
+        ACTIVE_TASKS[analysis_id].progress = 5
+        ACTIVE_TASKS[analysis_id].current_stage = "PREPROCESSING"
+        ACTIVE_TASKS[analysis_id].message = "Starting automatic audio analysis..."
+
     try:
         def update_progress(status: AnalysisStatusEnum, pct: int, msg: str):
             if analysis_id in ACTIVE_TASKS:
@@ -62,14 +131,6 @@ def run_pipeline_worker(
                 ACTIVE_TASKS[analysis_id].progress = pct
                 ACTIVE_TASKS[analysis_id].message = msg
                 ACTIVE_TASKS[analysis_id].current_stage = status.value
-
-        ACTIVE_TASKS[analysis_id] = AnalysisStatusResponse(
-            analysis_id=analysis_id,
-            status=AnalysisStatusEnum.PREPROCESSING,
-            progress=5,
-            current_stage="PREPROCESSING",
-            message="Starting automatic audio analysis..."
-        )
 
         analysis = PIPELINE.process(
             audio_file_path=audio_path,
@@ -83,7 +144,6 @@ def run_pipeline_worker(
         analysis.audio_url = f"/api/analysis/{analysis_id}/audio"
 
         ANALYSIS_RESULTS[analysis_id] = analysis
-        AUDIO_FILE_PATHS[analysis_id] = audio_path
 
         # Auto-persist analysis and ingest user-supplied local audio into library
         try:
@@ -97,21 +157,39 @@ def run_pipeline_worker(
                 youtube_title=youtube_title,
                 youtube_channel=youtube_channel
             )
+            # Update AUDIO_FILE_PATHS to the managed library audio path
+            song_rec = SongRepository.get_song(analysis_id)
+            if song_rec and song_rec.get("audio_path"):
+                AUDIO_FILE_PATHS[analysis_id] = Path(song_rec["audio_path"])
+            else:
+                AUDIO_FILE_PATHS[analysis_id] = audio_path
         except Exception as repo_err:
             print(f"[Warning] Failed to persist analysis {analysis_id} to SQLite: {repo_err}")
+            AUDIO_FILE_PATHS[analysis_id] = audio_path
 
-        ACTIVE_TASKS[analysis_id].status = AnalysisStatusEnum.COMPLETED
-        ACTIVE_TASKS[analysis_id].progress = 100
-        ACTIVE_TASKS[analysis_id].message = "Analysis complete!"
-        ACTIVE_TASKS[analysis_id].current_stage = "COMPLETED"
+        # Upload lifecycle cleanup: remove temporary upload now that it is ingested into library
+        if audio_path.exists() and audio_path.resolve() != AUDIO_FILE_PATHS.get(analysis_id, Path()).resolve():
+            audio_path.unlink(missing_ok=True)
+
+        if analysis_id in ACTIVE_TASKS:
+            ACTIVE_TASKS[analysis_id].status = AnalysisStatusEnum.COMPLETED
+            ACTIVE_TASKS[analysis_id].progress = 100
+            ACTIVE_TASKS[analysis_id].message = "Analysis complete!"
+            ACTIVE_TASKS[analysis_id].current_stage = "COMPLETED"
+            ACTIVE_TASKS[analysis_id].result = analysis
+            ACTIVE_TASKS[analysis_id].completed_at = datetime.now(timezone.utc).isoformat()
 
     except Exception as e:
         import traceback
         traceback.print_exc()
+        # Clean up temporary uploaded file on failure
+        if audio_path.exists() and str(audio_path).startswith(str(UPLOADS_DIR)):
+            audio_path.unlink(missing_ok=True)
         if analysis_id in ACTIVE_TASKS:
             ACTIVE_TASKS[analysis_id].status = AnalysisStatusEnum.FAILED
             ACTIVE_TASKS[analysis_id].error = str(e)
             ACTIVE_TASKS[analysis_id].message = f"Analysis failed: {str(e)}"
+            ACTIVE_TASKS[analysis_id].completed_at = datetime.now(timezone.utc).isoformat()
 
 
 def run_youtube_pipeline_worker(
@@ -199,6 +277,7 @@ def run_youtube_pipeline_worker(
         ACTIVE_TASKS[analysis_id].progress = 100
         ACTIVE_TASKS[analysis_id].message = "Analysis complete!"
         ACTIVE_TASKS[analysis_id].current_stage = "COMPLETED"
+        ACTIVE_TASKS[analysis_id].result = analysis
 
     except Exception as e:
         import traceback
@@ -213,6 +292,7 @@ def run_youtube_pipeline_worker(
 async def analyze_audio(
     file: UploadFile = File(...),
     title: Optional[str] = Form(None),
+    song_title: Optional[str] = Form(None),
     force: bool = Form(False),
     source_type: str = Form("local"),
     youtube_video_id: Optional[str] = Form(None),
@@ -232,61 +312,63 @@ async def analyze_audio(
             detail=f"Unsupported file format '{file_ext}'. Supported: MP3, WAV, FLAC, M4A"
         )
 
-    analysis_id = str(uuid.uuid4())[:8]
-    song_title = title or Path(file.filename).stem.replace("_", " ").title()
+    analysis_id = reserve_analysis_slot()
+    chosen_title = title or song_title or Path(file.filename).stem.replace("_", " ").title()
 
-    # Save uploaded file to uploads directory
-    target_path = UPLOADS_DIR / f"{analysis_id}_{file.filename}"
-    with open(target_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    # Save uploaded file to uploads directory (sanitizing filename to prevent path traversal)
+    safe_filename = Path(file.filename).name
+    target_path = UPLOADS_DIR / f"{analysis_id}_{safe_filename}"
+    try:
+        save_upload_file(file.file, target_path)
 
-    # Duplicate detection
-    if not force:
-        try:
-            # 1. Check duplicate by YouTube Video ID if present
-            if youtube_video_id:
-                existing_yt = SongRepository.find_by_youtube_id(youtube_video_id)
-                if existing_yt:
+        # Duplicate detection
+        if not force:
+            try:
+                # 1. Check duplicate by YouTube Video ID if present
+                if youtube_video_id:
+                    existing_yt = SongRepository.find_by_youtube_id(youtube_video_id)
+                    if existing_yt:
+                        target_path.unlink(missing_ok=True)
+                        ACTIVE_TASKS.pop(analysis_id, None)
+                        return {
+                            "status": "DUPLICATE_FOUND",
+                            "existing_song": existing_yt,
+                            "message": "This YouTube video has already been analyzed and is in your History library."
+                        }
+
+                # 2. Check duplicate by canonical audio content hash
+                file_hash = compute_audio_hash(target_path)
+                existing = SongRepository.find_by_file_hash(file_hash)
+                if existing:
+                    target_path.unlink(missing_ok=True)
+                    ACTIVE_TASKS.pop(analysis_id, None)
                     return {
                         "status": "DUPLICATE_FOUND",
-                        "existing_song": existing_yt,
-                        "message": "This YouTube video has already been analyzed and is in your History library."
+                        "existing_song": existing,
+                        "message": "This audio file is already in your History library."
                     }
+            except Exception as hash_err:
+                print(f"[Analyze] Duplicate check error: {hash_err}")
 
-            # 2. Check duplicate by audio content hash
-            import hashlib
-            hasher = hashlib.sha256()
-            with open(target_path, "rb") as f:
-                hasher.update(f.read(2 * 1024 * 1024))
-            file_hash = hasher.hexdigest()
-            existing = SongRepository.find_by_file_hash(file_hash)
-            if existing:
-                return {
-                    "status": "DUPLICATE_FOUND",
-                    "existing_song": existing,
-                    "message": "This audio file is already in your History library."
-                }
-        except Exception as hash_err:
-            print(f"[Analyze] Duplicate check error: {hash_err}")
+        # Submit to bounded single-worker executor
+        ANALYSIS_EXECUTOR.submit(
+            run_pipeline_worker,
+            analysis_id,
+            target_path,
+            chosen_title,
+            source_type,
+            youtube_video_id,
+            youtube_url,
+            youtube_title,
+            youtube_channel
+        )
 
-    # Initialize status
-    ACTIVE_TASKS[analysis_id] = AnalysisStatusResponse(
-        analysis_id=analysis_id,
-        status=AnalysisStatusEnum.UPLOADING,
-        progress=2,
-        current_stage="UPLOADING",
-        message="Audio received successfully, queuing analysis..."
-    )
+        return {"analysis_id": analysis_id, "title": chosen_title, "status": "queued"}
 
-    # Launch processing in background thread
-    worker = threading.Thread(
-        target=run_pipeline_worker,
-        args=(analysis_id, target_path, song_title, source_type, youtube_video_id, youtube_url, youtube_title, youtube_channel),
-        daemon=True
-    )
-    worker.start()
-
-    return {"analysis_id": analysis_id, "title": song_title, "status": "QUEUED"}
+    except Exception:
+        target_path.unlink(missing_ok=True)
+        ACTIVE_TASKS.pop(analysis_id, None)
+        raise
 
 
 class YouTubeInfoRequest(BaseModel):
@@ -340,54 +422,158 @@ async def get_youtube_info(req: YouTubeInfoRequest):
     return metadata
 
 
+@router.post("/sources/youtube/download")
+@router.post("/api/sources/youtube/download")
+async def download_youtube_audio(req: YouTubeInfoRequest):
+    """
+    Downloads YouTube audio on the server using yt-dlp, extracts high-quality MP3,
+    and returns metadata along with the audio download URL.
+    """
+    from backend.sources.audio_source import YouTubeAudioExtractor
+
+    clean_url = req.url.strip()
+    try:
+        mp3_path, meta = YouTubeAudioExtractor.download_audio(clean_url)
+        vid = meta.get("video_id") or "audio"
+        return {
+            "status": "success",
+            "video_id": vid,
+            "title": meta.get("title", ""),
+            "channel": meta.get("channel", ""),
+            "duration": meta.get("duration", 0),
+            "thumbnail_url": meta.get("thumbnail_url", ""),
+            "filename": mp3_path.name,
+            "download_url": f"/api/sources/youtube/audio/{vid}"
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Server YouTube audio extraction failed: {str(e)}"
+        )
+
+
+@router.get("/sources/youtube/audio/{video_id}")
+@router.get("/api/sources/youtube/audio/{video_id}")
+async def get_youtube_downloaded_audio(video_id: str):
+    """Streams the downloaded YouTube MP3 to the client."""
+    from backend.config import STORAGE_DIR
+    from fastapi.responses import FileResponse
+
+    target = STORAGE_DIR / "temp" / f"yt_{video_id}.mp3"
+    if not target.exists():
+        matches = list((STORAGE_DIR / "temp").glob(f"yt_{video_id}.*"))
+        if matches:
+            target = matches[0]
+        else:
+            raise HTTPException(status_code=404, detail="Audio file not found on server")
+
+    media_type = "audio/mpeg" if target.suffix.lower() == ".mp3" else "application/octet-stream"
+    return FileResponse(target, media_type=media_type, filename=target.name)
+
+
+@router.get("/apk")
+@router.get("/api/apk")
+async def download_apk():
+    """Serves the latest compiled Android debug APK for direct over-the-air installation."""
+    apk_path = Path("mobile/flutter_app/build/app/outputs/flutter-apk/app-debug.apk")
+    if not apk_path.exists():
+        raise HTTPException(status_code=404, detail="APK not found on server")
+    return FileResponse(
+        str(apk_path.resolve()),
+        media_type="application/vnd.android.package-archive",
+        filename="SongChordAnalyzer.apk"
+    )
+
+
 @router.post("/analyze/youtube")
 async def analyze_youtube_endpoint(req: YouTubeAnalyzeRequest):
     """
-    Directly extracts audio from a YouTube video and runs full automatic chord recognition.
-    Performs duplicate check in SQLite library unless force=True.
+    Direct YouTube audio stream ripping is disabled.
+    Audio analysis requires a user-provided audio file.
+    Please upload your audio file directly via POST /analyze (YouTube metadata can be linked via youtube_video_id / youtube_url).
     """
-    from backend.sources.audio_source import YouTubeReferenceSource
+    raise HTTPException(
+        status_code=400,
+        detail="Direct YouTube audio analysis is disabled. Audio analysis requires a user-provided audio file. Please upload your audio file directly via POST /analyze (YouTube metadata can be linked via youtube_video_id / youtube_url)."
+    )
 
-    clean_url = req.url.strip()
-    video_id = YouTubeReferenceSource._extract_video_id(clean_url)
-    if not video_id:
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid YouTube link. Please enter a valid YouTube video or music URL."
-        )
 
-    # Duplicate check by video ID unless force=True
-    if not req.force:
-        existing = SongRepository.find_by_youtube_id(video_id)
-        if existing:
+@router.get("/analyze/{analysis_id}")
+async def get_analysis_job_status(analysis_id: str) -> Dict[str, Any]:
+    """
+    Returns unified job status for mobile/API clients.
+    Includes progress, status ('queued' | 'processing' | 'completed' | 'failed'),
+    timestamps, message, and the complete SongAnalysis object under 'result' upon completion.
+    """
+    if analysis_id in ACTIVE_TASKS:
+        task = ACTIVE_TASKS[analysis_id]
+        status_enum = task.status
+        base_resp = {
+            "analysis_id": analysis_id,
+            "created_at": task.created_at,
+            "started_at": task.started_at,
+            "completed_at": task.completed_at,
+        }
+        if status_enum == AnalysisStatusEnum.COMPLETED:
+            res = task.result or ANALYSIS_RESULTS.get(analysis_id) or SongRepository.get_analysis(analysis_id)
             return {
-                "status": "DUPLICATE_FOUND",
-                "existing_song": existing,
-                "message": f"This YouTube video ('{existing['title']}') was already analyzed."
+                **base_resp,
+                "status": "completed",
+                "progress": 100,
+                "current_stage": "COMPLETED",
+                "message": task.message or "Analysis complete!",
+                "error": None,
+                "result": res
+            }
+        elif status_enum == AnalysisStatusEnum.FAILED:
+            return {
+                **base_resp,
+                "status": "failed",
+                "progress": task.progress,
+                "current_stage": task.current_stage,
+                "message": task.message,
+                "error": task.error,
+                "result": None
+            }
+        elif status_enum in (AnalysisStatusEnum.QUEUED, AnalysisStatusEnum.UPLOADING, AnalysisStatusEnum.DOWNLOADING, AnalysisStatusEnum.IDLE):
+            return {
+                **base_resp,
+                "status": "queued",
+                "progress": task.progress,
+                "current_stage": task.current_stage,
+                "message": task.message,
+                "error": None,
+                "result": None
+            }
+        else:
+            return {
+                **base_resp,
+                "status": "processing",
+                "progress": task.progress,
+                "current_stage": task.current_stage,
+                "message": task.message,
+                "error": None,
+                "result": None
             }
 
-    analysis_id = str(uuid.uuid4())[:8]
+    # If not in active memory, check persistent library
+    saved_analysis = SongRepository.get_analysis(analysis_id)
+    if saved_analysis:
+        song_rec = SongRepository.get_song(analysis_id)
+        return {
+            "analysis_id": analysis_id,
+            "status": "completed",
+            "progress": 100,
+            "current_stage": "COMPLETED",
+            "message": "Analysis restored from library",
+            "error": None,
+            "result": saved_analysis,
+            "created_at": song_rec.get("created_at") if song_rec else None,
+            "started_at": song_rec.get("created_at") if song_rec else None,
+            "completed_at": song_rec.get("updated_at") if song_rec else None,
+        }
 
-    ACTIVE_TASKS[analysis_id] = AnalysisStatusResponse(
-        analysis_id=analysis_id,
-        status=AnalysisStatusEnum.DOWNLOADING,
-        progress=5,
-        current_stage="DOWNLOADING",
-        message="Connecting to YouTube and extracting audio stream..."
-    )
-
-    worker = threading.Thread(
-        target=run_youtube_pipeline_worker,
-        args=(analysis_id, clean_url, req.title),
-        daemon=True
-    )
-    worker.start()
-
-    return {
-        "analysis_id": analysis_id,
-        "title": req.title or "YouTube Video",
-        "status": "QUEUED"
-    }
+    raise HTTPException(status_code=404, detail="Analysis ID not found")
 
 
 @router.get("/analysis/{analysis_id}/status", response_model=AnalysisStatusResponse)
@@ -439,7 +625,7 @@ async def transpose_song_chords(analysis_id: str, req: TransposeRequest):
         SongRepository.update_analysis_state(
             song_id=analysis_id,
             updated_analysis=transposed,
-            transpose_value=req.semitones
+            transpose_value=transposed.transpose_semitones
         )
     except Exception as err:
         print(f"[Warning] Failed to record transpose in SQLite: {err}")
@@ -448,6 +634,7 @@ async def transpose_song_chords(analysis_id: str, req: TransposeRequest):
 
 
 @router.post("/analysis/{analysis_id}/edit", response_model=SongAnalysis)
+@router.post("/analysis/{analysis_id}/chord", response_model=SongAnalysis)
 async def edit_single_chord(analysis_id: str, req: EditChordRequest):
     """
     Edits a specific chord in the transcription.
@@ -514,6 +701,7 @@ async def edit_single_chord(analysis_id: str, req: EditChordRequest):
 
 
 @router.post("/analysis/{analysis_id}/rename-section", response_model=SongAnalysis)
+@router.post("/analysis/{analysis_id}/section", response_model=SongAnalysis)
 async def rename_section(analysis_id: str, req: RenameSectionRequest):
     """Renames a musical section (e.g. from 'SECTION A' to 'VERSE 1' or 'CHORUS')."""
     if analysis_id not in ANALYSIS_RESULTS:
@@ -545,6 +733,80 @@ async def rename_section(analysis_id: str, req: RenameSectionRequest):
     return analysis
 
 
+@router.post("/analysis/{analysis_id}/meter", response_model=SongAnalysis)
+async def change_song_meter(analysis_id: str, req: ChangeMeterRequest):
+    """
+    Changes the musical time signature / meter of an analyzed song,
+    re-grids the bars beat-synchronously, and persists the update.
+    """
+    if analysis_id not in ANALYSIS_RESULTS:
+        analysis = SongRepository.get_analysis(analysis_id)
+        if not analysis:
+            raise HTTPException(status_code=404, detail="Analysis not found")
+        ANALYSIS_RESULTS[analysis_id] = analysis
+
+    analysis = ANALYSIS_RESULTS[analysis_id]
+
+    disp = f"{req.numerator}/{req.denominator}"
+    analysis.meter.numerator = req.numerator
+    analysis.meter.denominator = req.denominator
+    analysis.meter.display = disp
+    if req.subgrouping:
+        analysis.meter.subgrouping = req.subgrouping
+
+    from backend.postprocessing.alignment import BarAligner
+    aligner = BarAligner()
+    new_bars = aligner.align_to_bars(
+        beat_chords=analysis.chords,
+        beat_grid=analysis.beat_grid,
+        meter=analysis.meter
+    )
+
+    if new_bars:
+        if len(analysis.sections) <= 1:
+            if not analysis.sections:
+                from backend.models.schemas import MusicalSection
+                analysis.sections = [MusicalSection(
+                    section_id="sec_1",
+                    name="SECTION A",
+                    start_time=new_bars[0].start_time,
+                    end_time=new_bars[-1].end_time,
+                    start_bar=new_bars[0].bar_number,
+                    end_bar=new_bars[-1].bar_number,
+                    bars=new_bars
+                )]
+            else:
+                analysis.sections[0].bars = new_bars
+                analysis.sections[0].start_bar = new_bars[0].bar_number
+                analysis.sections[0].end_bar = new_bars[-1].bar_number
+        else:
+            for sec in analysis.sections:
+                sec_bars = [
+                    b for b in new_bars
+                    if b.start_time >= sec.start_time - 0.05 and b.end_time <= sec.end_time + 0.05
+                ]
+                if sec_bars:
+                    sec.bars = sec_bars
+                    sec.start_bar = sec_bars[0].bar_number
+                    sec.end_bar = sec_bars[-1].bar_number
+
+    ANALYSIS_RESULTS[analysis_id] = analysis
+
+    try:
+        SongRepository.update_analysis_state(
+            song_id=analysis_id,
+            updated_analysis=analysis
+        )
+        from backend.database.db import get_connection
+        with get_connection() as db_conn:
+            db_conn.execute("UPDATE songs SET time_signature = ? WHERE id = ?;", (disp, analysis_id))
+    except Exception as err:
+        print(f"[Warning] Failed to persist meter update in SQLite: {err}")
+
+    return analysis
+
+
+
 @router.get("/analysis/{analysis_id}/audio")
 async def stream_audio(analysis_id: str):
     """Streams original uploaded or library-managed audio for waveform playback."""
@@ -572,21 +834,21 @@ class RenameSongRequest(BaseModel):
 @router.get("/history")
 async def list_history_songs(
     query: Optional[str] = None,
-    sort_by: str = "last_opened",
+    sort_by: HistorySortBy = HistorySortBy.LAST_OPENED,
     favorites_only: bool = False,
-    limit: int = 100
+    limit: Annotated[int, Query(ge=1, le=100)] = 20
 ):
     """Lists songs in user's library with search, sort, and favorites filter."""
     return SongRepository.list_songs(
         query=query,
-        sort_by=sort_by,
+        sort_by=sort_by.value,
         favorites_only=favorites_only,
         limit=limit
     )
 
 
 @router.get("/history/recent")
-async def list_recent_songs(limit: int = 5):
+async def list_recent_songs(limit: Annotated[int, Query(ge=1, le=20)] = 5):
     """Fetches recent songs for quick-access cards on Home screen."""
     return SongRepository.get_recent_songs(limit=limit)
 

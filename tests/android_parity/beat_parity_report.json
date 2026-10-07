@@ -1,0 +1,27 @@
+{
+  "audio_file": "storage\\cache\\ecdbc4dd2a6d827b_22k_mono.wav",
+  "bpm": 86.1,
+  "windows_beat_count": 353,
+  "android_beat_count": 353,
+  "count_difference": 0,
+  "windows_first_5_beats": [
+    5.2477,
+    5.9443,
+    6.6177,
+    7.3375,
+    7.9877
+  ],
+  "android_first_5_beats": [
+    5.2477,
+    5.9443,
+    6.6177,
+    7.3375,
+    7.9877
+  ],
+  "windows_first_beat_sec": 5.2477,
+  "android_first_beat_sec": 5.2477,
+  "first_beat_diff_seconds": 0.0,
+  "mean_absolute_error_seconds": 0.0,
+  "max_absolute_error_seconds": 0.0,
+  "passed": true
+}

@@ -1,0 +1,15 @@
+{
+  "windows_shape": [
+    216,
+    144
+  ],
+  "android_shape": [
+    216,
+    144
+  ],
+  "frame_alignment_error": 0,
+  "mean_absolute_error": 0.00524,
+  "max_absolute_error": 1.5435,
+  "feature_correlation": 0.9997,
+  "parity_acceptable": true
+}

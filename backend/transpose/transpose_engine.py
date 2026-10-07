@@ -24,6 +24,17 @@ from backend.chord.vocabulary import (
 FLAT_KEYS = ['F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Dm', 'Gm', 'Cm', 'Fm', 'Bbm']
 
 
+def normalize_transpose_semitones(total_semitones: int) -> int:
+    """
+    Normalizes a cumulative transposition value into the valid musical range [-11, 11]
+    (with 0 representing unison / full octave cycles).
+    """
+    mod = total_semitones % 12
+    if total_semitones < 0 and mod != 0:
+        return mod - 12
+    return mod
+
+
 def transpose_note(note: str, semitones: int, prefer_flats: bool = False) -> str:
     """Transposes a single pitch class by N semitones, respecting key signature spelling."""
     if note in ['N', 'X', '']:
@@ -127,5 +138,5 @@ def transpose_song(analysis: SongAnalysis, semitones: int) -> SongAnalysis:
         "key": new_key,
         "chords": transposed_chords,
         "sections": transposed_sections,
-        "transpose_semitones": analysis.transpose_semitones + semitones
+        "transpose_semitones": normalize_transpose_semitones(analysis.transpose_semitones + semitones)
     })

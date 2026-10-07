@@ -24,21 +24,23 @@ class AnalysisProgressScreen extends StatefulWidget {
 
 class _AnalysisProgressScreenState extends State<AnalysisProgressScreen> {
   int _progress = 5;
-  String _currentMessage = 'Initiating analysis...';
+  String _currentMessage = 'Connecting to server and initiating MIR analysis...';
   String _currentStage = 'PREPROCESSING';
   String? _errorMessage;
   Timer? _pollingTimer;
   String? _jobId;
+  int _consecutivePollErrors = 0;
 
   static const List<Map<String, String>> pipelineStages = [
-    {'id': 'PREPROCESSING', 'title': 'Loading & Preprocessing Audio'},
-    {'id': 'SEPARATING', 'title': 'Demucs Stem Separation'},
-    {'id': 'ANALYZING_BEATS', 'title': 'Detecting Beats & Tempo'},
-    {'id': 'ANALYZING_KEY', 'title': 'Detecting Musical Key'},
-    {'id': 'ANALYZING_CHORDS', 'title': 'BTC Neural Chord Recognition'},
-    {'id': 'ANALYZING_INVERSION', 'title': 'Sub-Bass Inversion Tracking'},
-    {'id': 'ALIGNING_BARS', 'title': 'Aligning Bars & Downbeats'},
-    {'id': 'BUILDING_SHEET', 'title': 'Generating Musician Chord Sheet'},
+    {'id': 'PREPROCESSING', 'title': 'Audio Preprocessing & Normalization'},
+    {'id': 'SEPARATING', 'title': 'Demucs Neural Stem Separation'},
+    {'id': 'ANALYZING_BEATS', 'title': 'Multi-Hypothesis Beat & Tempo Tracking'},
+    {'id': 'ANALYZING_KEY', 'title': 'Musical Key & Scale Detection'},
+    {'id': 'ANALYZING_CHORDS', 'title': 'BTC Neural Automatic Chord Recognition'},
+    {'id': 'ANALYZING_INVERSION', 'title': 'Bass Register Inversion Analysis'},
+    {'id': 'ALIGNING_BARS', 'title': 'Measure Alignment & Downbeat Fusion'},
+    {'id': 'DETECTING_SECTIONS', 'title': 'Section Clustering & Repetitions'},
+    {'id': 'BUILDING_SHEET', 'title': 'Assembling Musician Chord Sheet'},
   ];
 
   @override
@@ -54,20 +56,34 @@ class _AnalysisProgressScreenState extends State<AnalysisProgressScreen> {
   }
 
   Future<void> _startAnalysis() async {
+    setState(() {
+      _errorMessage = null;
+      _progress = 5;
+      _currentMessage = 'Uploading audio to analysis server...';
+      _consecutivePollErrors = 0;
+    });
+
     try {
       final jobId = await widget.analysisEngine.startAnalysis(
         audioFile: widget.audioFile,
         songTitle: widget.songTitle,
       );
+      if (!mounted) return;
       setState(() => _jobId = jobId);
 
-      _pollingTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) async {
+      _pollingTimer?.cancel();
+      _pollingTimer = Timer.periodic(const Duration(milliseconds: 1000), (timer) async {
         try {
           final status = await widget.analysisEngine.getStatus(jobId);
+          _consecutivePollErrors = 0;
+
+          if (!mounted) return;
           setState(() {
             _progress = status.progress;
-            _currentMessage = status.message;
-            _currentStage = status.stage.name.toUpperCase();
+            _currentMessage = status.message.isNotEmpty ? status.message : 'Processing...';
+            _currentStage = status.currentStage.isNotEmpty
+                ? status.currentStage
+                : status.stage.name.toUpperCase();
           });
 
           if (status.stage == AnalysisStage.completed) {
@@ -91,23 +107,46 @@ class _AnalysisProgressScreenState extends State<AnalysisProgressScreen> {
             }
           } else if (status.stage == AnalysisStage.failed) {
             timer.cancel();
-            setState(() {
-              _errorMessage = status.error ?? status.message;
-            });
+            if (mounted) {
+              setState(() {
+                _errorMessage = status.error ?? status.message;
+              });
+            }
           }
         } catch (pollErr) {
-          // Keep polling or report if fatal
+          _consecutivePollErrors++;
+          if (_consecutivePollErrors >= 15) {
+            timer.cancel();
+            if (mounted) {
+              setState(() {
+                _errorMessage = 'Lost connection to analysis server: $pollErr';
+              });
+            }
+          }
         }
       });
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString().replaceFirst(RegExp(r'^Exception:\s*'), '');
+        });
+      }
     }
+  }
+
+  int _findStageIndex(String stageId) {
+    for (int i = 0; i < pipelineStages.length; i++) {
+      if (stageId.contains(pipelineStages[i]['id']!)) {
+        return i;
+      }
+    }
+    return 0;
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentStageIdx = _findStageIndex(_currentStage);
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -118,29 +157,52 @@ class _AnalysisProgressScreenState extends State<AnalysisProgressScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
+            constraints: const BoxConstraints(maxWidth: 520),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (_errorMessage != null) ...[
-                  const Icon(Icons.error_outline, size: 56, color: Colors.red),
+                  const Icon(Icons.error_outline, size: 60, color: Colors.redAccent),
                   const SizedBox(height: 16),
                   const Text(
                     'Analysis Error',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _errorMessage!,
-                    style: TextStyle(color: Colors.red.shade700, fontSize: 13),
-                    textAlign: TextAlign.center,
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Text(
+                      _errorMessage!,
+                      style: TextStyle(color: Colors.red.shade900, fontSize: 13),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                   const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Back to Home'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Back to Home'),
+                      ),
+                      const SizedBox(width: 16),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.indigo,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: _startAnalysis,
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: const Text('Retry Analysis'),
+                      ),
+                    ],
                   ),
                 ] else ...[
                   // Circular Progress Ring
@@ -149,18 +211,27 @@ class _AnalysisProgressScreenState extends State<AnalysisProgressScreen> {
                       alignment: Alignment.center,
                       children: [
                         SizedBox(
-                          width: 120,
-                          height: 120,
+                          width: 130,
+                          height: 130,
                           child: CircularProgressIndicator(
-                            value: _progress / 100.0,
+                            value: (_progress / 100.0).clamp(0.0, 1.0),
                             strokeWidth: 8,
                             backgroundColor: Colors.indigo.shade100,
                             color: Colors.indigo,
                           ),
                         ),
-                        Text(
-                          '$_progress%',
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '$_progress%',
+                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
+                            const Text(
+                              'MIR SERVER',
+                              style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -169,37 +240,66 @@ class _AnalysisProgressScreenState extends State<AnalysisProgressScreen> {
 
                   Text(
                     _currentMessage,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 32),
+                  if (_jobId != null) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      'Session ID: ${_jobId!.length > 8 ? _jobId!.substring(0, 8) : _jobId}',
+                      style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                  const SizedBox(height: 28),
 
-                  // Stage list
+                  // Stage list with real progression icons
                   Card(
                     elevation: 1,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Column(
-                        children: pipelineStages.map((stage) {
-                          final isCurrent = _currentStage.contains(stage['id']!);
+                        children: List.generate(pipelineStages.length, (idx) {
+                          final stage = pipelineStages[idx];
+                          final isPassed = idx < currentStageIdx;
+                          final isCurrent = idx == currentStageIdx;
+
+                          Widget leadingIcon;
+                          Color textColor;
+                          FontWeight textWeight;
+
+                          if (isPassed) {
+                            leadingIcon = const Icon(Icons.check_circle, size: 18, color: Colors.green);
+                            textColor = Colors.grey.shade700;
+                            textWeight = FontWeight.normal;
+                          } else if (isCurrent) {
+                            leadingIcon = const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.indigo),
+                            );
+                            textColor = Colors.indigo.shade900;
+                            textWeight = FontWeight.bold;
+                          } else {
+                            leadingIcon = Icon(Icons.circle_outlined, size: 16, color: Colors.grey.shade400);
+                            textColor = Colors.grey.shade500;
+                            textWeight = FontWeight.normal;
+                          }
+
                           return ListTile(
                             dense: true,
-                            leading: Icon(
-                              isCurrent ? Icons.sync : Icons.circle_outlined,
-                              size: 16,
-                              color: isCurrent ? Colors.indigo : Colors.grey.shade400,
-                            ),
+                            leading: leadingIcon,
                             title: Text(
                               stage['title']!,
                               style: TextStyle(
                                 fontSize: 13,
-                                fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                                color: isCurrent ? Colors.indigo.shade900 : Colors.grey.shade700,
+                                fontWeight: textWeight,
+                                color: textColor,
                               ),
                             ),
                           );
-                        }).toList(),
+                        }),
                       ),
                     ),
                   ),

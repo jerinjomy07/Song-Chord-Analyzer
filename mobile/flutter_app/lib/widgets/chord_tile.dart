@@ -15,7 +15,6 @@ class ChordTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final isLowConfidence = chord.confidence < 0.65;
 
     return GestureDetector(

@@ -1,0 +1,28 @@
+{
+  "audio_file": "storage\\cache\\ecdbc4dd2a6d827b_22k_mono.wav",
+  "windows_meter": "4/4",
+  "android_meter": "4/4",
+  "windows_downbeat_count": 89,
+  "android_downbeat_count": 89,
+  "count_difference": 0,
+  "windows_first_5_downbeats": [
+    5.2477,
+    7.9877,
+    10.8902,
+    13.5372,
+    16.2307
+  ],
+  "android_first_5_downbeats": [
+    5.2477,
+    7.9877,
+    10.8902,
+    13.5372,
+    16.2307
+  ],
+  "windows_first_downbeat_sec": 5.2477,
+  "android_first_downbeat_sec": 5.2477,
+  "first_downbeat_diff_seconds": 0.0,
+  "mean_absolute_error_seconds": 0.0,
+  "max_absolute_error_seconds": 0.0,
+  "passed": true
+}

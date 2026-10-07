@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 
 class AnalysisStatusEnum(str, Enum):
     IDLE = "IDLE"
+    QUEUED = "QUEUED"
     DOWNLOADING = "DOWNLOADING"
     UPLOADING = "UPLOADING"
     VALIDATING = "VALIDATING"
@@ -130,6 +131,7 @@ class PipelineMetadata(BaseModel):
 
 
 class SongAnalysis(BaseModel):
+    schema_version: str = "1.0.0"
     id: str
     title: str
     metadata: AudioMetadata
@@ -155,6 +157,10 @@ class AnalysisStatusResponse(BaseModel):
     current_stage: str = ""
     message: str = ""
     error: Optional[str] = None
+    result: Optional[SongAnalysis] = None
+    created_at: Optional[str] = None
+    started_at: Optional[str] = None
+    completed_at: Optional[str] = None
 
 
 class EditChordRequest(BaseModel):
@@ -172,3 +178,9 @@ class TransposeRequest(BaseModel):
 class RenameSectionRequest(BaseModel):
     section_id: str
     new_name: str
+
+
+class ChangeMeterRequest(BaseModel):
+    numerator: int = Field(..., ge=2, le=12)
+    denominator: int = Field(..., ge=4, le=8)
+    subgrouping: Optional[str] = None

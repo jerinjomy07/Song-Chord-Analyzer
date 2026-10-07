@@ -1,0 +1,74 @@
+{
+  "audio_peak_before": 0.95001220703125,
+  "audio_peak_after": 0.949999988079071,
+  "windows_key": "Bb Minor",
+  "windows_confidence": 0.75,
+  "broken_android_key": "Ab Major",
+  "corrected_android_key": "Bb Minor",
+  "corrected_confidence": 0.72,
+  "key_matches_windows": true,
+  "chroma_mean_error": 0.0344,
+  "chroma_max_error": 0.0733,
+  "chroma_profiles": {
+    "C": {
+      "windows": 0.2332,
+      "broken_android": 0.3005,
+      "corrected_android": 0.2761
+    },
+    "C#": {
+      "windows": 0.3475,
+      "broken_android": 0.2722,
+      "corrected_android": 0.3349
+    },
+    "D": {
+      "windows": 0.2567,
+      "broken_android": 0.2861,
+      "corrected_android": 0.2665
+    },
+    "D#": {
+      "windows": 0.3114,
+      "broken_android": 0.2762,
+      "corrected_android": 0.3384
+    },
+    "E": {
+      "windows": 0.2574,
+      "broken_android": 0.2566,
+      "corrected_android": 0.3035
+    },
+    "F": {
+      "windows": 0.3546,
+      "broken_android": 0.2668,
+      "corrected_android": 0.4029
+    },
+    "F#": {
+      "windows": 0.336,
+      "broken_android": 0.2672,
+      "corrected_android": 0.284
+    },
+    "G": {
+      "windows": 0.2264,
+      "broken_android": 0.3147,
+      "corrected_android": 0.2149
+    },
+    "G#": {
+      "windows": 0.2733,
+      "broken_android": 0.3376,
+      "corrected_android": 0.2454
+    },
+    "A": {
+      "windows": 0.2099,
+      "broken_android": 0.3105,
+      "corrected_android": 0.2306
+    },
+    "A#": {
+      "windows": 0.3707,
+      "broken_android": 0.2892,
+      "corrected_android": 0.3303
+    },
+    "B": {
+      "windows": 0.2229,
+      "broken_android": 0.2758,
+      "corrected_android": 0.1496
+    }
+  }
+}

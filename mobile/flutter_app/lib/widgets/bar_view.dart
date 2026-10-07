@@ -35,7 +35,7 @@ class BarView extends StatelessWidget {
         boxShadow: [
           if (isActive)
             BoxShadow(
-              color: Colors.amber.withOpacity(0.2),
+              color: Colors.amber.withValues(alpha: 0.2),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -56,7 +56,23 @@ class BarView extends StatelessWidget {
                   color: isActive ? Colors.amber.shade900 : Colors.grey.shade600,
                 ),
               ),
-              if (bar.beats != 4)
+              if (bar.timeSignature.isNotEmpty && bar.timeSignature != '4/4')
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: Text(
+                    bar.timeSignature,
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                )
+              else if (bar.beats != 4)
                 Text(
                   '${bar.beats}/4',
                   style: TextStyle(fontSize: 9, color: Colors.grey.shade500),

@@ -15,6 +15,7 @@ from reportlab.platypus import (
     TableStyle
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from xml.sax.saxutils import escape
 
 from backend.models.schemas import SongAnalysis, Bar
 
@@ -106,11 +107,11 @@ def export_to_pdf(analysis: SongAnalysis, output_path: Path) -> Path:
     story = []
 
     # 1. Header (Title, Meter, Tempo, Scale)
-    story.append(Paragraph(f"<b>{analysis.title}</b>", title_style))
-    story.append(Paragraph(analysis.meter.display, info_style))
+    story.append(Paragraph(f"<b>{escape(str(analysis.title))}</b>", title_style))
+    story.append(Paragraph(escape(str(analysis.meter.display)), info_style))
     story.append(Paragraph(f"Tempo: {analysis.tempo.bpm:.0f}", info_style))
     scale_str = analysis.key.display.replace(" Major", "").replace(" Minor", "m")
-    story.append(Paragraph(f"Scale: {scale_str}", info_style))
+    story.append(Paragraph(f"Scale: {escape(str(scale_str))}", info_style))
     story.append(Spacer(1, 14))
 
     # 2. Sections (2-column layout: Col 0 = Section Label, Col 1 = Compact Bar Line)
@@ -135,7 +136,7 @@ def export_to_pdf(analysis: SongAnalysis, output_path: Path) -> Path:
         elif raw_name.upper() in ["CHORUS", "CH"]:
             display_name = "CH:"
         elif not raw_name.endswith(":"):
-            display_name = f"{raw_name.capitalize()}:"
+            display_name = f"{raw_name[:1].upper()}{raw_name[1:]}:"
         else:
             display_name = raw_name
 
@@ -149,7 +150,7 @@ def export_to_pdf(analysis: SongAnalysis, output_path: Path) -> Path:
         for r_idx, row_bars in enumerate(bar_rows):
             # Col 0: Section label on row 0 with yellow highlight, blank on subsequent rows
             if r_idx == 0:
-                highlighted_text = f'<font backcolor="#ffff00">&nbsp;<b>{display_name}</b>&nbsp;</font>'
+                highlighted_text = f'<font backcolor="#ffff00">&nbsp;<b>{escape(str(display_name))}</b>&nbsp;</font>'
                 cell_0 = Paragraph(highlighted_text, sec_label_style)
             else:
                 cell_0 = Paragraph("", sec_label_style)
@@ -157,7 +158,7 @@ def export_to_pdf(analysis: SongAnalysis, output_path: Path) -> Path:
             # Col 1: Compact text line with bars: |Gm|Cm7|F/Bb|Bb|
             bars_parts = [format_bar_str(b) for b in row_bars]
             bars_line_text = f"|{ '|'.join(bars_parts) }|"
-            cell_1 = Paragraph(f"<b>{bars_line_text}</b>", bars_line_style)
+            cell_1 = Paragraph(f"<b>{escape(str(bars_line_text))}</b>", bars_line_style)
 
             table_data.append([cell_0, cell_1])
 

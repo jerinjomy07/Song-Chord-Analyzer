@@ -121,10 +121,13 @@ class MeterDetector:
         for s_t, s_h in sub_peaks:
             for b_cand in [primary_bar_t, primary_bar_t * 2.0]:
                 ratio = b_cand / s_t
-                if any(abs(ratio - target) <= 0.22 for target in [4, 6, 7, 8, 12]):
+                if any(abs(ratio - target) <= 0.22 for target in [4, 6, 7, 8, 12, 14]):
                     tau_e = s_t
                     break
             if tau_e is not None:
+                break
+            if abs((primary_bar_t / 2.0) / s_t - 7) <= 0.22:
+                tau_e = s_t
                 break
 
         if tau_e is None:
@@ -225,12 +228,11 @@ class MeterDetector:
                 eval_list.append(("2/4", 2, 2, 4, [("standard", np.array([1.0, 0.40]))]))
                 eval_list.append(("3/4", 3, 3, 4, [("standard", np.array([1.0, 0.35, 0.45]))]))
                 eval_list.append(("4/4", 4, 4, 4, [("standard", np.array([1.0, 0.30, 0.70, 0.30]))]))
-                if tracked_bpm > 100.0:
-                    eval_list.append(("7/8", 7, 7, 8, [
-                        ("2+2+3", np.array([1.0, 0.20, 0.80, 0.20, 0.80, 0.20, 0.20])),
-                        ("2+3+2", np.array([1.0, 0.20, 0.80, 0.20, 0.20, 0.80, 0.20])),
-                        ("3+2+2", np.array([1.0, 0.20, 0.20, 0.80, 0.20, 0.80, 0.20])),
-                    ]))
+                eval_list.append(("7/8", 7, 7, 8, [
+                    ("2+2+3", np.array([1.0, 0.20, 0.80, 0.20, 0.80, 0.20, 0.20])),
+                    ("2+3+2", np.array([1.0, 0.20, 0.80, 0.20, 0.20, 0.80, 0.20])),
+                    ("3+2+2", np.array([1.0, 0.20, 0.20, 0.80, 0.20, 0.80, 0.20])),
+                ]))
 
             for name, k, num, den, templates in eval_list:
                 if k >= len(lags):
@@ -284,6 +286,8 @@ class MeterDetector:
                     bar_match_bonus = primary_bar_joint * 0.35
                 elif k == 2 and abs(K_bar - 4) < 0.25:
                     bar_match_bonus = primary_bar_joint * 0.30
+                elif k == 7 and (abs(K_bar - 14) < 0.5 or abs(K_bar - 3.5) < 0.3):
+                    bar_match_bonus = primary_bar_joint * 0.35
 
                 if is_ternary:
                     prior = float(np.exp(-0.5 * ((np.log2(tracked_bpm) - np.log2(60.0)) / 0.6) ** 2))

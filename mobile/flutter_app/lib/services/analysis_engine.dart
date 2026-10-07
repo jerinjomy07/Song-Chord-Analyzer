@@ -37,4 +37,13 @@ abstract class AnalysisEngine {
     required String sectionId,
     required String newName,
   });
+
+  /// Changes the time signature / meter of the song
+  Future<SongAnalysis> changeMeter({
+    required SongAnalysis currentAnalysis,
+    required int numerator,
+    required int denominator,
+    String? subgrouping,
+  });
 }
+

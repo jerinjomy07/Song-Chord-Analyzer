@@ -10,7 +10,12 @@ import soundfile as sf
 import librosa
 
 from backend.config import CACHE_DIR, TARGET_SAMPLE_RATE, SEPARATION_SAMPLE_RATE
-from backend.audio.ffmpeg_utils import get_audio_metadata, convert_to_standard_wav, compute_audio_hash
+from backend.audio.ffmpeg_utils import (
+    get_audio_metadata,
+    convert_to_standard_wav,
+    compute_audio_hash,
+    compute_legacy_audio_hash,
+)
 
 
 class AudioPreprocessor:
@@ -33,20 +38,28 @@ class AudioPreprocessor:
             raise ValueError(f"Audio file is too short ({raw_meta['duration']:.1f}s). Minimum 1 second required.")
             
         file_hash = compute_audio_hash(input_path)
+        legacy_hash = compute_legacy_audio_hash(input_path)
         
         stereo_44k_path = self.cache_dir / f"{file_hash}_44k_stereo.wav"
         mono_22k_path = self.cache_dir / f"{file_hash}_22k_mono.wav"
         
-        # Check cache
+        # Check cache (64-char full hash or legacy 16-char prefix)
         if not stereo_44k_path.exists():
-            convert_to_standard_wav(input_path, stereo_44k_path, sample_rate=SEPARATION_SAMPLE_RATE, mono=False)
+            legacy_stereo = self.cache_dir / f"{legacy_hash}_44k_stereo.wav"
+            if legacy_stereo.exists():
+                stereo_44k_path = legacy_stereo
+            else:
+                convert_to_standard_wav(input_path, stereo_44k_path, sample_rate=SEPARATION_SAMPLE_RATE, mono=False)
             
         if not mono_22k_path.exists():
-            convert_to_standard_wav(input_path, mono_22k_path, sample_rate=TARGET_SAMPLE_RATE, mono=True)
-            
-            # Apply subtle loudness normalization on mono 22k file if needed
-            y, sr = soundfile_load_normalized(mono_22k_path)
-            sf.write(str(mono_22k_path), y, sr, subtype='PCM_16')
+            legacy_mono = self.cache_dir / f"{legacy_hash}_22k_mono.wav"
+            if legacy_mono.exists():
+                mono_22k_path = legacy_mono
+            else:
+                convert_to_standard_wav(input_path, mono_22k_path, sample_rate=TARGET_SAMPLE_RATE, mono=True)
+                # Apply subtle loudness normalization on mono 22k file if needed
+                y, sr = soundfile_load_normalized(mono_22k_path)
+                sf.write(str(mono_22k_path), y, sr, subtype='PCM_16')
 
         meta = {
             "filename": input_path.name,

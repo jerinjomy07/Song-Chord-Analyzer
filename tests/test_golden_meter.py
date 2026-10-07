@@ -84,6 +84,12 @@ class TestGoldenMeter(unittest.TestCase):
             self.skipTest("Nallaru Po audio not found in library")
         self._assert_meter("Nallaru Po", p, 4, 4, "4/4")
 
+    def test_real_gagultha_7_8(self):
+        p = LIBRARY_DIR / "b75bfd9b" / "audio.mp3"
+        if not p.exists():
+            self.skipTest("Gagultha audio not found in library")
+        self._assert_meter("Gagultha", p, 7, 8, "7/8")
+
     def _assert_meter(self, name: str, path: Path, exp_num: int, exp_den: int, exp_display: str):
         self.assertTrue(path.exists(), f"File {path} not found")
         res = self.detector.detect_meter(audio_path=path)
