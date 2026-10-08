@@ -1,7 +1,7 @@
 """
 Musician-Grade Lead Sheet PDF Generator matching professional chord chart standards.
 Produces clean, high-contrast, compact lead sheets with yellow-highlighted section labels,
-4 connected bars per line, beat-spaced multi-chord measures, and standard vertical pipe separators.
+adaptive one-page fitting, and standard vertical pipe separators.
 """
 
 from pathlib import Path
@@ -20,7 +20,105 @@ from xml.sax.saxutils import escape
 from backend.models.schemas import SongAnalysis, Bar
 
 
-def format_bar_str(bar: Bar, empty_char: str = "N") -> str:
+# Adaptive layout scaling profiles ordered from most spacious to most compact
+PROFILES = [
+    # Level 0: Standard spacious (Short songs e.g. Kaattu Thottappol)
+    {
+        "margin": 36,
+        "title_sz": 18,
+        "title_lead": 22,
+        "info_sz": 10,
+        "info_lead": 14,
+        "sec_sz": 11,
+        "sec_lead": 15,
+        "chord_sz": 13.5,
+        "chord_lead": 17,
+        "sec_gap": 8,
+        "pad": 2.0,
+        "chord_sep": "  ",
+        "header_gap": 10,
+    },
+    # Level 1: Medium compact (30-50 bars)
+    {
+        "margin": 32,
+        "title_sz": 17,
+        "title_lead": 20,
+        "info_sz": 9.5,
+        "info_lead": 13,
+        "sec_sz": 10.5,
+        "sec_lead": 14,
+        "chord_sz": 12,
+        "chord_lead": 15,
+        "sec_gap": 6,
+        "pad": 1.5,
+        "chord_sep": "  ",
+        "header_gap": 8,
+    },
+    # Level 2: High density (60-90 bars e.g. Bekhayali / Radhimaa)
+    {
+        "margin": 28,
+        "title_sz": 16,
+        "title_lead": 19,
+        "info_sz": 9.0,
+        "info_lead": 12,
+        "sec_sz": 10.0,
+        "sec_lead": 13,
+        "chord_sz": 11,
+        "chord_lead": 13.5,
+        "sec_gap": 4.5,
+        "pad": 1.2,
+        "chord_sep": "  ",
+        "header_gap": 6,
+    },
+    # Level 3: Extra compact (90-120 bars)
+    {
+        "margin": 25,
+        "title_sz": 15,
+        "title_lead": 17,
+        "info_sz": 8.5,
+        "info_lead": 11,
+        "sec_sz": 9.5,
+        "sec_lead": 12,
+        "chord_sz": 10,
+        "chord_lead": 12.5,
+        "sec_gap": 3.5,
+        "pad": 1.0,
+        "chord_sep": "  ",
+        "header_gap": 5,
+    },
+    # Level 4: Maximum single-page compression (Safe readability floor ~9 pt)
+    {
+        "margin": 24,
+        "title_sz": 14,
+        "title_lead": 16,
+        "info_sz": 8.0,
+        "info_lead": 10.5,
+        "sec_sz": 9.0,
+        "sec_lead": 11,
+        "chord_sz": 9.0,
+        "chord_lead": 11.2,
+        "sec_gap": 2.5,
+        "pad": 0.8,
+        "chord_sep": " ",
+        "header_gap": 4,
+    },
+]
+
+
+def estimate_pdf_height(analysis: SongAnalysis, p: dict) -> float:
+    """Calculates total document vertical height in points for a candidate profile."""
+    # Header: title leading + metadata leading + divider gap + header gap
+    h = p["title_lead"] + 3 + p["info_lead"] + p["header_gap"]
+    for sec in analysis.sections:
+        num_rows = (len(sec.bars) + 3) // 4
+        if num_rows == 0:
+            continue
+        row_h = p["chord_lead"] + (2 * p["pad"])
+        h += (num_rows * row_h) + p["sec_gap"]
+    return h
+
+
+def format_bar_str(bar: Bar, empty_char: str = "N", chord_sep: str = "  ") -> str:
     """Formats a single musical measure into compact lead-sheet notation with spaces for multi-chord bars."""
     valid_chords = [c for c in bar.chords if c.display != 'N' and c.display.strip()]
     if not valid_chords:
@@ -42,27 +140,37 @@ def format_bar_str(bar: Bar, empty_char: str = "N") -> str:
                 
     if not collapsed:
         return empty_char
-    return "  ".join(collapsed)
+    return chord_sep.join(collapsed)
 
 
 def export_to_pdf(analysis: SongAnalysis, output_path: Path) -> Path:
     """
     Generates a musician-friendly printable chord sheet matching the reference lead sheet format:
-    - Title, meter, tempo, scale header
-    - Yellow-highlighted section tags (Intro:, Pallavi:, CH:, Sec A:, etc.)
-    - Compact 4-bar measures with zero spacing: |Bar1|Bar2|Bar3|Bar4|
-    - Slash separator for multi-chord measures: |C/G|
+    - Adaptive fit-to-page algorithm: always attempts to fit the complete chart onto ONE A4 PAGE.
+    - Dynamically reduces vertical spacing, margins, and chord font size in priority order.
+    - Yellow-highlighted section tags (Intro:, Pallavi:, CH:, Sec A:, etc.).
+    - Compact 4-bar measures with zero spacing: |Bar1|Bar2|Bar3|Bar4|.
+    - Slash chords preserved intact.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Standard A4 layout with clean 40pt margins
+    # Measurement-based adaptive fitting: select the most comfortable profile that fits on one page
+    selected_p = PROFILES[-1]
+    for p in PROFILES:
+        usable_h = 841.89 - (2 * p["margin"])
+        req_h = estimate_pdf_height(analysis, p)
+        if req_h <= usable_h:
+            selected_p = p
+            break
+
+    # Standard A4 layout with adaptive margins
     doc = SimpleDocTemplate(
         str(output_path),
         pagesize=A4,
-        leftMargin=40,
-        rightMargin=40,
-        topMargin=40,
-        bottomMargin=40
+        leftMargin=selected_p["margin"],
+        rightMargin=selected_p["margin"],
+        topMargin=selected_p["margin"],
+        bottomMargin=selected_p["margin"]
     )
 
     styles = getSampleStyleSheet()
@@ -71,18 +179,18 @@ def export_to_pdf(analysis: SongAnalysis, output_path: Path) -> Path:
         'LeadTitle',
         parent=styles['Normal'],
         fontName='Times-Bold',
-        fontSize=18,
-        leading=22,
+        fontSize=selected_p["title_sz"],
+        leading=selected_p["title_lead"],
         textColor=colors.black,
-        spaceAfter=3
+        spaceAfter=2
     )
 
     info_style = ParagraphStyle(
         'LeadInfo',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=10,
-        leading=14,
+        fontSize=selected_p["info_sz"],
+        leading=selected_p["info_lead"],
         textColor=colors.black
     )
 
@@ -90,8 +198,8 @@ def export_to_pdf(analysis: SongAnalysis, output_path: Path) -> Path:
         'SecLabel',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=11,
-        leading=15,
+        fontSize=selected_p["sec_sz"],
+        leading=selected_p["sec_lead"],
         textColor=colors.black
     )
 
@@ -99,8 +207,8 @@ def export_to_pdf(analysis: SongAnalysis, output_path: Path) -> Path:
         'BarsLine',
         parent=styles['Normal'],
         fontName='Times-Bold',
-        fontSize=14,
-        leading=18,
+        fontSize=selected_p["chord_sz"],
+        leading=selected_p["chord_lead"],
         textColor=colors.black
     )
 
@@ -110,7 +218,7 @@ def export_to_pdf(analysis: SongAnalysis, output_path: Path) -> Path:
     story.append(Paragraph(f"<b>{escape(str(analysis.title))}</b>", title_style))
     meta_line = f"Key: {escape(str(analysis.key.display))} &nbsp; &nbsp; &nbsp; &nbsp; Tempo: {analysis.tempo.bpm:.0f} BPM &nbsp; &nbsp; &nbsp; &nbsp; Time: {escape(str(analysis.meter.display))}"
     story.append(Paragraph(meta_line, info_style))
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, selected_p["header_gap"]))
 
     # 2. Sections (2-column layout: Col 0 = Section Label, Col 1 = Compact Bar Line)
     label_width = 80
@@ -154,7 +262,7 @@ def export_to_pdf(analysis: SongAnalysis, output_path: Path) -> Path:
                 cell_0 = Paragraph("", sec_label_style)
 
             # Col 1: Compact text line with bars: |Gm|Cm7|F/Bb|Bb|
-            bars_parts = [format_bar_str(b) for b in row_bars]
+            bars_parts = [format_bar_str(b, chord_sep=selected_p["chord_sep"]) for b in row_bars]
             bars_line_text = f"|{ '|'.join(bars_parts) }|"
             cell_1 = Paragraph(f"<b>{escape(str(bars_line_text))}</b>", bars_line_style)
 
@@ -164,13 +272,13 @@ def export_to_pdf(analysis: SongAnalysis, output_path: Path) -> Path:
             sec_table = Table(table_data, colWidths=col_widths)
             sec_table.setStyle(TableStyle([
                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                ('TOPPADDING', (0, 0), (-1, -1), 2),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+                ('TOPPADDING', (0, 0), (-1, -1), selected_p["pad"]),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), selected_p["pad"]),
                 ('LEFTPADDING', (0, 0), (-1, -1), 0),
                 ('RIGHTPADDING', (0, 0), (-1, -1), 0),
             ]))
             story.append(sec_table)
-            story.append(Spacer(1, 8))
+            story.append(Spacer(1, selected_p["sec_gap"]))
 
     doc.build(story)
     return output_path

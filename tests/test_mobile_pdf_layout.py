@@ -328,24 +328,83 @@ class TestMobilePdfLayout(unittest.TestCase):
                     multi in mobile_text or multi.replace("  ", " ") in mobile_text
                 )
 
-    def test_multi_page_full_song_pagination(self):
-        """Validates that a long song (Bekhayali) spans multiple pages with running header and footer."""
+    def test_adaptive_one_page_mode(self):
+        """Validates that standard and long songs (Kaattu & Bekhayali) fit onto EXACTLY 1 A4 PAGE on both platforms."""
+        # 1. Mobile Kaattu Thottappol (1 page)
+        kaattu_pdf = Path("mobile/flutter_app/test_kaattu_exported.pdf")
+        self.assertTrue(kaattu_pdf.exists())
+        reader_kaattu = pypdf.PdfReader(str(kaattu_pdf))
+        self.assertEqual(len(reader_kaattu.pages), 1, "Kaattu Thottappol must fit on exactly 1 page")
+
+        # 2. Mobile Bekhayali (88 bars, 11 sections must fit on exactly 1 page via adaptive scaling)
         bekhayali_pdf = Path("mobile/flutter_app/test_bekhayali_exported.pdf")
         self.assertTrue(bekhayali_pdf.exists())
+        reader_bekhayali = pypdf.PdfReader(str(bekhayali_pdf))
+        self.assertEqual(len(reader_bekhayali.pages), 1, "Bekhayali must fit on exactly 1 page via adaptive scaling")
 
-        reader = pypdf.PdfReader(str(bekhayali_pdf))
-        self.assertGreaterEqual(len(reader.pages), 2, "Long song must paginate across 2+ pages")
+        # 3. Desktop Bekhayali (must also fit on exactly 1 page)
+        with open("mobile/flutter_app/test/fixtures/bekhayali_golden_analysis.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+        bekhayali_analysis = SongAnalysis.model_validate(data)
 
-        page1_text = reader.pages[0].extract_text()
-        page2_text = reader.pages[1].extract_text()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            desktop_bekhayali = Path(tmpdir) / "desktop_bekhayali.pdf"
+            export_to_pdf(bekhayali_analysis, desktop_bekhayali)
+            self.assertTrue(desktop_bekhayali.exists())
+            reader_desk = pypdf.PdfReader(str(desktop_bekhayali))
+            self.assertEqual(len(reader_desk.pages), 1, "Desktop Bekhayali must fit on exactly 1 page")
 
-        # Page 1 contains main title & intro
-        self.assertIn("Bekhayali", page1_text)
-        self.assertIn("INTRO:", page1_text)
+    def test_multipage_fallback_for_epic_songs(self):
+        """Validates that exceptionally long songs (> 200 bars) gracefully paginate across 2+ pages without crashing."""
+        # Generate a 220-bar synthetic epic song for desktop
+        kaattu = create_kaattu_analysis()
+        epic_sections = []
+        for s in range(25):
+            bars = []
+            for b in range(9):
+                bars.append(
+                    Bar(
+                        bar_number=s * 9 + b,
+                        start_time=(s * 9 + b) * 2.0,
+                        end_time=(s * 9 + b + 1) * 2.0,
+                        chords=[
+                            ChordPrediction(root="G", quality="maj", bass="G", display="G", start_time=0.0, end_time=1.0, duration=1.0, confidence=0.9),
+                            ChordPrediction(root="C", quality="maj", bass="C", display="C", start_time=1.0, end_time=2.0, duration=1.0, confidence=0.9),
+                        ]
+                    )
+                )
+            epic_sections.append(
+                MusicalSection(
+                    section_id=f"sec-{s}",
+                    name=f"SECTION {chr(65 + (s % 26))}",
+                    start_time=0.0,
+                    end_time=100.0,
+                    start_bar=s * 9,
+                    end_bar=(s + 1) * 9 - 1,
+                    bars=bars
+                )
+            )
 
-        # Page 2 contains running header with title & page counter
-        self.assertIn("Bekhayali", page2_text)
-        self.assertIn("Page 2 of", page2_text)
+        epic_song = SongAnalysis(
+            id="epic-001",
+            title="Symphonic Opus 220 Bars",
+            schema_version="1.0.0",
+            metadata=kaattu.metadata,
+            pipeline_metadata=kaattu.pipeline_metadata,
+            key=kaattu.key,
+            tempo=kaattu.tempo,
+            meter=kaattu.meter,
+            beat_grid=kaattu.beat_grid,
+            chords=[],
+            sections=epic_sections
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            desktop_epic = Path(tmpdir) / "desktop_epic.pdf"
+            export_to_pdf(epic_song, desktop_epic)
+            self.assertTrue(desktop_epic.exists())
+            reader = pypdf.PdfReader(str(desktop_epic))
+            self.assertGreater(len(reader.pages), 1, "220-bar epic song must gracefully paginate across 2+ pages")
 
     def test_format_bar_str_helper(self):
         """Validates that format_bar_str handles empty bars, multi-chords, and slash walkdowns."""

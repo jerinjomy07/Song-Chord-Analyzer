@@ -333,15 +333,59 @@ void main() {
       expect(outFile.existsSync(), isTrue);
     });
 
-    test('3. Generates multi-page PDF for full-length song Bekhayali', () async {
-      final pdfBytes = await ExportService.generatePdfBytes(bekhayali);
-      expect(pdfBytes, isNotNull);
-      expect(pdfBytes.length, greaterThan(2000));
-      expect(utf8.decode(pdfBytes.sublist(0, 4)), equals('%PDF'));
+    test('3. Fits full-length song Bekhayali onto ONE A4 PAGE via adaptive scaling', () async {
+      final doc = await ExportService.generatePdfDocument(bekhayali);
+      expect(doc.document.pdfPageList.pages.length, equals(1), reason: 'Bekhayali must fit onto a single A4 page');
 
+      final pdfBytes = await doc.save();
       final outFile = File('test_bekhayali_exported.pdf');
       await outFile.writeAsBytes(pdfBytes);
       expect(outFile.existsSync(), isTrue);
+    });
+
+    test('4. Gracefully falls back to multi-page for exceptionally long songs (> 200 bars)', () async {
+      // Create a 220-bar synthetic epic song
+      final longSections = <Map<String, dynamic>>[];
+      for (int s = 0; s < 25; s++) {
+        final bars = <Map<String, dynamic>>[];
+        for (int b = 0; b < 9; b++) {
+          bars.add({
+            'bar_number': s * 9 + b,
+            'start_time': (s * 9 + b) * 2.0,
+            'end_time': (s * 9 + b + 1) * 2.0,
+            'chords': [
+              {'root': 'G', 'quality': 'maj', 'bass': 'G', 'display': 'G', 'start_time': 0, 'end_time': 1, 'duration': 1, 'confidence': 0.9},
+              {'root': 'C', 'quality': 'maj', 'bass': 'C', 'display': 'C', 'start_time': 1, 'end_time': 2, 'duration': 1, 'confidence': 0.9},
+            ],
+          });
+        }
+        longSections.add({
+          'section_id': 'sec-$s',
+          'name': 'SECTION ${String.fromCharCode(65 + (s % 26))}',
+          'start_time': 0.0,
+          'end_time': 100.0,
+          'start_bar': s * 9,
+          'end_bar': (s + 1) * 9 - 1,
+          'bars': bars,
+        });
+      }
+
+      final longSong = SongAnalysis.fromJson({
+        'id': 'epic-001',
+        'title': 'Symphonic Opus 220 Bars',
+        'schema_version': '1.0.0',
+        'metadata': kaattu.metadata.toJson(),
+        'pipeline_metadata': kaattu.pipelineMetadata.toJson(),
+        'key': kaattu.key.toJson(),
+        'tempo': kaattu.tempo.toJson(),
+        'meter': kaattu.meter.toJson(),
+        'beat_grid': kaattu.beatGrid.toJson(),
+        'chords': [],
+        'sections': longSections,
+      });
+
+      final doc = await ExportService.generatePdfDocument(longSong);
+      expect(doc.document.pdfPageList.pages.length, greaterThan(1), reason: 'Epic 220-bar song should gracefully span multiple pages');
     });
   });
 }

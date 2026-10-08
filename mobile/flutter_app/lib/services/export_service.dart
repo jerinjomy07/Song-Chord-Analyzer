@@ -9,10 +9,112 @@ import '../models/song_analysis.dart';
 import '../models/musical_section.dart';
 import '../models/bar.dart';
 
+/// Configuration profile for adaptive one-page PDF fitting
+class PdfLayoutProfile {
+  final double pageMargin;
+  final double titleFontSize;
+  final double metaFontSize;
+  final double sectionFontSize;
+  final double chordFontSize;
+  final double chordLineSpacing;
+  final double sectionSpacing;
+  final double sectionHeaderTopMargin;
+  final double headerBottomSpacing;
+  final String chordSeparator;
+
+  const PdfLayoutProfile({
+    required this.pageMargin,
+    required this.titleFontSize,
+    required this.metaFontSize,
+    required this.sectionFontSize,
+    required this.chordFontSize,
+    required this.chordLineSpacing,
+    required this.sectionSpacing,
+    required this.sectionHeaderTopMargin,
+    required this.headerBottomSpacing,
+    this.chordSeparator = '  ',
+  });
+}
+
 class ExportService {
+  /// Adaptive layout scaling profiles ordered from most spacious to most compact.
+  /// The fit-to-page algorithm steps through these to achieve ONE SONG = ONE A4 PAGE
+  /// while preserving comfortable readability.
+  static const List<PdfLayoutProfile> layoutProfiles = [
+    // Level 0: Standard spacious (Short songs e.g. Kaattu Thottappol)
+    PdfLayoutProfile(
+      pageMargin: 36.0,
+      titleFontSize: 20.0,
+      metaFontSize: 10.0,
+      sectionFontSize: 11.0,
+      chordFontSize: 13.0,
+      chordLineSpacing: 3.5,
+      sectionSpacing: 8.0,
+      sectionHeaderTopMargin: 6.0,
+      headerBottomSpacing: 10.0,
+      chordSeparator: '  ',
+    ),
+    // Level 1: Medium compact (30-50 bars)
+    PdfLayoutProfile(
+      pageMargin: 32.0,
+      titleFontSize: 18.0,
+      metaFontSize: 9.5,
+      sectionFontSize: 10.5,
+      chordFontSize: 12.0,
+      chordLineSpacing: 2.5,
+      sectionSpacing: 6.0,
+      sectionHeaderTopMargin: 4.0,
+      headerBottomSpacing: 8.0,
+      chordSeparator: '  ',
+    ),
+    // Level 2: High density (60-90 bars e.g. Bekhayali / Radhimaa)
+    PdfLayoutProfile(
+      pageMargin: 28.0,
+      titleFontSize: 16.5,
+      metaFontSize: 9.0,
+      sectionFontSize: 10.0,
+      chordFontSize: 11.0,
+      chordLineSpacing: 2.0,
+      sectionSpacing: 4.0,
+      sectionHeaderTopMargin: 3.0,
+      headerBottomSpacing: 6.0,
+      chordSeparator: '  ',
+    ),
+    // Level 3: Extra compact (90-120 bars)
+    PdfLayoutProfile(
+      pageMargin: 25.0,
+      titleFontSize: 15.0,
+      metaFontSize: 8.5,
+      sectionFontSize: 9.5,
+      chordFontSize: 10.0,
+      chordLineSpacing: 1.5,
+      sectionSpacing: 3.0,
+      sectionHeaderTopMargin: 2.0,
+      headerBottomSpacing: 5.0,
+      chordSeparator: '  ',
+    ),
+    // Level 4: Maximum single-page compression (Safe readability floor ~9 pt)
+    PdfLayoutProfile(
+      pageMargin: 24.0,
+      titleFontSize: 14.0,
+      metaFontSize: 8.0,
+      sectionFontSize: 9.0,
+      chordFontSize: 9.0,
+      chordLineSpacing: 1.0,
+      sectionSpacing: 2.0,
+      sectionHeaderTopMargin: 1.5,
+      headerBottomSpacing: 4.0,
+      chordSeparator: ' ',
+    ),
+  ];
+
   /// Formats chords inside a single bar measure into compact lead-sheet text
   /// with slash chords intact and multiple chord changes separated by spaces.
-  static String formatBarChords(Bar bar, {String emptyChar = 'N'}) {
+  static String formatBarChords(
+    Bar bar, {
+    String emptyChar = 'N',
+    String chordSeparator = '  ',
+  }) {
     final validChords = bar.chords
         .where((c) => c.display != 'N' && c.display.trim().isNotEmpty)
         .toList();
@@ -43,7 +145,7 @@ class ExportService {
     if (collapsed.isEmpty) {
       return emptyChar;
     }
-    return collapsed.join('  ');
+    return collapsed.join(chordSeparator);
   }
 
   /// Groups bars in a section into lines of measures using dynamic width calculation.
@@ -54,12 +156,13 @@ class ExportService {
     double chordFontSize = 13.0,
     int maxBarsPerLine = 4,
     PdfFont? font,
+    String chordSeparator = '  ',
   }) {
     final List<List<String>> lines = [];
     List<String> currentLine = [];
 
     for (final bar in sec.bars) {
-      final barStr = formatBarChords(bar);
+      final barStr = formatBarChords(bar, chordSeparator: chordSeparator);
 
       if (currentLine.isEmpty) {
         currentLine.add(barStr);
@@ -136,38 +239,26 @@ class ExportService {
     await Share.shareXFiles([XFile(file.path)], text: '${song.title} JSON Analysis');
   }
 
-  /// Generates a musician-friendly printable chord sheet PDF matching the desktop reference lead sheet format:
-  /// - Clean title and compact horizontal metadata row (Key, Tempo, Meter, Transpose)
-  /// - Visually distinct section headings (INTRO:, VERSE:, CHORUS:, etc.)
-  /// - Bars formatted with vertical separators: | D | F#m | A | E |
-  /// - Multiple chords inside a bar separated by spaces: | Asus4  D |
-  /// - Slash chords preserved intact: | A/C# | D/F# | G/B |
-  /// - Automatic line wrapping fitting complete intact bars to available page width
-  /// - Section header + first chord line kept together across page breaks
-  /// - Multi-page running header and footer
-  static Future<pw.Document> generatePdfDocument(SongAnalysis song) async {
+  /// Builds a PDF Document using a specific layout profile.
+  static pw.Document buildDocumentWithProfile({
+    required SongAnalysis song,
+    required PdfLayoutProfile profile,
+    required pw.Font fontBold,
+    required pw.Font fontRegular,
+    required PdfFont pdfFont,
+  }) {
     final pdf = pw.Document();
-
-    final fontBold = pw.Font.helveticaBold();
-    final fontRegular = pw.Font.helvetica();
-
-    // Metric calculation font (accessed via a temporary dummy PdfDocument)
-    final dummyPdfDoc = PdfDocument();
-    final pdfFont = PdfFont.helveticaBold(dummyPdfDoc);
-
-    const double pageMargin = 36.0;
-    const double availableWidth = 595.275 - (pageMargin * 2); // 523.275 pt
-    const double chordFontSize = 13.0;
+    final double availableWidth = 595.275 - (profile.pageMargin * 2);
 
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(pageMargin),
+        margin: pw.EdgeInsets.all(profile.pageMargin),
         header: (context) {
           if (context.pageNumber > 1) {
             return pw.Container(
-              margin: const pw.EdgeInsets.only(bottom: 12),
-              padding: const pw.EdgeInsets.only(bottom: 4),
+              margin: const pw.EdgeInsets.only(bottom: 8),
+              padding: const pw.EdgeInsets.only(bottom: 3),
               decoration: const pw.BoxDecoration(
                 border: pw.Border(
                   bottom: pw.BorderSide(color: PdfColors.grey400, width: 0.5),
@@ -180,7 +271,7 @@ class ExportService {
                     song.title,
                     style: pw.TextStyle(
                       font: fontBold,
-                      fontSize: 9,
+                      fontSize: 8.5,
                       color: PdfColors.grey800,
                     ),
                   ),
@@ -188,7 +279,7 @@ class ExportService {
                     'Key: ${song.key.display}  |  Tempo: ${song.tempo.bpm.toStringAsFixed(0)} BPM  |  Time: ${song.meter.display}',
                     style: pw.TextStyle(
                       font: fontRegular,
-                      fontSize: 8,
+                      fontSize: 7.5,
                       color: PdfColors.grey600,
                     ),
                   ),
@@ -199,18 +290,22 @@ class ExportService {
           return pw.SizedBox.shrink();
         },
         footer: (context) {
-          return pw.Container(
-            margin: const pw.EdgeInsets.only(top: 8),
-            alignment: pw.Alignment.centerRight,
-            child: pw.Text(
-              'Page ${context.pageNumber} of ${context.pagesCount}',
-              style: pw.TextStyle(
-                font: fontRegular,
-                fontSize: 8,
-                color: PdfColors.grey600,
+          // If total pages > 1, show page numbers
+          if (context.pagesCount > 1) {
+            return pw.Container(
+              margin: const pw.EdgeInsets.only(top: 4),
+              alignment: pw.Alignment.centerRight,
+              child: pw.Text(
+                'Page ${context.pageNumber} of ${context.pagesCount}',
+                style: pw.TextStyle(
+                  font: fontRegular,
+                  fontSize: 7.5,
+                  color: PdfColors.grey600,
+                ),
               ),
-            ),
-          );
+            );
+          }
+          return pw.SizedBox.shrink();
         },
         build: (context) {
           final List<pw.Widget> widgets = [];
@@ -221,12 +316,12 @@ class ExportService {
               song.title,
               style: pw.TextStyle(
                 font: fontBold,
-                fontSize: 20,
+                fontSize: profile.titleFontSize,
                 fontWeight: pw.FontWeight.bold,
               ),
             ),
           );
-          widgets.add(pw.SizedBox(height: 4));
+          widgets.add(pw.SizedBox(height: 3));
 
           // 2. Compact Horizontal Metadata Line
           widgets.add(
@@ -234,25 +329,25 @@ class ExportService {
               children: [
                 pw.Text(
                   'Key: ${song.key.display}',
-                  style: pw.TextStyle(font: fontBold, fontSize: 10),
+                  style: pw.TextStyle(font: fontBold, fontSize: profile.metaFontSize),
                 ),
-                pw.SizedBox(width: 24),
+                pw.SizedBox(width: 20),
                 pw.Text(
                   'Tempo: ${song.tempo.bpm.toStringAsFixed(0)} BPM',
-                  style: pw.TextStyle(font: fontBold, fontSize: 10),
+                  style: pw.TextStyle(font: fontBold, fontSize: profile.metaFontSize),
                 ),
-                pw.SizedBox(width: 24),
+                pw.SizedBox(width: 20),
                 pw.Text(
                   'Time: ${song.meter.display}',
-                  style: pw.TextStyle(font: fontBold, fontSize: 10),
+                  style: pw.TextStyle(font: fontBold, fontSize: profile.metaFontSize),
                 ),
                 if (song.transposeSemitones != 0) ...[
-                  pw.SizedBox(width: 24),
+                  pw.SizedBox(width: 20),
                   pw.Text(
                     'Transposed: ${song.transposeSemitones > 0 ? "+" : ""}${song.transposeSemitones}',
                     style: pw.TextStyle(
                       font: fontBold,
-                      fontSize: 10,
+                      fontSize: profile.metaFontSize,
                       color: PdfColors.indigo700,
                     ),
                   ),
@@ -260,9 +355,9 @@ class ExportService {
               ],
             ),
           );
-          widgets.add(pw.SizedBox(height: 4));
-          widgets.add(pw.Divider(thickness: 0.8, color: PdfColors.grey400));
-          widgets.add(pw.SizedBox(height: 10));
+          widgets.add(pw.SizedBox(height: 3));
+          widgets.add(pw.Divider(thickness: 0.6, color: PdfColors.grey400));
+          widgets.add(pw.SizedBox(height: profile.headerBottomSpacing));
 
           // 3. Sections
           for (final sec in song.sections) {
@@ -274,22 +369,26 @@ class ExportService {
             final lines = formatSectionLines(
               sec,
               availableWidth: availableWidth,
-              chordFontSize: chordFontSize,
+              chordFontSize: profile.chordFontSize,
               maxBarsPerLine: 4,
               font: pdfFont,
+              chordSeparator: profile.chordSeparator,
             );
 
             if (lines.isEmpty) continue;
 
             final sectionHeaderWidget = pw.Container(
-              margin: const pw.EdgeInsets.only(top: 6, bottom: 2),
+              margin: pw.EdgeInsets.only(
+                top: profile.sectionHeaderTopMargin,
+                bottom: 1.5,
+              ),
               padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 1),
               color: PdfColors.yellow100,
               child: pw.Text(
                 displayName,
                 style: pw.TextStyle(
                   font: fontBold,
-                  fontSize: 11,
+                  fontSize: profile.sectionFontSize,
                   fontWeight: pw.FontWeight.bold,
                 ),
               ),
@@ -297,8 +396,8 @@ class ExportService {
 
             final chordTextStyle = pw.TextStyle(
               font: fontBold,
-              fontSize: chordFontSize,
-              lineSpacing: 1.2,
+              fontSize: profile.chordFontSize,
+              lineSpacing: 1.15,
             );
 
             // Bind section heading + first chord line in a single non-splittable Column
@@ -309,7 +408,7 @@ class ExportService {
                 mainAxisSize: pw.MainAxisSize.min,
                 children: [
                   sectionHeaderWidget,
-                  pw.SizedBox(height: 3),
+                  pw.SizedBox(height: profile.chordLineSpacing),
                   pw.Text('| ${lines.first.join(' | ')} |', style: chordTextStyle),
                 ],
               ),
@@ -317,13 +416,13 @@ class ExportService {
 
             // Subsequent chord lines in the section flow naturally
             for (int i = 1; i < lines.length; i++) {
-              widgets.add(pw.SizedBox(height: 3));
+              widgets.add(pw.SizedBox(height: profile.chordLineSpacing));
               widgets.add(
                 pw.Text('| ${lines[i].join(' | ')} |', style: chordTextStyle),
               );
             }
 
-            widgets.add(pw.SizedBox(height: 8));
+            widgets.add(pw.SizedBox(height: profile.sectionSpacing));
           }
 
           return widgets;
@@ -332,6 +431,52 @@ class ExportService {
     );
 
     return pdf;
+  }
+
+  /// Generates a musician-friendly printable chord sheet PDF matching the desktop reference lead sheet format.
+  /// Implements the Fit-to-Page algorithm:
+  /// - Automatically attempts to fit the complete chord sheet onto ONE A4 PAGE.
+  /// - Dynamically steps through adaptive layout profiles (reducing vertical spacing, line spacing, margins, and font size in order).
+  /// - Stops as soon as the complete song fits on 1 page.
+  /// - For exceptionally long songs that cannot fit within safe readability limits, gracefully formats across 2 pages with running headers.
+  static Future<pw.Document> generatePdfDocument(SongAnalysis song) async {
+    final fontBold = pw.Font.helveticaBold();
+    final fontRegular = pw.Font.helvetica();
+
+    // Metric calculation font (accessed via a temporary dummy PdfDocument)
+    final dummyPdfDoc = PdfDocument();
+    final pdfFont = PdfFont.helveticaBold(dummyPdfDoc);
+
+    pw.Document? fallbackMultiPageDoc;
+
+    // Test adaptive layout profiles in order from most spacious (Level 0) to most compact (Level 4)
+    for (final profile in layoutProfiles) {
+      final candidateDoc = buildDocumentWithProfile(
+        song: song,
+        profile: profile,
+        fontBold: fontBold,
+        fontRegular: fontRegular,
+        pdfFont: pdfFont,
+      );
+
+      // Measurement check: did the document fit on exactly 1 page?
+      if (candidateDoc.document.pdfPageList.pages.length == 1) {
+        return candidateDoc;
+      }
+
+      fallbackMultiPageDoc ??= candidateDoc;
+    }
+
+    // For exceptionally long songs that exceed 1 page even at the most compact readable profile,
+    // use a comfortable readable profile (Level 2) across multiple pages.
+    return fallbackMultiPageDoc ??
+        buildDocumentWithProfile(
+          song: song,
+          profile: layoutProfiles[2],
+          fontBold: fontBold,
+          fontRegular: fontRegular,
+          pdfFont: pdfFont,
+        );
   }
 
   /// Generates the raw PDF bytes for testing or exporting
