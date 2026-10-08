@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'server_config_service.dart';
 
 class YouTubeVideoMeta {
   final String id;
@@ -51,13 +51,27 @@ class YouTubeDownloaderService {
   /// Gets the configured server base URL.
   static Future<String> _getServerBaseUrl() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final url = prefs.getString('dev_server_url');
-      if (url != null && url.trim().isNotEmpty) {
-        return url.trim().replaceAll(RegExp(r'/+$'), '');
+      final config = ServerConfigService.instance;
+      final activeUrl = await config.resolveActiveUrl();
+      if (activeUrl.isNotEmpty) {
+        return activeUrl.replaceAll(RegExp(r'/+$'), '');
       }
     } catch (_) {}
     return const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://10.0.2.2:8000');
+  }
+
+  static Map<String, String> _getHeaders({Map<String, String>? extra}) {
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+    };
+    final key = ServerConfigService.instance.config.apiKey.trim();
+    if (key.isNotEmpty) {
+      headers['X-API-Key'] = key;
+    }
+    if (extra != null) {
+      headers.addAll(extra);
+    }
+    return headers;
   }
 
   /// Fetches video details without downloading the full audio stream.
@@ -73,9 +87,9 @@ class YouTubeDownloaderService {
       final uri = Uri.parse('$baseUrl/api/sources/youtube/info');
       final res = await http.post(
         uri,
-        headers: {'Content-Type': 'application/json'},
+        headers: _getHeaders(),
         body: jsonEncode({'url': url}),
-      ).timeout(const Duration(seconds: 5));
+      ).timeout(const Duration(seconds: 8));
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;
@@ -140,12 +154,12 @@ class YouTubeDownloaderService {
     // 1. Primary: Server-assisted fast extraction via yt-dlp
     try {
       final baseUrl = await _getServerBaseUrl();
-      onProgress?.call(0.15, 'Requesting audio extraction from analysis server...');
+      onProgress?.call(0.15, 'Requesting fast audio extraction from server...');
 
       final uri = Uri.parse('$baseUrl/api/sources/youtube/download');
       final res = await http.post(
         uri,
-        headers: {'Content-Type': 'application/json'},
+        headers: _getHeaders(),
         body: jsonEncode({'url': url}),
       ).timeout(const Duration(seconds: 60));
 
@@ -159,33 +173,38 @@ class YouTubeDownloaderService {
           final client = http.Client();
           try {
             final request = http.Request('GET', audioUri);
-            final streamedRes = await client.send(request).timeout(const Duration(seconds: 15));
+            final key = ServerConfigService.instance.config.apiKey.trim();
+            if (key.isNotEmpty) {
+              request.headers['X-API-Key'] = key;
+            }
+            final streamedRes = await client.send(request).timeout(const Duration(seconds: 30));
 
             if (streamedRes.statusCode == 200) {
               final totalBytes = streamedRes.contentLength ?? 0;
               var downloadedBytes = 0;
               final sink = targetFile.openWrite();
+              try {
+                await for (final chunk in streamedRes.stream.timeout(
+                  const Duration(seconds: 30),
+                  onTimeout: (sink) => sink.addError(TimeoutException('Transfer stalled')),
+                )) {
+                  downloadedBytes += chunk.length;
+                  sink.add(chunk);
 
-              await for (final chunk in streamedRes.stream.timeout(
-                const Duration(seconds: 15),
-                onTimeout: (sink) => sink.addError(TimeoutException('Transfer stalled')),
-              )) {
-                downloadedBytes += chunk.length;
-                sink.add(chunk);
-
-                if (totalBytes > 0) {
-                  final progress = 0.40 + 0.60 * (downloadedBytes / totalBytes);
-                  final mbDone = (downloadedBytes / (1024 * 1024)).toStringAsFixed(1);
-                  final mbTotal = (totalBytes / (1024 * 1024)).toStringAsFixed(1);
-                  onProgress?.call(progress.clamp(0.0, 1.0), 'Downloading: $mbDone / $mbTotal MB');
+                  if (totalBytes > 0) {
+                    final progress = 0.40 + 0.60 * (downloadedBytes / totalBytes);
+                    final mbDone = (downloadedBytes / (1024 * 1024)).toStringAsFixed(1);
+                    final mbTotal = (totalBytes / (1024 * 1024)).toStringAsFixed(1);
+                    onProgress?.call(progress.clamp(0.0, 1.0), 'Transferring audio: $mbDone / $mbTotal MB');
+                  }
                 }
+                await sink.flush();
+              } finally {
+                await sink.close();
               }
 
-              await sink.flush();
-              await sink.close();
-
               if (await targetFile.exists() && await targetFile.length() > 1024) {
-                onProgress?.call(1.0, 'Audio extracted successfully.');
+                onProgress?.call(1.0, 'Audio ready for analysis.');
                 return targetFile;
               }
             }
@@ -195,13 +214,14 @@ class YouTubeDownloaderService {
         }
       }
     } catch (serverErr) {
-      // Server extraction failed or timed out; fall back to on-device
+      // Server extraction failed or server offline; try on-device fallback
     }
 
     // 2. Fallback: On-device extraction with YoutubeExplode + timeout guard
     final yt = YoutubeExplode();
+    File? localFallbackFile;
     try {
-      onProgress?.call(0.10, 'Fetching YouTube stream manifest...');
+      onProgress?.call(0.15, 'Fetching YouTube stream manifest...');
       final manifest = await yt.videos.streamsClient.getManifest(videoId).timeout(
         const Duration(seconds: 15),
         onTimeout: () => throw TimeoutException('Manifest request timed out.'),
@@ -216,7 +236,7 @@ class YouTubeDownloaderService {
       }
 
       final ext = selectedStream.container.name.toLowerCase() == 'mp4' ? 'm4a' : selectedStream.container.name;
-      final localFallbackFile = File('${cacheDir.path}/yt_${videoId}.$ext');
+      localFallbackFile = File('${cacheDir.path}/yt_${videoId}.$ext');
 
       onProgress?.call(0.20, 'Downloading direct audio stream (${(selectedStream.size.totalMegaBytes).toStringAsFixed(1)} MB)...');
       final audioStream = yt.videos.streamsClient.get(selectedStream);
@@ -225,26 +245,41 @@ class YouTubeDownloaderService {
       final totalBytes = selectedStream.size.totalBytes;
       int downloadedBytes = 0;
 
-      await for (final chunk in audioStream.timeout(
-        const Duration(seconds: 15),
-        onTimeout: (sink) => sink.addError(TimeoutException('YouTube stream download stalled.')),
-      )) {
-        downloadedBytes += chunk.length;
-        fileStream.add(chunk);
+      try {
+        await for (final chunk in audioStream.timeout(
+          const Duration(seconds: 20),
+          onTimeout: (sink) => sink.addError(TimeoutException('YouTube direct stream stalled by network.')),
+        )) {
+          downloadedBytes += chunk.length;
+          fileStream.add(chunk);
 
-        if (totalBytes > 0) {
-          final progress = 0.20 + 0.80 * (downloadedBytes / totalBytes);
-          final mbDone = (downloadedBytes / (1024 * 1024)).toStringAsFixed(1);
-          final mbTotal = (totalBytes / (1024 * 1024)).toStringAsFixed(1);
-          onProgress?.call(progress.clamp(0.0, 1.0), 'Downloading: $mbDone / $mbTotal MB');
+          if (totalBytes > 0) {
+            final progress = 0.20 + 0.80 * (downloadedBytes / totalBytes);
+            final mbDone = (downloadedBytes / (1024 * 1024)).toStringAsFixed(1);
+            final mbTotal = (totalBytes / (1024 * 1024)).toStringAsFixed(1);
+            onProgress?.call(progress.clamp(0.0, 1.0), 'Downloading: $mbDone / $mbTotal MB');
+          }
         }
+        await fileStream.flush();
+      } finally {
+        await fileStream.close();
       }
 
-      await fileStream.flush();
-      await fileStream.close();
-
-      onProgress?.call(1.0, 'Audio extracted successfully.');
-      return localFallbackFile;
+      if (await localFallbackFile.exists() && await localFallbackFile.length() > 1024) {
+        onProgress?.call(1.0, 'Audio ready for analysis.');
+        return localFallbackFile;
+      }
+      throw Exception('Downloaded audio file is invalid.');
+    } catch (e) {
+      if (localFallbackFile != null && await localFallbackFile.exists()) {
+        try {
+          await localFallbackFile.delete();
+        } catch (_) {}
+      }
+      throw Exception(
+        'Could not retrieve YouTube audio stream.\n'
+        'Please ensure your laptop Chord Analyzer Server is running and connected in Settings.',
+      );
     } finally {
       yt.close();
     }

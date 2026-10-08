@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import '../models/song_analysis.dart';
 import '../models/chord_prediction.dart';
+import '../models/bar.dart';
 import '../services/analysis_engine.dart';
 import '../services/audio_player_service.dart';
 import '../services/history_service.dart';
@@ -31,6 +33,7 @@ class _ChordSheetScreenState extends State<ChordSheetScreen> {
   final Map<int, GlobalKey> _barKeys = {};
 
   bool _autoScrollEnabled = true;
+  bool _isCompactDensity = true;
   int _activeBarNumber = -1;
   ChordPrediction? _activeChord;
   bool _isSaving = false;
@@ -76,11 +79,30 @@ class _ChordSheetScreenState extends State<ChordSheetScreen> {
   void _scrollToBar(int barNumber) {
     final key = _barKeys[barNumber];
     if (key != null && key.currentContext != null) {
+      final ctx = key.currentContext!;
+      final renderBox = ctx.findRenderObject();
+      if (renderBox is RenderBox && _scrollController.hasClients) {
+        final viewport = RenderAbstractViewport.of(renderBox);
+        final currentScroll = _scrollController.offset;
+        final viewportDimension = _scrollController.position.viewportDimension;
+        final barTop = viewport.getOffsetToReveal(renderBox, 0.0).offset;
+        final barBottom = barTop + renderBox.size.height;
+
+        // Only scroll if active bar is moving outside or near boundaries of viewport
+        final isComfortablyVisible =
+            barTop >= (currentScroll + 30) &&
+            barBottom <= (currentScroll + viewportDimension - 110);
+
+        if (isComfortablyVisible) {
+          return;
+        }
+      }
+
       Scrollable.ensureVisible(
         key.currentContext!,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        alignment: 0.3,
+        alignment: 0.25,
       );
     }
   }
@@ -364,6 +386,17 @@ class _ChordSheetScreenState extends State<ChordSheetScreen> {
         ),
         actions: [
           IconButton(
+            icon: Icon(
+              _isCompactDensity ? Icons.view_compact : Icons.view_comfortable_outlined,
+            ),
+            tooltip: _isCompactDensity ? 'Switch to Comfortable View' : 'Switch to Compact View',
+            onPressed: () {
+              setState(() {
+                _isCompactDensity = !_isCompactDensity;
+              });
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.share),
             tooltip: 'Export Chart',
             onPressed: _showExportMenu,
@@ -484,62 +517,124 @@ class _ChordSheetScreenState extends State<ChordSheetScreen> {
 
           // Chord Sheet Scrollable Body
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              itemCount: _analysis.sections.length,
-              itemBuilder: (context, secIndex) {
-                final section = _analysis.sections[secIndex];
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final double availableWidth = constraints.maxWidth;
+                final int columns = availableWidth >= 800
+                    ? 4
+                    : (availableWidth >= 540 ? 3 : 2);
+                final double columnSpacing = _isCompactDensity ? 6.0 : 8.0;
+                final double rowSpacing = _isCompactDensity ? 6.0 : 8.0;
 
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Section Header Pill
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.indigo.shade600,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          section.name,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-
-                      // Section Bars Grid
-                      Wrap(
-                        spacing: 4,
-                        runSpacing: 6,
-                        children: section.bars.map((bar) {
-                          final barKey = _barKeys.putIfAbsent(
-                            bar.barNumber,
-                            () => GlobalKey(),
-                          );
-
-                          return KeyedSubtree(
-                            key: barKey,
-                            child: BarView(
-                              bar: bar,
-                              isActive: bar.barNumber == _activeBarNumber,
-                              activeChord: _activeChord,
-                              allChords: _analysis.chords,
-                              onChordTap: (chord, indexInSong) {
-                                _openChordEditor(chord, indexInSong);
-                              },
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
+                return ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.only(
+                    left: 12,
+                    right: 12,
+                    top: 12,
+                    bottom: 96,
                   ),
+                  itemCount: _analysis.sections.length,
+                  itemBuilder: (context, secIndex) {
+                    final section = _analysis.sections[secIndex];
+                    final bars = section.bars;
+
+                    // Chunk bars into rows according to column count (preserving chronological order)
+                    final List<List<Bar>> rowChunks = [];
+                    for (int i = 0; i < bars.length; i += columns) {
+                      final end = (i + columns < bars.length) ? i + columns : bars.length;
+                      rowChunks.add(bars.sublist(i, end));
+                    }
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Full-width Section Header
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.indigo.shade600,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  section.name,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Divider(
+                                  color: Colors.indigo.shade100,
+                                  thickness: 1,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+
+                          // Responsive Multi-Column Grid of Bars
+                          ...List.generate(rowChunks.length, (rowIndex) {
+                            final rowBars = rowChunks[rowIndex];
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: rowSpacing),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: List.generate(columns, (colIndex) {
+                                  if (colIndex < rowBars.length) {
+                                    final bar = rowBars[colIndex];
+                                    final barKey = _barKeys.putIfAbsent(
+                                      bar.barNumber,
+                                      () => GlobalKey(),
+                                    );
+
+                                    return Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                          right: colIndex < columns - 1 ? columnSpacing : 0,
+                                        ),
+                                        child: KeyedSubtree(
+                                          key: barKey,
+                                          child: BarView(
+                                            bar: bar,
+                                            songMeter: _analysis.meter.display,
+                                            isCompact: _isCompactDensity,
+                                            isActive: bar.barNumber == _activeBarNumber,
+                                            activeChord: _activeChord,
+                                            allChords: _analysis.chords,
+                                            onChordTap: (chord, indexInSong) {
+                                              _openChordEditor(chord, indexInSong);
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    // Empty slot to keep columns aligned equally
+                                    return Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                          right: colIndex < columns - 1 ? columnSpacing : 0,
+                                        ),
+                                        child: const SizedBox.shrink(),
+                                      ),
+                                    );
+                                  }
+                                }),
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    );
+                  },
                 );
               },
             ),
