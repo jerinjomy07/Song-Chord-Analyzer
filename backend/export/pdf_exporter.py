@@ -20,9 +20,9 @@ from xml.sax.saxutils import escape
 from backend.models.schemas import SongAnalysis, Bar
 
 
-def format_bar_str(bar: Bar, empty_char: str = "—") -> str:
-    """Formats a single musical measure into compact lead-sheet notation with '/' for multi-chord bars."""
-    valid_chords = [c for c in bar.chords if c.display != 'N']
+def format_bar_str(bar: Bar, empty_char: str = "N") -> str:
+    """Formats a single musical measure into compact lead-sheet notation with spaces for multi-chord bars."""
+    valid_chords = [c for c in bar.chords if c.display != 'N' and c.display.strip()]
     if not valid_chords:
         return empty_char
     
@@ -34,15 +34,15 @@ def format_bar_str(bar: Bar, empty_char: str = "—") -> str:
             collapsed.append(disp)
         else:
             prev_chord = valid_chords[i - 1]
-            # Bass walkdown check: same root & quality, with a slash bass (e.g. Gm -> Gm/F)
-            if c.root == prev_chord.root and c.quality == prev_chord.quality and '/' in disp:
+            # Refine unslashed chord if immediately followed by same harmony with slash bass (e.g. Gm -> Gm/F)
+            if c.root == prev_chord.root and c.quality == prev_chord.quality and '/' not in prev_chord.display and '/' in disp:
                 collapsed[-1] = disp
             elif disp != collapsed[-1]:
                 collapsed.append(disp)
                 
     if not collapsed:
         return empty_char
-    return "/".join(collapsed)
+    return "  ".join(collapsed)
 
 
 def export_to_pdf(analysis: SongAnalysis, output_path: Path) -> Path:
@@ -108,11 +108,9 @@ def export_to_pdf(analysis: SongAnalysis, output_path: Path) -> Path:
 
     # 1. Header (Title, Meter, Tempo, Scale)
     story.append(Paragraph(f"<b>{escape(str(analysis.title))}</b>", title_style))
-    story.append(Paragraph(escape(str(analysis.meter.display)), info_style))
-    story.append(Paragraph(f"Tempo: {analysis.tempo.bpm:.0f}", info_style))
-    scale_str = analysis.key.display.replace(" Major", "").replace(" Minor", "m")
-    story.append(Paragraph(f"Scale: {escape(str(scale_str))}", info_style))
-    story.append(Spacer(1, 14))
+    meta_line = f"Key: {escape(str(analysis.key.display))} &nbsp; &nbsp; &nbsp; &nbsp; Tempo: {analysis.tempo.bpm:.0f} BPM &nbsp; &nbsp; &nbsp; &nbsp; Time: {escape(str(analysis.meter.display))}"
+    story.append(Paragraph(meta_line, info_style))
+    story.append(Spacer(1, 10))
 
     # 2. Sections (2-column layout: Col 0 = Section Label, Col 1 = Compact Bar Line)
     label_width = 80
