@@ -1,0 +1,3416 @@
+{
+  "repo_path": "C:\\Users\\jerin\\OneDrive\\Documents\\song-chord-analyzer",
+  "total_bytes": 6733374123,
+  "total_formatted": "6.27 GB",
+  "total_files": 23894,
+  "top_level": [
+    {
+      "name": "mobile",
+      "bytes": 4450644005,
+      "formatted": "4.14 GB",
+      "count": 9982
+    },
+    {
+      "name": "dist_electron",
+      "bytes": 769684026,
+      "formatted": "734.03 MB",
+      "count": 122
+    },
+    {
+      "name": "node_modules",
+      "bytes": 569217227,
+      "formatted": "542.85 MB",
+      "count": 7306
+    },
+    {
+      "name": "storage",
+      "bytes": 259436414,
+      "formatted": "247.42 MB",
+      "count": 37
+    },
+    {
+      "name": "resources",
+      "bytes": 163296768,
+      "formatted": "155.73 MB",
+      "count": 1
+    },
+    {
+      "name": "frontend",
+      "bytes": 141414016,
+      "formatted": "134.86 MB",
+      "count": 5360
+    },
+    {
+      "name": "SongChordAnalyzer.apk",
+      "bytes": 129941695,
+      "formatted": "123.92 MB",
+      "count": 1
+    },
+    {
+      "name": "dist",
+      "bytes": 129809299,
+      "formatted": "123.80 MB",
+      "count": 1
+    },
+    {
+      "name": "tools",
+      "bytes": 55365048,
+      "formatted": "52.80 MB",
+      "count": 1
+    },
+    {
+      "name": "models",
+      "bytes": 25339978,
+      "formatted": "24.17 MB",
+      "count": 8
+    },
+    {
+      "name": ".git",
+      "bytes": 23096204,
+      "formatted": "22.03 MB",
+      "count": 783
+    },
+    {
+      "name": "tests",
+      "bytes": 14159156,
+      "formatted": "13.50 MB",
+      "count": 136
+    },
+    {
+      "name": "backend",
+      "bytes": 983963,
+      "formatted": "960.90 KB",
+      "count": 94
+    },
+    {
+      "name": "docs",
+      "bytes": 392201,
+      "formatted": "383.01 KB",
+      "count": 4
+    },
+    {
+      "name": "scripts",
+      "bytes": 251066,
+      "formatted": "245.18 KB",
+      "count": 20
+    },
+    {
+      "name": "package-lock.json",
+      "bytes": 188757,
+      "formatted": "184.33 KB",
+      "count": 1
+    },
+    {
+      "name": "electron",
+      "bytes": 16732,
+      "formatted": "16.34 KB",
+      "count": 3
+    },
+    {
+      "name": "shared",
+      "bytes": 16323,
+      "formatted": "15.94 KB",
+      "count": 4
+    },
+    {
+      "name": "__pycache__",
+      "bytes": 16112,
+      "formatted": "15.73 KB",
+      "count": 2
+    },
+    {
+      "name": "build",
+      "bytes": 14343,
+      "formatted": "14.01 KB",
+      "count": 1
+    },
+    {
+      "name": "CODEX_EXECUTED_VALIDATION_REPORT.md",
+      "bytes": 14003,
+      "formatted": "13.67 KB",
+      "count": 1
+    },
+    {
+      "name": "README.md",
+      "bytes": 13947,
+      "formatted": "13.62 KB",
+      "count": 1
+    },
+    {
+      "name": "CODEX_REVIEW_FIX_REPORT.md",
+      "bytes": 12316,
+      "formatted": "12.03 KB",
+      "count": 1
+    },
+    {
+      "name": "ANDROID_PIPELINE_PARITY_REPORT.md",
+      "bytes": 10944,
+      "formatted": "10.69 KB",
+      "count": 1
+    },
+    {
+      "name": "test_btc.py",
+      "bytes": 7559,
+      "formatted": "7.38 KB",
+      "count": 1
+    },
+    {
+      "name": "DEMO_NETWORK_SETUP.md",
+      "bytes": 6785,
+      "formatted": "6.63 KB",
+      "count": 1
+    },
+    {
+      "name": ".pytest_cache",
+      "bytes": 5746,
+      "formatted": "5.61 KB",
+      "count": 5
+    },
+    {
+      "name": "test_pipeline_run.py",
+      "bytes": 3697,
+      "formatted": "3.61 KB",
+      "count": 1
+    },
+    {
+      "name": "PROJECT_REVIEW.md",
+      "bytes": 1999,
+      "formatted": "1.95 KB",
+      "count": 1
+    },
+    {
+      "name": "run_app.py",
+      "bytes": 1907,
+      "formatted": "1.86 KB",
+      "count": 1
+    },
+    {
+      "name": ".github",
+      "bytes": 1793,
+      "formatted": "1.75 KB",
+      "count": 1
+    },
+    {
+      "name": "WINDOWS_SERVER_PARITY_REPORT.md",
+      "bytes": 1750,
+      "formatted": "1.71 KB",
+      "count": 1
+    },
+    {
+      "name": "Dockerfile",
+      "bytes": 1685,
+      "formatted": "1.65 KB",
+      "count": 1
+    },
+    {
+      "name": ".gitignore",
+      "bytes": 1572,
+      "formatted": "1.54 KB",
+      "count": 1
+    },
+    {
+      "name": "electron-builder.yml",
+      "bytes": 1096,
+      "formatted": "1.07 KB",
+      "count": 1
+    },
+    {
+      "name": "LICENSE",
+      "bytes": 1081,
+      "formatted": "1.06 KB",
+      "count": 1
+    },
+    {
+      "name": "package.json",
+      "bytes": 768,
+      "formatted": "768.00 B",
+      "count": 1
+    },
+    {
+      "name": "test_out.log",
+      "bytes": 557,
+      "formatted": "557.00 B",
+      "count": 1
+    },
+    {
+      "name": ".gitattributes",
+      "bytes": 533,
+      "formatted": "533.00 B",
+      "count": 1
+    },
+    {
+      "name": "requirements.txt",
+      "bytes": 427,
+      "formatted": "427.00 B",
+      "count": 1
+    },
+    {
+      "name": "run.bat",
+      "bytes": 361,
+      "formatted": "361.00 B",
+      "count": 1
+    },
+    {
+      "name": ".dockerignore",
+      "bytes": 264,
+      "formatted": "264.00 B",
+      "count": 1
+    },
+    {
+      "name": "test_err.log",
+      "bytes": 0,
+      "formatted": "0.00 B",
+      "count": 1
+    }
+  ],
+  "second_level": [
+    {
+      "name": "mobile/flutter_app",
+      "bytes": 4422045983,
+      "formatted": "4.12 GB",
+      "count": 9978
+    },
+    {
+      "name": "dist_electron/win-unpacked",
+      "bytes": 470304244,
+      "formatted": "448.52 MB",
+      "count": 117
+    },
+    {
+      "name": "node_modules/electron",
+      "bytes": 282091040,
+      "formatted": "269.02 MB",
+      "count": 82
+    },
+    {
+      "name": "node_modules/app-builder-bin",
+      "bytes": 216846001,
+      "formatted": "206.80 MB",
+      "count": 16
+    },
+    {
+      "name": "storage/stems",
+      "bytes": 191283288,
+      "formatted": "182.42 MB",
+      "count": 3
+    },
+    {
+      "name": "resources/ffmpeg",
+      "bytes": 163296768,
+      "formatted": "155.73 MB",
+      "count": 1
+    },
+    {
+      "name": "dist_electron/SongChordAnalyzer-Setup.exe",
+      "bytes": 149718049,
+      "formatted": "142.78 MB",
+      "count": 1
+    },
+    {
+      "name": "dist_electron/SongChordAnalyzer.exe",
+      "bytes": 149498775,
+      "formatted": "142.57 MB",
+      "count": 1
+    },
+    {
+      "name": "frontend/node_modules",
+      "bytes": 140749833,
+      "formatted": "134.23 MB",
+      "count": 5323
+    },
+    {
+      "name": "SongChordAnalyzer.apk",
+      "bytes": 129941695,
+      "formatted": "123.92 MB",
+      "count": 1
+    },
+    {
+      "name": "dist/android",
+      "bytes": 129809299,
+      "formatted": "123.80 MB",
+      "count": 1
+    },
+    {
+      "name": "storage/cache",
+      "bytes": 66283789,
+      "formatted": "63.21 MB",
+      "count": 4
+    },
+    {
+      "name": "tools/cloudflared.exe",
+      "bytes": 55365048,
+      "formatted": "52.80 MB",
+      "count": 1
+    },
+    {
+      "name": "mobile/android",
+      "bytes": 28598022,
+      "formatted": "27.27 MB",
+      "count": 4
+    },
+    {
+      "name": "models/btc",
+      "bytes": 25339978,
+      "formatted": "24.17 MB",
+      "count": 8
+    },
+    {
+      "name": "node_modules/typescript",
+      "bytes": 23625066,
+      "formatted": "22.53 MB",
+      "count": 132
+    },
+    {
+      "name": ".git/objects",
+      "bytes": 23024832,
+      "formatted": "21.96 MB",
+      "count": 750
+    },
+    {
+      "name": "node_modules/7zip-bin",
+      "bytes": 12303654,
+      "formatted": "11.73 MB",
+      "count": 17
+    },
+    {
+      "name": "tests/golden_meter",
+      "bytes": 10868138,
+      "formatted": "10.36 MB",
+      "count": 12
+    },
+    {
+      "name": "node_modules/app-builder-lib",
+      "bytes": 3265290,
+      "formatted": "3.11 MB",
+      "count": 483
+    },
+    {
+      "name": "node_modules/@types",
+      "bytes": 2366552,
+      "formatted": "2.26 MB",
+      "count": 101
+    },
+    {
+      "name": "tests/golden_parity",
+      "bytes": 2245867,
+      "formatted": "2.14 MB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/node-gyp",
+      "bytes": 2165560,
+      "formatted": "2.07 MB",
+      "count": 194
+    },
+    {
+      "name": "node_modules/@electron",
+      "bytes": 1784559,
+      "formatted": "1.70 MB",
+      "count": 585
+    },
+    {
+      "name": "node_modules/path-scurry",
+      "bytes": 1706571,
+      "formatted": "1.63 MB",
+      "count": 43
+    },
+    {
+      "name": "node_modules/lodash",
+      "bytes": 1413741,
+      "formatted": "1.35 MB",
+      "count": 1051
+    },
+    {
+      "name": "node_modules/config-file-ts",
+      "bytes": 1396104,
+      "formatted": "1.33 MB",
+      "count": 157
+    },
+    {
+      "name": "storage/exports",
+      "bytes": 1332725,
+      "formatted": "1.27 MB",
+      "count": 15
+    },
+    {
+      "name": "node_modules/plist",
+      "bytes": 1007097,
+      "formatted": "983.49 KB",
+      "count": 14
+    },
+    {
+      "name": "node_modules/js-yaml",
+      "bytes": 960180,
+      "formatted": "937.68 KB",
+      "count": 36
+    },
+    {
+      "name": "node_modules/ajv",
+      "bytes": 938206,
+      "formatted": "916.22 KB",
+      "count": 92
+    },
+    {
+      "name": "node_modules/async",
+      "bytes": 807741,
+      "formatted": "788.81 KB",
+      "count": 137
+    },
+    {
+      "name": "node_modules/source-map",
+      "bytes": 805224,
+      "formatted": "786.35 KB",
+      "count": 20
+    },
+    {
+      "name": "node_modules/bluebird",
+      "bytes": 632380,
+      "formatted": "617.56 KB",
+      "count": 45
+    },
+    {
+      "name": "node_modules/minimatch",
+      "bytes": 536122,
+      "formatted": "523.56 KB",
+      "count": 53
+    },
+    {
+      "name": "tests/__pycache__",
+      "bytes": 503307,
+      "formatted": "491.51 KB",
+      "count": 58
+    },
+    {
+      "name": "storage/temp",
+      "bytes": 502470,
+      "formatted": "490.69 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/uri-js",
+      "bytes": 469879,
+      "formatted": "458.87 KB",
+      "count": 46
+    },
+    {
+      "name": "node_modules/@xmldom",
+      "bytes": 440251,
+      "formatted": "429.93 KB",
+      "count": 15
+    },
+    {
+      "name": "node_modules/dmg-builder",
+      "bytes": 422175,
+      "formatted": "412.28 KB",
+      "count": 73
+    },
+    {
+      "name": "frontend/dist",
+      "bytes": 392724,
+      "formatted": "383.52 KB",
+      "count": 5
+    },
+    {
+      "name": "docs/meter_tempo_diagnostic_bekhayali.png",
+      "bytes": 367278,
+      "formatted": "358.67 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/ip-address",
+      "bytes": 366191,
+      "formatted": "357.61 KB",
+      "count": 30
+    },
+    {
+      "name": "node_modules/resedit",
+      "bytes": 355386,
+      "formatted": "347.06 KB",
+      "count": 149
+    },
+    {
+      "name": "node_modules/iconv-lite",
+      "bytes": 348518,
+      "formatted": "340.35 KB",
+      "count": 33
+    },
+    {
+      "name": "node_modules/cacache",
+      "bytes": 332474,
+      "formatted": "324.68 KB",
+      "count": 46
+    },
+    {
+      "name": "tests/android_parity",
+      "bytes": 323261,
+      "formatted": "315.68 KB",
+      "count": 30
+    },
+    {
+      "name": "node_modules/xmlbuilder",
+      "bytes": 321263,
+      "formatted": "313.73 KB",
+      "count": 50
+    },
+    {
+      "name": "node_modules/yargs",
+      "bytes": 317460,
+      "formatted": "310.02 KB",
+      "count": 63
+    },
+    {
+      "name": "node_modules/jackspeak",
+      "bytes": 297017,
+      "formatted": "290.06 KB",
+      "count": 21
+    },
+    {
+      "name": "node_modules/pe-library",
+      "bytes": 279521,
+      "formatted": "272.97 KB",
+      "count": 81
+    },
+    {
+      "name": "node_modules/dir-compare",
+      "bytes": 271627,
+      "formatted": "265.26 KB",
+      "count": 148
+    },
+    {
+      "name": "node_modules/make-fetch-happen",
+      "bytes": 270928,
+      "formatted": "264.58 KB",
+      "count": 50
+    },
+    {
+      "name": "node_modules/got",
+      "bytes": 269023,
+      "formatted": "262.72 KB",
+      "count": 49
+    },
+    {
+      "name": "node_modules/tar",
+      "bytes": 236088,
+      "formatted": "230.55 KB",
+      "count": 35
+    },
+    {
+      "name": "node_modules/json5",
+      "bytes": 235198,
+      "formatted": "229.69 KB",
+      "count": 20
+    },
+    {
+      "name": "node_modules/global-agent",
+      "bytes": 227691,
+      "formatted": "222.35 KB",
+      "count": 129
+    },
+    {
+      "name": "node_modules/sumchecker",
+      "bytes": 226471,
+      "formatted": "221.16 KB",
+      "count": 10
+    },
+    {
+      "name": "node_modules/builder-util",
+      "bytes": 209392,
+      "formatted": "204.48 KB",
+      "count": 73
+    },
+    {
+      "name": "node_modules/mime-db",
+      "bytes": 205539,
+      "formatted": "200.72 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/@malept",
+      "bytes": 192063,
+      "formatted": "187.56 KB",
+      "count": 52
+    },
+    {
+      "name": "package-lock.json",
+      "bytes": 188757,
+      "formatted": "184.33 KB",
+      "count": 1
+    },
+    {
+      "name": "frontend/src",
+      "bytes": 187664,
+      "formatted": "183.27 KB",
+      "count": 20
+    },
+    {
+      "name": "node_modules/.package-lock.json",
+      "bytes": 182963,
+      "formatted": "178.67 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/jake",
+      "bytes": 175071,
+      "formatted": "170.97 KB",
+      "count": 41
+    },
+    {
+      "name": "node_modules/argparse",
+      "bytes": 171548,
+      "formatted": "167.53 KB",
+      "count": 7
+    },
+    {
+      "name": "node_modules/@isaacs",
+      "bytes": 171103,
+      "formatted": "167.09 KB",
+      "count": 47
+    },
+    {
+      "name": "node_modules/builder-util-runtime",
+      "bytes": 158300,
+      "formatted": "154.59 KB",
+      "count": 42
+    },
+    {
+      "name": "node_modules/electron-publish",
+      "bytes": 156395,
+      "formatted": "152.73 KB",
+      "count": 55
+    },
+    {
+      "name": "dist_electron/SongChordAnalyzer-Setup.exe.blockmap",
+      "bytes": 156342,
+      "formatted": "152.68 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/socks",
+      "bytes": 156009,
+      "formatted": "152.35 KB",
+      "count": 31
+    },
+    {
+      "name": "node_modules/electron-builder",
+      "bytes": 154898,
+      "formatted": "151.27 KB",
+      "count": 65
+    },
+    {
+      "name": "backend/api",
+      "bytes": 151449,
+      "formatted": "147.90 KB",
+      "count": 3
+    },
+    {
+      "name": "node_modules/lazystream",
+      "bytes": 150747,
+      "formatted": "147.21 KB",
+      "count": 44
+    },
+    {
+      "name": "node_modules/@npmcli",
+      "bytes": 150194,
+      "formatted": "146.67 KB",
+      "count": 82
+    },
+    {
+      "name": "node_modules/archiver-utils",
+      "bytes": 149018,
+      "formatted": "145.53 KB",
+      "count": 40
+    },
+    {
+      "name": "node_modules/foreground-child",
+      "bytes": 145268,
+      "formatted": "141.86 KB",
+      "count": 66
+    },
+    {
+      "name": "node_modules/ejs",
+      "bytes": 142835,
+      "formatted": "139.49 KB",
+      "count": 10
+    },
+    {
+      "name": "node_modules/smart-buffer",
+      "bytes": 138027,
+      "formatted": "134.79 KB",
+      "count": 14
+    },
+    {
+      "name": "node_modules/electron-builder-squirrel-windows",
+      "bytes": 137003,
+      "formatted": "133.79 KB",
+      "count": 49
+    },
+    {
+      "name": "node_modules/yargs-parser",
+      "bytes": 128470,
+      "formatted": "125.46 KB",
+      "count": 11
+    },
+    {
+      "name": "backend/chord",
+      "bytes": 128375,
+      "formatted": "125.37 KB",
+      "count": 16
+    },
+    {
+      "name": "node_modules/simple-update-notifier",
+      "bytes": 128369,
+      "formatted": "125.36 KB",
+      "count": 72
+    },
+    {
+      "name": "node_modules/fs-extra",
+      "bytes": 127504,
+      "formatted": "124.52 KB",
+      "count": 36
+    },
+    {
+      "name": "node_modules/readable-stream",
+      "bytes": 123971,
+      "formatted": "121.07 KB",
+      "count": 25
+    },
+    {
+      "name": "node_modules/minipass-sized",
+      "bytes": 123865,
+      "formatted": "120.96 KB",
+      "count": 7
+    },
+    {
+      "name": "scripts/__pycache__",
+      "bytes": 122442,
+      "formatted": "119.57 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/glob",
+      "bytes": 121039,
+      "formatted": "118.20 KB",
+      "count": 19
+    },
+    {
+      "name": "node_modules/node-abi",
+      "bytes": 120986,
+      "formatted": "118.15 KB",
+      "count": 61
+    },
+    {
+      "name": "tests/server_parity",
+      "bytes": 120042,
+      "formatted": "117.23 KB",
+      "count": 8
+    },
+    {
+      "name": "node_modules/node-api-version",
+      "bytes": 108409,
+      "formatted": "105.87 KB",
+      "count": 62
+    },
+    {
+      "name": "node_modules/commander",
+      "bytes": 106839,
+      "formatted": "104.33 KB",
+      "count": 6
+    },
+    {
+      "name": "backend/database",
+      "bytes": 103095,
+      "formatted": "100.68 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/temp-file",
+      "bytes": 97275,
+      "formatted": "95.00 KB",
+      "count": 45
+    },
+    {
+      "name": "node_modules/readdir-glob",
+      "bytes": 92260,
+      "formatted": "90.10 KB",
+      "count": 20
+    },
+    {
+      "name": "node_modules/type-fest",
+      "bytes": 88495,
+      "formatted": "86.42 KB",
+      "count": 28
+    },
+    {
+      "name": "node_modules/filelist",
+      "bytes": 87467,
+      "formatted": "85.42 KB",
+      "count": 21
+    },
+    {
+      "name": "node_modules/source-map-support",
+      "bytes": 85177,
+      "formatted": "83.18 KB",
+      "count": 7
+    },
+    {
+      "name": "node_modules/brace-expansion",
+      "bytes": 84997,
+      "formatted": "83.00 KB",
+      "count": 13
+    },
+    {
+      "name": "node_modules/form-data",
+      "bytes": 83901,
+      "formatted": "81.93 KB",
+      "count": 8
+    },
+    {
+      "name": "node_modules/undici-types",
+      "bytes": 83680,
+      "formatted": "81.72 KB",
+      "count": 41
+    },
+    {
+      "name": "node_modules/buffer",
+      "bytes": 82527,
+      "formatted": "80.59 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/dotenv",
+      "bytes": 76591,
+      "formatted": "74.80 KB",
+      "count": 12
+    },
+    {
+      "name": "backend/sources",
+      "bytes": 74527,
+      "formatted": "72.78 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/@pkgjs",
+      "bytes": 74173,
+      "formatted": "72.43 KB",
+      "count": 17
+    },
+    {
+      "name": "node_modules/ajv-keywords",
+      "bytes": 72887,
+      "formatted": "71.18 KB",
+      "count": 33
+    },
+    {
+      "name": "node_modules/@develar",
+      "bytes": 72241,
+      "formatted": "70.55 KB",
+      "count": 14
+    },
+    {
+      "name": "node_modules/semver",
+      "bytes": 68343,
+      "formatted": "66.74 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/roarr",
+      "bytes": 67677,
+      "formatted": "66.09 KB",
+      "count": 27
+    },
+    {
+      "name": "node_modules/yauzl",
+      "bytes": 66204,
+      "formatted": "64.65 KB",
+      "count": 4
+    },
+    {
+      "name": "backend/__pycache__",
+      "bytes": 65293,
+      "formatted": "63.76 KB",
+      "count": 6
+    },
+    {
+      "name": "frontend/package-lock.json",
+      "bytes": 64777,
+      "formatted": "63.26 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/bl",
+      "bytes": 64427,
+      "formatted": "62.92 KB",
+      "count": 10
+    },
+    {
+      "name": "backend/postprocessing",
+      "bytes": 62428,
+      "formatted": "60.96 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/sax",
+      "bytes": 61678,
+      "formatted": "60.23 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/bluebird-lst",
+      "bytes": 61201,
+      "formatted": "59.77 KB",
+      "count": 3
+    },
+    {
+      "name": "backend/meter",
+      "bytes": 60889,
+      "formatted": "59.46 KB",
+      "count": 3
+    },
+    {
+      "name": "node_modules/mime",
+      "bytes": 60114,
+      "formatted": "58.71 KB",
+      "count": 10
+    },
+    {
+      "name": "backend/export",
+      "bytes": 58623,
+      "formatted": "57.25 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/@sindresorhus",
+      "bytes": 57457,
+      "formatted": "56.11 KB",
+      "count": 7
+    },
+    {
+      "name": "node_modules/socks-proxy-agent",
+      "bytes": 57339,
+      "formatted": "56.00 KB",
+      "count": 15
+    },
+    {
+      "name": "node_modules/exponential-backoff",
+      "bytes": 55183,
+      "formatted": "53.89 KB",
+      "count": 47
+    },
+    {
+      "name": "node_modules/minimist",
+      "bytes": 54477,
+      "formatted": "53.20 KB",
+      "count": 24
+    },
+    {
+      "name": "node_modules/archiver",
+      "bytes": 53627,
+      "formatted": "52.37 KB",
+      "count": 10
+    },
+    {
+      "name": "node_modules/http2-wrapper",
+      "bytes": 53109,
+      "formatted": "51.86 KB",
+      "count": 13
+    },
+    {
+      "name": "node_modules/http-cache-semantics",
+      "bytes": 49973,
+      "formatted": "48.80 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/emoji-regex",
+      "bytes": 48255,
+      "formatted": "47.12 KB",
+      "count": 8
+    },
+    {
+      "name": "backend/separation",
+      "bytes": 48177,
+      "formatted": "47.05 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/minipass",
+      "bytes": 48090,
+      "formatted": "46.96 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/get-intrinsic",
+      "bytes": 46542,
+      "formatted": "45.45 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/minipass-fetch",
+      "bytes": 46289,
+      "formatted": "45.20 KB",
+      "count": 11
+    },
+    {
+      "name": "node_modules/gauge",
+      "bytes": 43163,
+      "formatted": "42.15 KB",
+      "count": 18
+    },
+    {
+      "name": "node_modules/debug",
+      "bytes": 42793,
+      "formatted": "41.79 KB",
+      "count": 7
+    },
+    {
+      "name": "node_modules/safer-buffer",
+      "bytes": 42299,
+      "formatted": "41.31 KB",
+      "count": 7
+    },
+    {
+      "name": "backend/beat",
+      "bytes": 41417,
+      "formatted": "40.45 KB",
+      "count": 3
+    },
+    {
+      "name": "node_modules/tmp",
+      "bytes": 40248,
+      "formatted": "39.30 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/sprintf-js",
+      "bytes": 39879,
+      "formatted": "38.94 KB",
+      "count": 11
+    },
+    {
+      "name": "node_modules/compress-commons",
+      "bytes": 38329,
+      "formatted": "37.43 KB",
+      "count": 14
+    },
+    {
+      "name": "node_modules/.bin",
+      "bytes": 38262,
+      "formatted": "37.37 KB",
+      "count": 75
+    },
+    {
+      "name": "scripts/analyze_parity_differences.py",
+      "bytes": 38008,
+      "formatted": "37.12 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/ssri",
+      "bytes": 37511,
+      "formatted": "36.63 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/package-json-from-dist",
+      "bytes": 36453,
+      "formatted": "35.60 KB",
+      "count": 13
+    },
+    {
+      "name": "node_modules/chalk",
+      "bytes": 35047,
+      "formatted": "34.23 KB",
+      "count": 7
+    },
+    {
+      "name": "backend/models",
+      "bytes": 34893,
+      "formatted": "34.08 KB",
+      "count": 3
+    },
+    {
+      "name": "node_modules/agentkeepalive",
+      "bytes": 33916,
+      "formatted": "33.12 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/punycode",
+      "bytes": 33514,
+      "formatted": "32.73 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/lodash.difference",
+      "bytes": 32752,
+      "formatted": "31.98 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/graceful-fs",
+      "bytes": 32535,
+      "formatted": "31.77 KB",
+      "count": 7
+    },
+    {
+      "name": "node_modules/lodash.union",
+      "bytes": 32457,
+      "formatted": "31.70 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/cliui",
+      "bytes": 32314,
+      "formatted": "31.56 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/retry",
+      "bytes": 32210,
+      "formatted": "31.46 KB",
+      "count": 17
+    },
+    {
+      "name": "node_modules/cli-spinners",
+      "bytes": 32113,
+      "formatted": "31.36 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/safe-buffer",
+      "bytes": 32101,
+      "formatted": "31.35 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/function-bind",
+      "bytes": 31427,
+      "formatted": "30.69 KB",
+      "count": 12
+    },
+    {
+      "name": "node_modules/crc-32",
+      "bytes": 31044,
+      "formatted": "30.32 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/define-data-property",
+      "bytes": 30851,
+      "formatted": "30.13 KB",
+      "count": 11
+    },
+    {
+      "name": "node_modules/fd-slicer",
+      "bytes": 29813,
+      "formatted": "29.11 KB",
+      "count": 8
+    },
+    {
+      "name": "backend/audio",
+      "bytes": 28873,
+      "formatted": "28.20 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/negotiator",
+      "bytes": 28556,
+      "formatted": "27.89 KB",
+      "count": 9
+    },
+    {
+      "name": ".git/index",
+      "bytes": 28253,
+      "formatted": "27.59 KB",
+      "count": 1
+    },
+    {
+      "name": "scripts/verify_windows_android_parity.py",
+      "bytes": 28112,
+      "formatted": "27.45 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/keyv",
+      "bytes": 27751,
+      "formatted": "27.10 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/https-proxy-agent",
+      "bytes": 27706,
+      "formatted": "27.06 KB",
+      "count": 11
+    },
+    {
+      "name": "node_modules/tar-stream",
+      "bytes": 27671,
+      "formatted": "27.02 KB",
+      "count": 8
+    },
+    {
+      "name": "node_modules/asynckit",
+      "bytes": 27362,
+      "formatted": "26.72 KB",
+      "count": 20
+    },
+    {
+      "name": "node_modules/color-convert",
+      "bytes": 27189,
+      "formatted": "26.55 KB",
+      "count": 7
+    },
+    {
+      "name": "node_modules/object-keys",
+      "bytes": 26544,
+      "formatted": "25.92 KB",
+      "count": 11
+    },
+    {
+      "name": "node_modules/detect-libc",
+      "bytes": 26437,
+      "formatted": "25.82 KB",
+      "count": 8
+    },
+    {
+      "name": "node_modules/zip-stream",
+      "bytes": 26392,
+      "formatted": "25.77 KB",
+      "count": 10
+    },
+    {
+      "name": "node_modules/ci-info",
+      "bytes": 26061,
+      "formatted": "25.45 KB",
+      "count": 7
+    },
+    {
+      "name": ".git/hooks",
+      "bytes": 25827,
+      "formatted": "25.22 KB",
+      "count": 14
+    },
+    {
+      "name": "node_modules/stat-mode",
+      "bytes": 25659,
+      "formatted": "25.06 KB",
+      "count": 6
+    },
+    {
+      "name": "tests/contracts",
+      "bytes": 24754,
+      "formatted": "24.17 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/hosted-git-info",
+      "bytes": 24404,
+      "formatted": "23.83 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/agent-base",
+      "bytes": 23962,
+      "formatted": "23.40 KB",
+      "count": 11
+    },
+    {
+      "name": "node_modules/nopt",
+      "bytes": 23946,
+      "formatted": "23.38 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/cacheable-lookup",
+      "bytes": 23919,
+      "formatted": "23.36 KB",
+      "count": 5
+    },
+    {
+      "name": "backend/key",
+      "bytes": 23842,
+      "formatted": "23.28 KB",
+      "count": 3
+    },
+    {
+      "name": "node_modules/globalthis",
+      "bytes": 23665,
+      "formatted": "23.11 KB",
+      "count": 17
+    },
+    {
+      "name": "node_modules/y18n",
+      "bytes": 23435,
+      "formatted": "22.89 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/has-symbols",
+      "bytes": 23409,
+      "formatted": "22.86 KB",
+      "count": 16
+    },
+    {
+      "name": "node_modules/ora",
+      "bytes": 23247,
+      "formatted": "22.70 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/core-util-is",
+      "bytes": 23195,
+      "formatted": "22.65 KB",
+      "count": 6
+    },
+    {
+      "name": "tests/test_mobile_pdf_layout.py",
+      "bytes": 22396,
+      "formatted": "21.87 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/normalize-url",
+      "bytes": 21244,
+      "formatted": "20.75 KB",
+      "count": 5
+    },
+    {
+      "name": "backend/sections",
+      "bytes": 21221,
+      "formatted": "20.72 KB",
+      "count": 3
+    },
+    {
+      "name": "node_modules/lodash.defaults",
+      "bytes": 21074,
+      "formatted": "20.58 KB",
+      "count": 4
+    },
+    {
+      "name": "backend/evaluation",
+      "bytes": 20718,
+      "formatted": "20.23 KB",
+      "count": 3
+    },
+    {
+      "name": "node_modules/json-schema-traverse",
+      "bytes": 19564,
+      "formatted": "19.11 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/mkdirp",
+      "bytes": 19088,
+      "formatted": "18.64 KB",
+      "count": 12
+    },
+    {
+      "name": "backend/transpose",
+      "bytes": 18631,
+      "formatted": "18.19 KB",
+      "count": 3
+    },
+    {
+      "name": "node_modules/mime-types",
+      "bytes": 18272,
+      "formatted": "17.84 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/dotenv-expand",
+      "bytes": 18085,
+      "formatted": "17.66 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/tmp-promise",
+      "bytes": 17628,
+      "formatted": "17.21 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/has-tostringtag",
+      "bytes": 17603,
+      "formatted": "17.19 KB",
+      "count": 16
+    },
+    {
+      "name": "node_modules/balanced-match",
+      "bytes": 17584,
+      "formatted": "17.17 KB",
+      "count": 13
+    },
+    {
+      "name": "node_modules/sanitize-filename",
+      "bytes": 17508,
+      "formatted": "17.10 KB",
+      "count": 11
+    },
+    {
+      "name": "node_modules/rimraf",
+      "bytes": 17327,
+      "formatted": "16.92 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/math-intrinsics",
+      "bytes": 17323,
+      "formatted": "16.92 KB",
+      "count": 38
+    },
+    {
+      "name": "node_modules/minizlib",
+      "bytes": 17309,
+      "formatted": "16.90 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/http-proxy-agent",
+      "bytes": 17260,
+      "formatted": "16.86 KB",
+      "count": 7
+    },
+    {
+      "name": "backend/engine",
+      "bytes": 17171,
+      "formatted": "16.77 KB",
+      "count": 3
+    },
+    {
+      "name": "storage/__pycache__",
+      "bytes": 17135,
+      "formatted": "16.73 KB",
+      "count": 3
+    },
+    {
+      "name": "node_modules/npmlog",
+      "bytes": 17096,
+      "formatted": "16.70 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/@tootallnate",
+      "bytes": 17036,
+      "formatted": "16.64 KB",
+      "count": 12
+    },
+    {
+      "name": "node_modules/ansi-styles",
+      "bytes": 16978,
+      "formatted": "16.58 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/fast-json-stable-stringify",
+      "bytes": 16959,
+      "formatted": "16.56 KB",
+      "count": 18
+    },
+    {
+      "name": "node_modules/jsonfile",
+      "bytes": 16927,
+      "formatted": "16.53 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/cacheable-request",
+      "bytes": 16750,
+      "formatted": "16.36 KB",
+      "count": 4
+    },
+    {
+      "name": "docs/METER_TEMPO_FAILURE_REPORT.md",
+      "bytes": 16656,
+      "formatted": "16.27 KB",
+      "count": 1
+    },
+    {
+      "name": ".git/logs",
+      "bytes": 16120,
+      "formatted": "15.74 KB",
+      "count": 3
+    },
+    {
+      "name": "node_modules/cross-spawn",
+      "bytes": 16094,
+      "formatted": "15.72 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/call-bind-apply-helpers",
+      "bytes": 15952,
+      "formatted": "15.58 KB",
+      "count": 21
+    },
+    {
+      "name": "electron/main.cjs",
+      "bytes": 15738,
+      "formatted": "15.37 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/lru-cache",
+      "bytes": 15643,
+      "formatted": "15.28 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/promise-retry",
+      "bytes": 15556,
+      "formatted": "15.19 KB",
+      "count": 8
+    },
+    {
+      "name": "node_modules/progress",
+      "bytes": 15499,
+      "formatted": "15.14 KB",
+      "count": 7
+    },
+    {
+      "name": "node_modules/yallist",
+      "bytes": 14752,
+      "formatted": "14.41 KB",
+      "count": 5
+    },
+    {
+      "name": "frontend/public",
+      "bytes": 14553,
+      "formatted": "14.21 KB",
+      "count": 2
+    },
+    {
+      "name": "node_modules/es-set-tostringtag",
+      "bytes": 14544,
+      "formatted": "14.20 KB",
+      "count": 10
+    },
+    {
+      "name": "node_modules/string_decoder",
+      "bytes": 14427,
+      "formatted": "14.09 KB",
+      "count": 4
+    },
+    {
+      "name": "build/app.ico",
+      "bytes": 14343,
+      "formatted": "14.01 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/are-we-there-yet",
+      "bytes": 14296,
+      "formatted": "13.96 KB",
+      "count": 8
+    },
+    {
+      "name": "node_modules/wcwidth",
+      "bytes": 14241,
+      "formatted": "13.91 KB",
+      "count": 8
+    },
+    {
+      "name": "node_modules/fs-minipass",
+      "bytes": 14089,
+      "formatted": "13.76 KB",
+      "count": 4
+    },
+    {
+      "name": "CODEX_EXECUTED_VALIDATION_REPORT.md",
+      "bytes": 14003,
+      "formatted": "13.67 KB",
+      "count": 1
+    },
+    {
+      "name": "README.md",
+      "bytes": 13947,
+      "formatted": "13.62 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/eastasianwidth",
+      "bytes": 13640,
+      "formatted": "13.32 KB",
+      "count": 3
+    },
+    {
+      "name": "node_modules/p-cancelable",
+      "bytes": 13542,
+      "formatted": "13.22 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/fs.realpath",
+      "bytes": 13433,
+      "formatted": "13.12 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/dunder-proto",
+      "bytes": 13003,
+      "formatted": "12.70 KB",
+      "count": 15
+    },
+    {
+      "name": "node_modules/fast-deep-equal",
+      "bytes": 12966,
+      "formatted": "12.66 KB",
+      "count": 11
+    },
+    {
+      "name": "node_modules/define-properties",
+      "bytes": 12890,
+      "formatted": "12.59 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/isbinaryfile",
+      "bytes": 12868,
+      "formatted": "12.57 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/json-stringify-safe",
+      "bytes": 12722,
+      "formatted": "12.42 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/console-control-strings",
+      "bytes": 12669,
+      "formatted": "12.37 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/boolean",
+      "bytes": 12474,
+      "formatted": "12.18 KB",
+      "count": 18
+    },
+    {
+      "name": "node_modules/get-stream",
+      "bytes": 12397,
+      "formatted": "12.11 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/escalade",
+      "bytes": 12385,
+      "formatted": "12.09 KB",
+      "count": 11
+    },
+    {
+      "name": "scripts/test_integrated_engine.py",
+      "bytes": 12373,
+      "formatted": "12.08 KB",
+      "count": 1
+    },
+    {
+      "name": "tests/test_history_library.py",
+      "bytes": 12346,
+      "formatted": "12.06 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/es-errors",
+      "bytes": 12324,
+      "formatted": "12.04 KB",
+      "count": 22
+    },
+    {
+      "name": "CODEX_REVIEW_FIX_REPORT.md",
+      "bytes": 12316,
+      "formatted": "12.03 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/err-code",
+      "bytes": 12280,
+      "formatted": "11.99 KB",
+      "count": 10
+    },
+    {
+      "name": "backend/pipeline.py",
+      "bytes": 12233,
+      "formatted": "11.95 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/require-directory",
+      "bytes": 12071,
+      "formatted": "11.79 KB",
+      "count": 7
+    },
+    {
+      "name": "node_modules/lodash.flatten",
+      "bytes": 12053,
+      "formatted": "11.77 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/es-object-atoms",
+      "bytes": 11967,
+      "formatted": "11.69 KB",
+      "count": 16
+    },
+    {
+      "name": "node_modules/imurmurhash",
+      "bytes": 11887,
+      "formatted": "11.61 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/async-exit-hook",
+      "bytes": 11738,
+      "formatted": "11.46 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/chromium-pickle-js",
+      "bytes": 11695,
+      "formatted": "11.42 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/combined-stream",
+      "bytes": 11514,
+      "formatted": "11.24 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/decompress-response",
+      "bytes": 11475,
+      "formatted": "11.21 KB",
+      "count": 10
+    },
+    {
+      "name": "scripts/verify_export_and_features.py",
+      "bytes": 11194,
+      "formatted": "10.93 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/clone",
+      "bytes": 11132,
+      "formatted": "10.87 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/isexe",
+      "bytes": 10956,
+      "formatted": "10.70 KB",
+      "count": 8
+    },
+    {
+      "name": "ANDROID_PIPELINE_PARITY_REPORT.md",
+      "bytes": 10944,
+      "formatted": "10.69 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/has-property-descriptors",
+      "bytes": 10911,
+      "formatted": "10.66 KB",
+      "count": 9
+    },
+    {
+      "name": "node_modules/get-proto",
+      "bytes": 10840,
+      "formatted": "10.59 KB",
+      "count": 15
+    },
+    {
+      "name": "node_modules/@szmarczak",
+      "bytes": 10824,
+      "formatted": "10.57 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/extract-zip",
+      "bytes": 10749,
+      "formatted": "10.50 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/wrap-ansi",
+      "bytes": 10648,
+      "formatted": "10.40 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/wrap-ansi-cjs",
+      "bytes": 10648,
+      "formatted": "10.40 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/hasown",
+      "bytes": 10332,
+      "formatted": "10.09 KB",
+      "count": 10
+    },
+    {
+      "name": "scripts/generate_golden_meter_dataset.py",
+      "bytes": 10287,
+      "formatted": "10.05 KB",
+      "count": 1
+    },
+    {
+      "name": "scripts/generate_meter_visual_diagnostic.py",
+      "bytes": 10281,
+      "formatted": "10.04 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/es-define-property",
+      "bytes": 10217,
+      "formatted": "9.98 KB",
+      "count": 11
+    },
+    {
+      "name": "node_modules/env-paths",
+      "bytes": 10163,
+      "formatted": "9.92 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/which",
+      "bytes": 9975,
+      "formatted": "9.74 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/signal-exit",
+      "bytes": 9958,
+      "formatted": "9.72 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/gopd",
+      "bytes": 9869,
+      "formatted": "9.64 KB",
+      "count": 12
+    },
+    {
+      "name": "node_modules/es6-error",
+      "bytes": 9858,
+      "formatted": "9.63 KB",
+      "count": 7
+    },
+    {
+      "name": "shared/analysis_contracts",
+      "bytes": 9724,
+      "formatted": "9.50 KB",
+      "count": 3
+    },
+    {
+      "name": "node_modules/base64-js",
+      "bytes": 9624,
+      "formatted": "9.40 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/color-support",
+      "bytes": 9233,
+      "formatted": "9.02 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/normalize-path",
+      "bytes": 9219,
+      "formatted": "9.00 KB",
+      "count": 4
+    },
+    {
+      "name": "__pycache__/test_btc.cpython-314-pytest-9.1.1.pyc",
+      "bytes": 9116,
+      "formatted": "8.90 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/crc32-stream",
+      "bytes": 8937,
+      "formatted": "8.73 KB",
+      "count": 7
+    },
+    {
+      "name": "node_modules/pump",
+      "bytes": 8913,
+      "formatted": "8.70 KB",
+      "count": 10
+    },
+    {
+      "name": "node_modules/matcher",
+      "bytes": 8819,
+      "formatted": "8.61 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/p-map",
+      "bytes": 8687,
+      "formatted": "8.48 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/quick-lru",
+      "bytes": 8645,
+      "formatted": "8.44 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/delayed-stream",
+      "bytes": 8021,
+      "formatted": "7.83 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/buffer-crc32",
+      "bytes": 7952,
+      "formatted": "7.77 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/aproba",
+      "bytes": 7883,
+      "formatted": "7.70 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/p-limit",
+      "bytes": 7754,
+      "formatted": "7.57 KB",
+      "count": 5
+    },
+    {
+      "name": "test_btc.py",
+      "bytes": 7559,
+      "formatted": "7.38 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/delegates",
+      "bytes": 7459,
+      "formatted": "7.28 KB",
+      "count": 8
+    },
+    {
+      "name": "node_modules/encoding",
+      "bytes": 7123,
+      "formatted": "6.96 KB",
+      "count": 7
+    },
+    {
+      "name": "node_modules/supports-color",
+      "bytes": 7035,
+      "formatted": "6.87 KB",
+      "count": 5
+    },
+    {
+      "name": "backend/config.py",
+      "bytes": 7018,
+      "formatted": "6.85 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/minipass-pipeline",
+      "bytes": 7004,
+      "formatted": "6.84 KB",
+      "count": 4
+    },
+    {
+      "name": "__pycache__/test_pipeline_run.cpython-314-pytest-9.1.1.pyc",
+      "bytes": 6996,
+      "formatted": "6.83 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/serialize-error",
+      "bytes": 6902,
+      "formatted": "6.74 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/lodash.isplainobject",
+      "bytes": 6890,
+      "formatted": "6.73 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/ieee754",
+      "bytes": 6796,
+      "formatted": "6.64 KB",
+      "count": 5
+    },
+    {
+      "name": "DEMO_NETWORK_SETUP.md",
+      "bytes": 6785,
+      "formatted": "6.63 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/ms",
+      "bytes": 6721,
+      "formatted": "6.56 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/color-name",
+      "bytes": 6693,
+      "formatted": "6.54 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/aggregate-error",
+      "bytes": 6690,
+      "formatted": "6.53 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/read-binary-file-arch",
+      "bytes": 6624,
+      "formatted": "6.47 KB",
+      "count": 6
+    },
+    {
+      "name": "shared/music_schema",
+      "bytes": 6599,
+      "formatted": "6.44 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/picocolors",
+      "bytes": 6373,
+      "formatted": "6.22 KB",
+      "count": 7
+    },
+    {
+      "name": "node_modules/utf8-byte-length",
+      "bytes": 6352,
+      "formatted": "6.20 KB",
+      "count": 10
+    },
+    {
+      "name": "node_modules/end-of-stream",
+      "bytes": 6295,
+      "formatted": "6.15 KB",
+      "count": 4
+    },
+    {
+      "name": "dist_electron/builder-debug.yml",
+      "bytes": 6265,
+      "formatted": "6.12 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/onetime",
+      "bytes": 6173,
+      "formatted": "6.03 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/yocto-queue",
+      "bytes": 6027,
+      "formatted": "5.89 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/pend",
+      "bytes": 6015,
+      "formatted": "5.87 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/chownr",
+      "bytes": 5748,
+      "formatted": "5.61 KB",
+      "count": 4
+    },
+    {
+      "name": "storage/test_pdf_style.py",
+      "bytes": 5684,
+      "formatted": "5.55 KB",
+      "count": 1
+    },
+    {
+      "name": "storage/test_tight_pdf.py",
+      "bytes": 5655,
+      "formatted": "5.52 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/ansi-regex",
+      "bytes": 5609,
+      "formatted": "5.48 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/clean-stack",
+      "bytes": 5508,
+      "formatted": "5.38 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/util-deprecate",
+      "bytes": 5481,
+      "formatted": "5.35 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/defer-to-connect",
+      "bytes": 5444,
+      "formatted": "5.32 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/truncate-utf8-bytes",
+      "bytes": 5419,
+      "formatted": "5.29 KB",
+      "count": 10
+    },
+    {
+      "name": "node_modules/json-buffer",
+      "bytes": 5404,
+      "formatted": "5.28 KB",
+      "count": 6
+    },
+    {
+      "name": ".pytest_cache/v",
+      "bytes": 5216,
+      "formatted": "5.09 KB",
+      "count": 2
+    },
+    {
+      "name": "node_modules/string-width",
+      "bytes": 5161,
+      "formatted": "5.04 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/string-width-cjs",
+      "bytes": 5161,
+      "formatted": "5.04 KB",
+      "count": 5
+    },
+    {
+      "name": "backend/main.py",
+      "bytes": 5090,
+      "formatted": "4.97 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/buffer-from",
+      "bytes": 5047,
+      "formatted": "4.93 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/is-fullwidth-code-point",
+      "bytes": 4994,
+      "formatted": "4.88 KB",
+      "count": 5
+    },
+    {
+      "name": "scripts/benchmark_multisong_parity.py",
+      "bytes": 4994,
+      "formatted": "4.88 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/minipass-collect",
+      "bytes": 4870,
+      "formatted": "4.76 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/concat-map",
+      "bytes": 4861,
+      "formatted": "4.75 KB",
+      "count": 7
+    },
+    {
+      "name": "node_modules/abbrev",
+      "bytes": 4782,
+      "formatted": "4.67 KB",
+      "count": 4
+    },
+    {
+      "name": "docs/MODEL_LICENSING.md",
+      "bytes": 4719,
+      "formatted": "4.61 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/get-caller-file",
+      "bytes": 4719,
+      "formatted": "4.61 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/universalify",
+      "bytes": 4705,
+      "formatted": "4.59 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/responselike",
+      "bytes": 4685,
+      "formatted": "4.58 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/resolve-alpn",
+      "bytes": 4645,
+      "formatted": "4.54 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/is-interactive",
+      "bytes": 4619,
+      "formatted": "4.51 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/minipass-flush",
+      "bytes": 4618,
+      "formatted": "4.51 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/log-symbols",
+      "bytes": 4580,
+      "formatted": "4.47 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/path-key",
+      "bytes": 4553,
+      "formatted": "4.45 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/clone-response",
+      "bytes": 4526,
+      "formatted": "4.42 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/wide-align",
+      "bytes": 4467,
+      "formatted": "4.36 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/mimic-fn",
+      "bytes": 4457,
+      "formatted": "4.35 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/has-flag",
+      "bytes": 4419,
+      "formatted": "4.32 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/indent-string",
+      "bytes": 4398,
+      "formatted": "4.29 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/cli-cursor",
+      "bytes": 4372,
+      "formatted": "4.27 KB",
+      "count": 5
+    },
+    {
+      "name": "tests/test_golden_meter.py",
+      "bytes": 4339,
+      "formatted": "4.24 KB",
+      "count": 1
+    },
+    {
+      "name": "tests/test_pdf_export_escaping.py",
+      "bytes": 4298,
+      "formatted": "4.20 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/infer-owner",
+      "bytes": 4290,
+      "formatted": "4.19 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/set-blocking",
+      "bytes": 4224,
+      "formatted": "4.12 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/@gar",
+      "bytes": 4197,
+      "formatted": "4.10 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/semver-compare",
+      "bytes": 4051,
+      "formatted": "3.96 KB",
+      "count": 8
+    },
+    {
+      "name": "node_modules/once",
+      "bytes": 4046,
+      "formatted": "3.95 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/strip-ansi",
+      "bytes": 4029,
+      "formatted": "3.93 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/strip-ansi-cjs",
+      "bytes": 4029,
+      "formatted": "3.93 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/inherits",
+      "bytes": 3958,
+      "formatted": "3.87 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/isarray",
+      "bytes": 3886,
+      "formatted": "3.79 KB",
+      "count": 8
+    },
+    {
+      "name": "tests/test_upload_lifecycle.py",
+      "bytes": 3861,
+      "formatted": "3.77 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/defaults",
+      "bytes": 3842,
+      "formatted": "3.75 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/is-ci",
+      "bytes": 3807,
+      "formatted": "3.72 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/escape-string-regexp",
+      "bytes": 3790,
+      "formatted": "3.70 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/inflight",
+      "bytes": 3762,
+      "formatted": "3.67 KB",
+      "count": 4
+    },
+    {
+      "name": "test_pipeline_run.py",
+      "bytes": 3697,
+      "formatted": "3.61 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/humanize-ms",
+      "bytes": 3656,
+      "formatted": "3.57 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/path-is-absolute",
+      "bytes": 3616,
+      "formatted": "3.53 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/mimic-response",
+      "bytes": 3584,
+      "formatted": "3.50 KB",
+      "count": 4
+    },
+    {
+      "name": "docs/superpowers",
+      "bytes": 3548,
+      "formatted": "3.46 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/is-unicode-supported",
+      "bytes": 3535,
+      "formatted": "3.45 KB",
+      "count": 5
+    },
+    {
+      "name": "tests/test_upload_worker_lifecycle.py",
+      "bytes": 3453,
+      "formatted": "3.37 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/unique-filename",
+      "bytes": 3450,
+      "formatted": "3.37 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/has-unicode",
+      "bytes": 3436,
+      "formatted": "3.36 KB",
+      "count": 4
+    },
+    {
+      "name": "tests/test_chord_vocabulary.py",
+      "bytes": 3420,
+      "formatted": "3.34 KB",
+      "count": 1
+    },
+    {
+      "name": "tests/test_upload_path_safety.py",
+      "bytes": 3392,
+      "formatted": "3.31 KB",
+      "count": 1
+    },
+    {
+      "name": "scripts/generate_kotlin_constants.py",
+      "bytes": 3267,
+      "formatted": "3.19 KB",
+      "count": 1
+    },
+    {
+      "name": "tests/test_transpose_contract.py",
+      "bytes": 3176,
+      "formatted": "3.10 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/process-nextick-args",
+      "bytes": 3175,
+      "formatted": "3.10 KB",
+      "count": 4
+    },
+    {
+      "name": "scripts/fetch-ffmpeg.ps1",
+      "bytes": 3132,
+      "formatted": "3.06 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/promise-inflight",
+      "bytes": 3045,
+      "formatted": "2.97 KB",
+      "count": 4
+    },
+    {
+      "name": "tests/test_evaluator.py",
+      "bytes": 2992,
+      "formatted": "2.92 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/wrappy",
+      "bytes": 2961,
+      "formatted": "2.89 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/is-lambda",
+      "bytes": 2944,
+      "formatted": "2.88 KB",
+      "count": 7
+    },
+    {
+      "name": "node_modules/shebang-regex",
+      "bytes": 2828,
+      "formatted": "2.76 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/restore-cursor",
+      "bytes": 2817,
+      "formatted": "2.75 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/lowercase-keys",
+      "bytes": 2781,
+      "formatted": "2.72 KB",
+      "count": 5
+    },
+    {
+      "name": "node_modules/detect-node",
+      "bytes": 2761,
+      "formatted": "2.70 KB",
+      "count": 6
+    },
+    {
+      "name": "node_modules/at-least-node",
+      "bytes": 2625,
+      "formatted": "2.56 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/unique-slug",
+      "bytes": 2615,
+      "formatted": "2.55 KB",
+      "count": 4
+    },
+    {
+      "name": "node_modules/lazy-val",
+      "bytes": 2583,
+      "formatted": "2.52 KB",
+      "count": 5
+    },
+    {
+      "name": "tests/test_queue_admission.py",
+      "bytes": 2566,
+      "formatted": "2.51 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/shebang-command",
+      "bytes": 2556,
+      "formatted": "2.50 KB",
+      "count": 4
+    },
+    {
+      "name": "scripts/test_meter_evaluation.py",
+      "bytes": 2433,
+      "formatted": "2.38 KB",
+      "count": 1
+    },
+    {
+      "name": "tests/test_youtube_url_validation.py",
+      "bytes": 2258,
+      "formatted": "2.21 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/fs-constants",
+      "bytes": 2223,
+      "formatted": "2.17 KB",
+      "count": 5
+    },
+    {
+      "name": "tests/test_api_validation.py",
+      "bytes": 2082,
+      "formatted": "2.03 KB",
+      "count": 1
+    },
+    {
+      "name": "PROJECT_REVIEW.md",
+      "bytes": 1999,
+      "formatted": "1.95 KB",
+      "count": 1
+    },
+    {
+      "name": "tests/test_history_limits.py",
+      "bytes": 1991,
+      "formatted": "1.94 KB",
+      "count": 1
+    },
+    {
+      "name": "node_modules/compare-version",
+      "bytes": 1962,
+      "formatted": "1.92 KB",
+      "count": 3
+    },
+    {
+      "name": "storage/verify_features.py",
+      "bytes": 1911,
+      "formatted": "1.87 KB",
+      "count": 1
+    },
+    {
+      "name": "run_app.py",
+      "bytes": 1907,
+      "formatted": "1.86 KB",
+      "count": 1
+    },
+    {
+      "name": ".github/workflows",
+      "bytes": 1793,
+      "formatted": "1.75 KB",
+      "count": 1
+    },
+    {
+      "name": "WINDOWS_SERVER_PARITY_REPORT.md",
+      "bytes": 1750,
+      "formatted": "1.71 KB",
+      "count": 1
+    },
+    {
+      "name": "Dockerfile",
+      "bytes": 1685,
+      "formatted": "1.65 KB",
+      "count": 1
+    },
+    {
+      "name": ".gitignore",
+      "bytes": 1572,
+      "formatted": "1.54 KB",
+      "count": 1
+    },
+    {
+      "name": "storage/test_header.py",
+      "bytes": 1297,
+      "formatted": "1.27 KB",
+      "count": 1
+    },
+    {
+      "name": "scripts/start_demo_dual.bat",
+      "bytes": 1288,
+      "formatted": "1.26 KB",
+      "count": 1
+    },
+    {
+      "name": "frontend/README.md",
+      "bytes": 1278,
+      "formatted": "1.25 KB",
+      "count": 1
+    },
+    {
+      "name": "tests/test_audio_hashing.py",
+      "bytes": 1217,
+      "formatted": "1.19 KB",
+      "count": 1
+    },
+    {
+      "name": "storage/sim_quant.py",
+      "bytes": 1184,
+      "formatted": "1.16 KB",
+      "count": 1
+    },
+    {
+      "name": "electron-builder.yml",
+      "bytes": 1096,
+      "formatted": "1.07 KB",
+      "count": 1
+    },
+    {
+      "name": "LICENSE",
+      "bytes": 1081,
+      "formatted": "1.06 KB",
+      "count": 1
+    },
+    {
+      "name": "scripts/start_tunnel.bat",
+      "bytes": 1004,
+      "formatted": "1004.00 B",
+      "count": 1
+    },
+    {
+      "name": "scripts/start_server_local.bat",
+      "bytes": 917,
+      "formatted": "917.00 B",
+      "count": 1
+    },
+    {
+      "name": "storage/inspect_debug.py",
+      "bytes": 906,
+      "formatted": "906.00 B",
+      "count": 1
+    },
+    {
+      "name": "package.json",
+      "bytes": 768,
+      "formatted": "768.00 B",
+      "count": 1
+    },
+    {
+      "name": "electron/preload.cjs",
+      "bytes": 749,
+      "formatted": "749.00 B",
+      "count": 1
+    },
+    {
+      "name": "scripts/start_server_remote.bat",
+      "bytes": 671,
+      "formatted": "671.00 B",
+      "count": 1
+    },
+    {
+      "name": "scripts/stop_demo.bat",
+      "bytes": 663,
+      "formatted": "663.00 B",
+      "count": 1
+    },
+    {
+      "name": "frontend/tsconfig.app.json",
+      "bytes": 655,
+      "formatted": "655.00 B",
+      "count": 1
+    },
+    {
+      "name": "frontend/package.json",
+      "bytes": 623,
+      "formatted": "623.00 B",
+      "count": 1
+    },
+    {
+      "name": "frontend/tsconfig.node.json",
+      "bytes": 558,
+      "formatted": "558.00 B",
+      "count": 1
+    },
+    {
+      "name": "test_out.log",
+      "bytes": 557,
+      "formatted": "557.00 B",
+      "count": 1
+    },
+    {
+      "name": ".gitattributes",
+      "bytes": 533,
+      "formatted": "533.00 B",
+      "count": 1
+    },
+    {
+      "name": "requirements.txt",
+      "bytes": 427,
+      "formatted": "427.00 B",
+      "count": 1
+    },
+    {
+      "name": ".git/refs",
+      "bytes": 410,
+      "formatted": "410.00 B",
+      "count": 10
+    },
+    {
+      "name": "frontend/index.html",
+      "bytes": 371,
+      "formatted": "371.00 B",
+      "count": 1
+    },
+    {
+      "name": "storage/inspect_vocab.py",
+      "bytes": 370,
+      "formatted": "370.00 B",
+      "count": 1
+    },
+    {
+      "name": "frontend/vite.config.ts",
+      "bytes": 363,
+      "formatted": "363.00 B",
+      "count": 1
+    },
+    {
+      "name": "run.bat",
+      "bytes": 361,
+      "formatted": "361.00 B",
+      "count": 1
+    },
+    {
+      "name": "dist_electron/latest.yml",
+      "bytes": 351,
+      "formatted": "351.00 B",
+      "count": 1
+    },
+    {
+      "name": ".git/config",
+      "bytes": 313,
+      "formatted": "313.00 B",
+      "count": 1
+    },
+    {
+      "name": ".pytest_cache/README.md",
+      "bytes": 302,
+      "formatted": "302.00 B",
+      "count": 1
+    },
+    {
+      "name": ".dockerignore",
+      "bytes": 264,
+      "formatted": "264.00 B",
+      "count": 1
+    },
+    {
+      "name": "frontend/.gitignore",
+      "bytes": 253,
+      "formatted": "253.00 B",
+      "count": 1
+    },
+    {
+      "name": "electron/sign-noop.cjs",
+      "bytes": 245,
+      "formatted": "245.00 B",
+      "count": 1
+    },
+    {
+      "name": "frontend/.oxlintrc.json",
+      "bytes": 245,
+      "formatted": "245.00 B",
+      "count": 1
+    },
+    {
+      "name": ".git/info",
+      "bytes": 240,
+      "formatted": "240.00 B",
+      "count": 1
+    },
+    {
+      "name": ".pytest_cache/CACHEDIR.TAG",
+      "bytes": 191,
+      "formatted": "191.00 B",
+      "count": 1
+    },
+    {
+      "name": "frontend/tsconfig.json",
+      "bytes": 119,
+      "formatted": "119.00 B",
+      "count": 1
+    },
+    {
+      "name": ".git/COMMIT_EDITMSG",
+      "bytes": 115,
+      "formatted": "115.00 B",
+      "count": 1
+    },
+    {
+      "name": ".git/description",
+      "bytes": 73,
+      "formatted": "73.00 B",
+      "count": 1
+    },
+    {
+      "name": ".pytest_cache/.gitignore",
+      "bytes": 37,
+      "formatted": "37.00 B",
+      "count": 1
+    },
+    {
+      "name": ".git/HEAD",
+      "bytes": 21,
+      "formatted": "21.00 B",
+      "count": 1
+    },
+    {
+      "name": "test_err.log",
+      "bytes": 0,
+      "formatted": "0.00 B",
+      "count": 1
+    },
+    {
+      "name": "storage/uploads",
+      "bytes": 0,
+      "formatted": "0.00 B",
+      "count": 1
+    }
+  ],
+  "largest_files": [
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/merged_native_libs/debug/mergeDebugNativeLibs/out/lib/arm64-v8a/libflutter.so",
+      "size_bytes": 395316440,
+      "size_fmt": "377.00 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/merged_native_libs/debug/mergeDebugNativeLibs/out/lib/x86_64/libflutter.so",
+      "size_bytes": 390001840,
+      "size_fmt": "371.93 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/merged_native_libs/debug/mergeDebugNativeLibs/out/lib/armeabi-v7a/libflutter.so",
+      "size_bytes": 348884936,
+      "size_fmt": "332.72 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/outputs/apk/debug/app-debug.apk",
+      "size_bytes": 260188045,
+      "size_fmt": "248.13 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/outputs/flutter-apk/app-debug.apk",
+      "size_bytes": 260188045,
+      "size_fmt": "248.13 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/merged_native_libs/debug/mergeDebugNativeLibs/out/lib/arm64-v8a/libVkLayer_khronos_validation.so",
+      "size_bytes": 248644248,
+      "size_fmt": "237.13 MB"
+    },
+    {
+      "path": "node_modules/electron/dist/electron.exe",
+      "size_bytes": 188784128,
+      "size_fmt": "180.04 MB"
+    },
+    {
+      "path": "dist_electron/win-unpacked/Song Chord Analyzer.exe",
+      "size_bytes": 188761600,
+      "size_fmt": "180.02 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib/x86_64/libflutter.so",
+      "size_bytes": 165996904,
+      "size_fmt": "158.31 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib/arm64-v8a/libflutter.so",
+      "size_bytes": 165164528,
+      "size_fmt": "157.51 MB"
+    },
+    {
+      "path": "dist_electron/win-unpacked/resources/ffmpeg/ffmpeg.exe",
+      "size_bytes": 163296768,
+      "size_fmt": "155.73 MB"
+    },
+    {
+      "path": "resources/ffmpeg/ffmpeg.exe",
+      "size_bytes": 163296768,
+      "size_fmt": "155.73 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib/armeabi-v7a/libflutter.so",
+      "size_bytes": 151593280,
+      "size_fmt": "144.57 MB"
+    },
+    {
+      "path": "dist_electron/SongChordAnalyzer-Setup.exe",
+      "size_bytes": 149718049,
+      "size_fmt": "142.78 MB"
+    },
+    {
+      "path": "dist_electron/SongChordAnalyzer.exe",
+      "size_bytes": 149498775,
+      "size_fmt": "142.57 MB"
+    },
+    {
+      "path": "SongChordAnalyzer.apk",
+      "size_bytes": 129941695,
+      "size_fmt": "123.92 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/outputs/apk/release/app-release.apk",
+      "size_bytes": 129941695,
+      "size_fmt": "123.92 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/outputs/flutter-apk/app-release.apk",
+      "size_bytes": 129941695,
+      "size_fmt": "123.92 MB"
+    },
+    {
+      "path": "dist/android/SongChordAnalyzer-v1.0.0-release.apk",
+      "size_bytes": 129809299,
+      "size_fmt": "123.80 MB"
+    },
+    {
+      "path": "storage/stems/ecdbc4dd2a6d827b/bass.wav",
+      "size_bytes": 95641644,
+      "size_fmt": "91.21 MB"
+    },
+    {
+      "path": "storage/stems/ecdbc4dd2a6d827b/other.wav",
+      "size_bytes": 95641644,
+      "size_fmt": "91.21 MB"
+    },
+    {
+      "path": "mobile/flutter_app/.dart_tool/flutter_build/9251c736c43c28fa7143d91e1e779ee0/app.dill",
+      "size_bytes": 84497584,
+      "size_fmt": "80.58 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/assets/debug/mergeDebugAssets/flutter_assets/kernel_blob.bin",
+      "size_bytes": 84497584,
+      "size_fmt": "80.58 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/flutter/debug/flutter_assets/kernel_blob.bin",
+      "size_bytes": 84497584,
+      "size_fmt": "80.58 MB"
+    },
+    {
+      "path": "mobile/flutter_app/.dart_tool/flutter_build/8606248c7f18cde0f2a60bd078ed94a3/app.dill",
+      "size_bytes": 84417176,
+      "size_fmt": "80.51 MB"
+    },
+    {
+      "path": "mobile/flutter_app/.dart_tool/flutter_build/2d66137bb71261d143e04182e79bac2d/app.dill",
+      "size_bytes": 84412816,
+      "size_fmt": "80.50 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/test_cache/build/58edeac6cf4240aff2768e2df035052b.cache.dill.track.dill",
+      "size_bytes": 75111096,
+      "size_fmt": "71.63 MB"
+    },
+    {
+      "path": "tools/cloudflared.exe",
+      "size_bytes": 55365048,
+      "size_fmt": "52.80 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/outputs/native-debug-symbols/release/native-debug-symbols.zip",
+      "size_bytes": 53403627,
+      "size_fmt": "50.93 MB"
+    },
+    {
+      "path": "storage/cache/ecdbc4dd2a6d827b_44k_stereo.wav",
+      "size_bytes": 47820878,
+      "size_fmt": "45.61 MB"
+    },
+    {
+      "path": "mobile/flutter_app/.dart_tool/flutter_build/13be770ff002172172a129dbae17d3b9/app.dill",
+      "size_bytes": 43851096,
+      "size_fmt": "41.82 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/stripped_native_libs/debug/stripDebugDebugSymbols/out/lib/x86_64/libflutter.so",
+      "size_bytes": 40083280,
+      "size_fmt": "38.23 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/stripped_native_libs/debug/stripDebugDebugSymbols/out/lib/arm64-v8a/libflutter.so",
+      "size_bytes": 38828704,
+      "size_fmt": "37.03 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/stripped_native_libs/debug/stripDebugDebugSymbols/out/lib/armeabi-v7a/libflutter.so",
+      "size_bytes": 33150308,
+      "size_fmt": "31.61 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/compressed_assets/debug/compressDebugAssets/out/assets/flutter_assets/kernel_blob.bin.jar",
+      "size_bytes": 27670607,
+      "size_fmt": "26.39 MB"
+    },
+    {
+      "path": "node_modules/app-builder-bin/win/x64/app-builder.exe",
+      "size_bytes": 24659968,
+      "size_fmt": "23.52 MB"
+    },
+    {
+      "path": "node_modules/app-builder-bin/win/arm64/app-builder.exe",
+      "size_bytes": 23673856,
+      "size_fmt": "22.58 MB"
+    },
+    {
+      "path": "node_modules/app-builder-bin/win/ia32/app-builder.exe",
+      "size_bytes": 23358976,
+      "size_fmt": "22.28 MB"
+    },
+    {
+      "path": "frontend/node_modules/@rolldown/binding-win32-x64-msvc/rolldown-binding.win32-x64-msvc.node",
+      "size_bytes": 20789760,
+      "size_fmt": "19.83 MB"
+    },
+    {
+      "path": "node_modules/app-builder-bin/mac/app-builder_amd64",
+      "size_bytes": 19576704,
+      "size_fmt": "18.67 MB"
+    },
+    {
+      "path": "node_modules/app-builder-bin/mac/app-builder_arm64",
+      "size_bytes": 19508594,
+      "size_fmt": "18.60 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/native_symbol_tables/release/extractReleaseNativeSymbolTables/out/arm64-v8a/libflutter.so.sym",
+      "size_bytes": 18776976,
+      "size_fmt": "17.91 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/merged_native_libs/debug/mergeDebugNativeLibs/out/lib/x86/libonnxruntime.so",
+      "size_bytes": 18350944,
+      "size_fmt": "17.50 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib/x86/libonnxruntime.so",
+      "size_bytes": 18350944,
+      "size_fmt": "17.50 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/native_symbol_tables/release/extractReleaseNativeSymbolTables/out/x86/libonnxruntime.so.sym",
+      "size_bytes": 18350936,
+      "size_fmt": "17.50 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/stripped_native_libs/debug/stripDebugDebugSymbols/out/lib/x86/libonnxruntime.so",
+      "size_bytes": 18350936,
+      "size_fmt": "17.50 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib/x86/libonnxruntime.so",
+      "size_bytes": 18350936,
+      "size_fmt": "17.50 MB"
+    },
+    {
+      "path": "node_modules/app-builder-bin/linux/loong64/app-builder",
+      "size_bytes": 18284544,
+      "size_fmt": "17.44 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/merged_native_libs/debug/mergeDebugNativeLibs/out/lib/x86_64/libonnxruntime.so",
+      "size_bytes": 18222208,
+      "size_fmt": "17.38 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib/x86_64/libonnxruntime.so",
+      "size_bytes": 18222208,
+      "size_fmt": "17.38 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/native_symbol_tables/release/extractReleaseNativeSymbolTables/out/x86_64/libonnxruntime.so.sym",
+      "size_bytes": 18222192,
+      "size_fmt": "17.38 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/stripped_native_libs/debug/stripDebugDebugSymbols/out/lib/x86_64/libonnxruntime.so",
+      "size_bytes": 18222192,
+      "size_fmt": "17.38 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib/x86_64/libonnxruntime.so",
+      "size_bytes": 18222192,
+      "size_fmt": "17.38 MB"
+    },
+    {
+      "path": "node_modules/app-builder-bin/linux/x64/app-builder",
+      "size_bytes": 18116608,
+      "size_fmt": "17.28 MB"
+    },
+    {
+      "path": "node_modules/app-builder-bin/linux/riscv64/app-builder",
+      "size_bytes": 17891328,
+      "size_fmt": "17.06 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/native_symbol_tables/release/extractReleaseNativeSymbolTables/out/x86_64/libflutter.so.sym",
+      "size_bytes": 17853568,
+      "size_fmt": "17.03 MB"
+    },
+    {
+      "path": "node_modules/app-builder-bin/linux/arm64/app-builder",
+      "size_bytes": 17629184,
+      "size_fmt": "16.81 MB"
+    },
+    {
+      "path": "node_modules/app-builder-bin/linux/arm/app-builder",
+      "size_bytes": 17170432,
+      "size_fmt": "16.38 MB"
+    },
+    {
+      "path": "node_modules/app-builder-bin/linux/ia32/app-builder",
+      "size_bytes": 16969728,
+      "size_fmt": "16.18 MB"
+    },
+    {
+      "path": "mobile/flutter_app/android/.gradle/9.3.1/executionHistory/executionHistory.bin",
+      "size_bytes": 16909744,
+      "size_fmt": "16.13 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/merged_native_libs/debug/mergeDebugNativeLibs/out/lib/arm64-v8a/libonnxruntime.so",
+      "size_bytes": 16276832,
+      "size_fmt": "15.52 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib/arm64-v8a/libonnxruntime.so",
+      "size_bytes": 16276832,
+      "size_fmt": "15.52 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/native_symbol_tables/release/extractReleaseNativeSymbolTables/out/arm64-v8a/libonnxruntime.so.sym",
+      "size_bytes": 16276816,
+      "size_fmt": "15.52 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/stripped_native_libs/debug/stripDebugDebugSymbols/out/lib/arm64-v8a/libonnxruntime.so",
+      "size_bytes": 16276816,
+      "size_fmt": "15.52 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib/arm64-v8a/libonnxruntime.so",
+      "size_bytes": 16276816,
+      "size_fmt": "15.52 MB"
+    },
+    {
+      "path": "mobile/android/native/inference/btc_model_170voca.ptl",
+      "size_bytes": 15510907,
+      "size_fmt": "14.79 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/stripped_native_libs/debug/stripDebugDebugSymbols/out/lib/arm64-v8a/libVkLayer_khronos_validation.so",
+      "size_bytes": 15240080,
+      "size_fmt": "14.53 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/jni/intermediates/lint-cache/lintVitalAnalyzeRelease/private-apis-18-7541949.bin",
+      "size_bytes": 14612366,
+      "size_fmt": "13.94 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/native_symbol_tables/release/extractReleaseNativeSymbolTables/out/armeabi-v7a/libflutter.so.sym",
+      "size_bytes": 13859184,
+      "size_fmt": "13.22 MB"
+    },
+    {
+      "path": "frontend/node_modules/@oxlint/binding-win32-x64-msvc/oxlint.win32-x64-msvc.node",
+      "size_bytes": 13831680,
+      "size_fmt": "13.19 MB"
+    },
+    {
+      "path": "mobile/android/native/inference/btc_model_170voca.onnx",
+      "size_bytes": 13077106,
+      "size_fmt": "12.47 MB"
+    },
+    {
+      "path": "mobile/flutter_app/android/app/src/main/assets/btc_model_170voca.onnx",
+      "size_bytes": 13077106,
+      "size_fmt": "12.47 MB"
+    },
+    {
+      "path": "mobile/flutter_app/assets/models/btc_model_170voca.onnx",
+      "size_bytes": 13077106,
+      "size_fmt": "12.47 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/assets/debug/mergeDebugAssets/btc_model_170voca.onnx",
+      "size_bytes": 13077106,
+      "size_fmt": "12.47 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/assets/debug/mergeDebugAssets/flutter_assets/assets/models/btc_model_170voca.onnx",
+      "size_bytes": 13077106,
+      "size_fmt": "12.47 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/assets/release/mergeReleaseAssets/btc_model_170voca.onnx",
+      "size_bytes": 13077106,
+      "size_fmt": "12.47 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/assets/release/mergeReleaseAssets/flutter_assets/assets/models/btc_model_170voca.onnx",
+      "size_bytes": 13077106,
+      "size_fmt": "12.47 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/flutter/debug/flutter_assets/assets/models/btc_model_170voca.onnx",
+      "size_bytes": 13077106,
+      "size_fmt": "12.47 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/flutter/release/flutter_assets/assets/models/btc_model_170voca.onnx",
+      "size_bytes": 13077106,
+      "size_fmt": "12.47 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/unit_test_assets/assets/models/btc_model_170voca.onnx",
+      "size_bytes": 13077106,
+      "size_fmt": "12.47 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib/x86_64/libflutter.so",
+      "size_bytes": 13051424,
+      "size_fmt": "12.45 MB"
+    },
+    {
+      "path": "dist_electron/win-unpacked/resources/app.asar.unpacked/models/btc/btc_model.onnx",
+      "size_bytes": 13040178,
+      "size_fmt": "12.44 MB"
+    },
+    {
+      "path": "models/btc/btc_model.onnx",
+      "size_bytes": 13040178,
+      "size_fmt": "12.44 MB"
+    },
+    {
+      "path": ".git/objects/02/8523ef678b411de5bd359bffa29d2d7d4ff952",
+      "size_bytes": 12923062,
+      "size_fmt": "12.32 MB"
+    },
+    {
+      "path": "dist_electron/win-unpacked/resources/app.asar.unpacked/models/btc/btc_model_large_voca.pt",
+      "size_bytes": 12229576,
+      "size_fmt": "11.66 MB"
+    },
+    {
+      "path": "models/btc/btc_model_large_voca.pt",
+      "size_bytes": 12229576,
+      "size_fmt": "11.66 MB"
+    },
+    {
+      "path": "storage/cache/ecdbc4dd2a6d827b_22k_mono.wav",
+      "size_bytes": 11955244,
+      "size_fmt": "11.40 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/stripped_native_libs/release/stripReleaseDebugSymbols/out/lib/arm64-v8a/libflutter.so",
+      "size_bytes": 11747864,
+      "size_fmt": "11.20 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/assets/debug/mergeDebugAssets/flutter_assets/isolate_snapshot_data",
+      "size_bytes": 11647016,
+      "size_fmt": "11.11 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/flutter/debug/flutter_assets/isolate_snapshot_data",
+      "size_bytes": 11647016,
+      "size_fmt": "11.11 MB"
+    },
+    {
+      "path": "mobile/flutter_app/.dart_tool/hooks_runner/objective_c/12d5eee9d7/hook.dill",
+      "size_bytes": 11229416,
+      "size_fmt": "10.71 MB"
+    },
+    {
+      "path": "mobile/flutter_app/.dart_tool/hooks_runner/objective_c/2285414042/hook.dill",
+      "size_bytes": 11229416,
+      "size_fmt": "10.71 MB"
+    },
+    {
+      "path": "mobile/flutter_app/.dart_tool/hooks_runner/objective_c/2824ffff81/hook.dill",
+      "size_bytes": 11229416,
+      "size_fmt": "10.71 MB"
+    },
+    {
+      "path": "mobile/flutter_app/.dart_tool/hooks_runner/objective_c/3aaa3da77e/hook.dill",
+      "size_bytes": 11229416,
+      "size_fmt": "10.71 MB"
+    },
+    {
+      "path": "mobile/flutter_app/.dart_tool/hooks_runner/objective_c/624bfa6bde/hook.dill",
+      "size_bytes": 11229416,
+      "size_fmt": "10.71 MB"
+    },
+    {
+      "path": "mobile/flutter_app/.dart_tool/hooks_runner/objective_c/9ada206a49/hook.dill",
+      "size_bytes": 11229416,
+      "size_fmt": "10.71 MB"
+    },
+    {
+      "path": "mobile/flutter_app/.dart_tool/hooks_runner/objective_c/f73d062710/hook.dill",
+      "size_bytes": 11229416,
+      "size_fmt": "10.71 MB"
+    },
+    {
+      "path": "mobile/flutter_app/.dart_tool/flutter_build/13be770ff002172172a129dbae17d3b9/armeabi-v7a/app.so",
+      "size_bytes": 11170652,
+      "size_fmt": "10.65 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/generated/jniLibs/copyJniLibsflutterBuildRelease/armeabi-v7a/libapp.so",
+      "size_bytes": 11170652,
+      "size_fmt": "10.65 MB"
+    },
+    {
+      "path": "mobile/flutter_app/build/app/intermediates/flutter/release/armeabi-v7a/app.so",
+      "size_bytes": 11170652,
+      "size_fmt": "10.65 MB"
+    }
+  ]
+}

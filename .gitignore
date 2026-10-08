@@ -11,7 +11,11 @@ frontend/node_modules/
 # Build and distribution directories
 build/
 dist/
-dist_electron/
+dist_electron/*
+!dist_electron/SongChordAnalyzer-Setup.exe
+!dist_electron/SongChordAnalyzer.exe
+!dist_electron/latest.yml
+!dist_electron/SongChordAnalyzer-Setup.exe.blockmap
 out/
 release/
 frontend/dist/
@@ -23,11 +27,14 @@ mobile/flutter_app/android/app/build/
 
 # Packaging outputs
 *.exe
+!dist_electron/SongChordAnalyzer-Setup.exe
+!dist_electron/SongChordAnalyzer.exe
 *.dmg
 *.AppImage
 *.deb
 *.zip
 *.apk
+!SongChordAnalyzer.apk
 
 # Static heavy binaries
 resources/ffmpeg/*.exe

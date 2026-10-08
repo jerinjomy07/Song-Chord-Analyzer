@@ -1,6 +1,5 @@
 # Auto-detect text files and normalize line endings
 * text=auto
-
 # Text files with LF line endings
 *.ts text eol=lf
 *.tsx text eol=lf
@@ -14,14 +13,11 @@
 *.yml text eol=lf
 *.yaml text eol=lf
 .gitignore text eol=lf
-
 # Windows specific scripts with CRLF
 *.ps1 text eol=crlf
 *.bat text eol=crlf
-
 # Shell scripts with LF
 *.sh text eol=lf
-
 # Binary files
 *.png binary
 *.jpg binary
@@ -29,3 +25,6 @@
 *.pdf binary
 *.wav binary
 *.mp3 binary
+SongChordAnalyzer.apk filter=lfs diff=lfs merge=lfs -text
+dist_electron/SongChordAnalyzer-Setup.exe filter=lfs diff=lfs merge=lfs -text
+dist_electron/SongChordAnalyzer.exe filter=lfs diff=lfs merge=lfs -text

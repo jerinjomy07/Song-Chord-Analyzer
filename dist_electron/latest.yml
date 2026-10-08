@@ -1,0 +1,8 @@
+version: 0.1.7
+files:
+  - url: SongChordAnalyzer-Setup.exe
+    sha512: 7nFs0VrkqjgLjuryZj6SXd0tXSw5xds11XiaOGt6MFLSwMxbvVLDGIq62Ri/p3gXmSAmHPQSFNHsLKwK1Is5eQ==
+    size: 149718049
+path: SongChordAnalyzer-Setup.exe
+sha512: 7nFs0VrkqjgLjuryZj6SXd0tXSw5xds11XiaOGt6MFLSwMxbvVLDGIq62Ri/p3gXmSAmHPQSFNHsLKwK1Is5eQ==
+releaseDate: '2026-10-06T18:58:03.393Z'
