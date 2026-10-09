@@ -89,20 +89,17 @@ app.include_router(router)
 @app.get("/health")
 async def health_check():
     """System, MIR engine, and hardware diagnostics endpoint."""
-    vram_free_mb = 0
-    vram_total_mb = 0
-    if CUDA_AVAILABLE:
-        free_bytes, total_bytes = torch.cuda.mem_get_info()
-        vram_free_mb = round(free_bytes / (1024 * 1024), 1)
-        vram_total_mb = round(total_bytes / (1024 * 1024), 1)
+    vram_free_mb = HARDWARE.vram_free_mb
+    vram_total_mb = HARDWARE.vram_total_mb
 
     btc_ready = BTC_CHECKPOINT_PATH.exists() and BTC_CHECKPOINT_PATH.stat().st_size > 1_000_000
+    engine_name = "MacOSAnalysisEngine (Authoritative MIR Pipeline)" if sys.platform == "darwin" else "WindowsAnalysisEngine (Authoritative MIR Pipeline)"
 
     return {
         "status": "healthy",
         "api_version": "1.0.0",
         "schema_version": "1.0.0",
-        "analysis_engine": "WindowsAnalysisEngine (Authoritative MIR Pipeline)",
+        "analysis_engine": engine_name,
         "analysis_engine_available": True,
         "auth_required": bool(API_AUTH_KEY),
         "models_available": {

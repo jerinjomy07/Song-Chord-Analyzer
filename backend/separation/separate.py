@@ -136,10 +136,15 @@ def run_separation(
     dapply.tqdm = types.SimpleNamespace(tqdm=ProgressTqdm) if is_module else ProgressTqdm
 
     if device == "auto":
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        if torch.cuda.is_available():
+            device = "cuda"
+        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available() and torch.backends.mps.is_built():
+            device = "mps"
+        else:
+            device = "cpu"
 
     if device == "cuda" and not torch.cuda.is_available():
-        device = "cpu"
+        device = "mps" if (hasattr(torch.backends, "mps") and torch.backends.mps.is_available()) else "cpu"
 
     emit(type="progress", stage="model", pct=0, message=f"Loading {model_name} on {device}")
     if progress_callback:

@@ -13,14 +13,20 @@ import torch
 # Base project directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Standard Windows AppData directory for application storage
-# %LOCALAPPDATA%\SongChordAnalyzer or %APPDATA%\SongChordAnalyzer
+# Standard cross-platform directory for application storage:
+# - Windows: %LOCALAPPDATA%\SongChordAnalyzer
+# - macOS: ~/Library/Application Support/SongChordAnalyzer
+# - Linux: ~/.local/share/SongChordAnalyzer
 custom_data_dir = os.environ.get("SONG_CHORD_ANALYZER_DATA_DIR")
 if custom_data_dir:
     STORAGE_DIR = Path(custom_data_dir)
-else:
+elif sys.platform == "darwin":
+    STORAGE_DIR = Path.home() / "Library" / "Application Support" / "SongChordAnalyzer"
+elif sys.platform == "win32":
     local_app_data = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
     STORAGE_DIR = Path(local_app_data) / "SongChordAnalyzer"
+else:
+    STORAGE_DIR = Path.home() / ".local" / "share" / "SongChordAnalyzer"
 
 # Application storage subdirectories
 MODELS_DIR = STORAGE_DIR / "models"
@@ -39,20 +45,19 @@ for d in [MODELS_DIR, CACHE_DIR, TEMP_DIR, EXPORTS_DIR, LOGS_DIR, UPLOADS_DIR, S
 # Also check project-level models directory for bundled/downloaded weights
 PROJECT_MODELS_DIR = BASE_DIR / "models"
 
-# Dynamic FFmpeg detection:
-# 1. Environment variable override
-# 2. Bundled resource path in desktop app (resources/ffmpeg/ffmpeg.exe)
-# 3. System PATH
+# Dynamic FFmpeg detection across Windows, macOS, and Linux:
 def resolve_ffmpeg_path() -> str:
     env_ffmpeg = os.environ.get("SONG_CHORD_ANALYZER_FFMPEG")
     if env_ffmpeg and os.path.exists(env_ffmpeg):
         return env_ffmpeg
 
-    # Check Electron / packaged resources directory (dev & prod)
+    binary_name = "ffmpeg.exe" if sys.platform == "win32" else "ffmpeg"
     candidates = [
-        BASE_DIR / "resources" / "ffmpeg" / "ffmpeg.exe",
-        BASE_DIR.parent / "ffmpeg" / "ffmpeg.exe",
-        BASE_DIR.parent / "resources" / "ffmpeg" / "ffmpeg.exe",
+        BASE_DIR / "resources" / "ffmpeg" / binary_name,
+        BASE_DIR.parent / "ffmpeg" / binary_name,
+        BASE_DIR.parent / "resources" / "ffmpeg" / binary_name,
+        Path("/opt/homebrew/bin/ffmpeg"),
+        Path("/usr/local/bin/ffmpeg"),
     ]
     for c in candidates:
         if c.exists():
@@ -67,16 +72,20 @@ def resolve_ffmpeg_path() -> str:
 
 FFMPEG_PATH = resolve_ffmpeg_path()
 
-# Dynamic Python executable resolution:
+# Dynamic Python executable resolution across Windows, macOS, and Linux:
 def resolve_python_path() -> str:
     env_py = os.environ.get("SONG_CHORD_ANALYZER_PYTHON")
     if env_py and os.path.exists(env_py):
         return env_py
 
+    py_name = "python.exe" if sys.platform == "win32" else "python3"
+    py_bin = "Scripts" if sys.platform == "win32" else "bin"
     candidates = [
-        BASE_DIR / "resources" / "python" / "python.exe",
-        BASE_DIR.parent / "python" / "python.exe",
-        BASE_DIR.parent / "resources" / "python" / "python.exe",
+        BASE_DIR / "resources" / "python" / py_name,
+        BASE_DIR / "resources" / "python" / py_bin / py_name,
+        BASE_DIR.parent / "python" / py_name,
+        BASE_DIR.parent / "python" / py_bin / py_name,
+        BASE_DIR.parent / "resources" / "python" / py_name,
     ]
     for c in candidates:
         if c.exists():
@@ -90,8 +99,17 @@ PYTHON_EXECUTABLE = resolve_python_path()
 class HardwareCapabilities:
     def __init__(self):
         self.cuda_available = torch.cuda.is_available()
-        self.device = "cuda" if self.cuda_available else "cpu"
-        self.gpu_name = torch.cuda.get_device_name(0) if self.cuda_available else "CPU"
+        self.mps_available = hasattr(torch.backends, "mps") and torch.backends.mps.is_available() and torch.backends.mps.is_built()
+        
+        if self.cuda_available:
+            self.device = "cuda"
+            self.gpu_name = torch.cuda.get_device_name(0)
+        elif self.mps_available:
+            self.device = "mps"
+            self.gpu_name = "Apple Silicon Metal (MPS)"
+        else:
+            self.device = "cpu"
+            self.gpu_name = "CPU"
         
         self.vram_total_mb = 0.0
         self.vram_free_mb = 0.0
@@ -102,40 +120,52 @@ class HardwareCapabilities:
                 self.vram_total_mb = round(total_b / (1024 * 1024), 1)
             except Exception:
                 pass
+        elif self.mps_available:
+            # Apple Silicon Unified Memory: total system memory shared with GPU
+            try:
+                import psutil
+                total_m = psutil.virtual_memory().total / (1024 * 1024)
+                avail_m = psutil.virtual_memory().available / (1024 * 1024)
+                self.vram_total_mb = round(total_m, 1)
+                self.vram_free_mb = round(avail_m, 1)
+            except Exception:
+                pass
 
         self.cpu_count = os.cpu_count() or 4
         
-        # Calculate total RAM (psutil or Windows API fallback)
+        # Calculate total RAM (psutil with Windows API fallback)
         ram_gb = 16.0
         try:
             import psutil
             ram_gb = round(psutil.virtual_memory().total / (1024 ** 3), 1)
         except Exception:
-            try:
-                import ctypes
-                class MEMORYSTATUSEX(ctypes.Structure):
-                    _fields_ = [
-                        ("dwLength", ctypes.c_ulong),
-                        ("dwMemoryLoad", ctypes.c_ulong),
-                        ("ullTotalPhys", ctypes.c_ulonglong),
-                        ("ullAvailPhys", ctypes.c_ulonglong),
-                        ("ullTotalPageFile", ctypes.c_ulonglong),
-                        ("ullAvailPageFile", ctypes.c_ulonglong),
-                        ("ullTotalVirtual", ctypes.c_ulonglong),
-                        ("ullAvailVirtual", ctypes.c_ulonglong),
-                        ("ullAvailExtendedVirtual", ctypes.c_ulonglong),
-                    ]
-                stat = MEMORYSTATUSEX()
-                stat.dwLength = ctypes.sizeof(MEMORYSTATUSEX)
-                ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(stat))
-                ram_gb = round(stat.ullTotalPhys / (1024 ** 3), 1)
-            except Exception:
-                pass
+            if sys.platform == "win32":
+                try:
+                    import ctypes
+                    class MEMORYSTATUSEX(ctypes.Structure):
+                        _fields_ = [
+                            ("dwLength", ctypes.c_ulong),
+                            ("dwMemoryLoad", ctypes.c_ulong),
+                            ("ullTotalPhys", ctypes.c_ulonglong),
+                            ("ullAvailPhys", ctypes.c_ulonglong),
+                            ("ullTotalPageFile", ctypes.c_ulonglong),
+                            ("ullAvailPageFile", ctypes.c_ulonglong),
+                            ("ullTotalVirtual", ctypes.c_ulonglong),
+                            ("ullAvailVirtual", ctypes.c_ulonglong),
+                            ("ullAvailExtendedVirtual", ctypes.c_ulonglong),
+                        ]
+                    stat = MEMORYSTATUSEX()
+                    stat.dwLength = ctypes.sizeof(MEMORYSTATUSEX)
+                    ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(stat))
+                    ram_gb = round(stat.ullTotalPhys / (1024 ** 3), 1)
+                except Exception:
+                    pass
         self.ram_total_gb = ram_gb
 
     def to_dict(self):
         return {
             "cuda_available": self.cuda_available,
+            "mps_available": getattr(self, "mps_available", False),
             "device": self.device,
             "gpu_name": self.gpu_name,
             "vram_total_mb": self.vram_total_mb,

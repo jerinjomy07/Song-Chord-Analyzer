@@ -1,0 +1,103 @@
+{
+  "timestamp": "2026-10-09T04:20:29Z",
+  "test_suite": "macOS Engine vs Windows Reference Parity",
+  "reference_engine": "WindowsAnalysisEngine (v1.0.0)",
+  "candidate_engine": "MacOSAnalysisEngine (v1.0.0)",
+  "schema_version": "1.0.0",
+  "golden_track": "Bekhayali",
+  "parity_summary": {
+    "metadata_parity": "100% MATCH",
+    "key_mode_parity": "100% MATCH",
+    "bpm_parity": "100% MATCH",
+    "meter_parity": "100% MATCH",
+    "golden_meter_score": "6/6 Supported Meters Verified",
+    "bar_count_parity": "100% MATCH",
+    "chord_count_parity": "100% MATCH",
+    "root_pitch_parity": "100.0%",
+    "quality_parity": "100.0%",
+    "slash_inversion_parity": "100.0%",
+    "full_chord_display_parity": "100.0%",
+    "section_parity": "100% MATCH",
+    "schema_compliance": "VALID (shared/music_schema/song_analysis.schema.json)",
+    "max_beat_timing_delta_sec": 0.0,
+    "max_downbeat_timing_delta_sec": 0.0
+  },
+  "golden_meter_results": {
+    "12/8": {
+      "expected": "12/8",
+      "detected": "12/8",
+      "passed": true,
+      "confidence": 0.39
+    },
+    "2/4": {
+      "expected": "2/4",
+      "detected": "2/4",
+      "passed": true,
+      "confidence": 0.6
+    },
+    "3/4": {
+      "expected": "3/4",
+      "detected": "3/4",
+      "passed": true,
+      "confidence": 0.38
+    },
+    "4/4": {
+      "expected": "4/4",
+      "detected": "4/4",
+      "passed": true,
+      "confidence": 0.53
+    },
+    "6/8": {
+      "expected": "6/8",
+      "detected": "6/8",
+      "passed": true,
+      "confidence": 0.55
+    },
+    "7/8": {
+      "expected": "7/8",
+      "detected": "7/8",
+      "passed": true,
+      "confidence": 0.69
+    }
+  },
+  "comparison_details": {
+    "golden_song": "Bekhayali",
+    "windows_key": "Bb minor",
+    "macos_key": "Bb minor",
+    "windows_bpm": 86.1,
+    "macos_bpm": 86.1,
+    "windows_time_signature": "4/4",
+    "macos_time_signature": "4/4",
+    "windows_bars": 88,
+    "macos_bars": 88,
+    "windows_chords": 352,
+    "macos_chords": 352,
+    "windows_sections": [
+      "INTRO",
+      "SECTION A (Repeat)",
+      "SECTION A (Repeat)",
+      "SECTION B",
+      "SECTION C",
+      "SECTION D",
+      "SECTION E",
+      "SECTION F",
+      "SECTION G",
+      "SECTION A (Repeat)",
+      "SECTION H"
+    ],
+    "macos_sections": [
+      "INTRO",
+      "SECTION A (Repeat)",
+      "SECTION A (Repeat)",
+      "SECTION B",
+      "SECTION C",
+      "SECTION D",
+      "SECTION E",
+      "SECTION F",
+      "SECTION G",
+      "SECTION A (Repeat)",
+      "SECTION H"
+    ]
+  },
+  "verdict": "PASSED"
+}

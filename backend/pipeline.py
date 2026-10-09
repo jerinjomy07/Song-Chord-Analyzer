@@ -43,12 +43,17 @@ from backend.sections.section_detector import SectionDetector
 
 
 class VRAMManager:
-    """Manages sequential model lifecycle to safely operate within 6 GB VRAM envelope."""
+    """Manages sequential model lifecycle to safely operate within hardware memory envelope."""
     @staticmethod
     def release_gpu():
         gc.collect()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+        elif hasattr(torch, "mps") and hasattr(torch.mps, "empty_cache"):
+            try:
+                torch.mps.empty_cache()
+            except Exception:
+                pass
 
 
 class SongAnalyzerPipeline:

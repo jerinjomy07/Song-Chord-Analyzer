@@ -40,47 +40,51 @@ function resolvePythonExecutable() {
     return process.env.SONG_CHORD_ANALYZER_PYTHON;
   }
 
+  const isWin = process.platform === 'win32';
+  const pyExe = isWin ? 'python.exe' : 'python3';
+  const binDir = isWin ? 'Scripts' : 'bin';
+
   // 2. Packaged Electron resources directory (production installer)
-  const resourcesPython = path.join(process.resourcesPath, 'python', 'python.exe');
-  if (fs.existsSync(resourcesPython)) {
-    return resourcesPython;
-  }
+  const resPython = path.join(process.resourcesPath, 'python', binDir, pyExe);
+  if (fs.existsSync(resPython)) return resPython;
+  const resPythonDirect = path.join(process.resourcesPath, 'python', pyExe);
+  if (fs.existsSync(resPythonDirect)) return resPythonDirect;
 
   // 3. Local app resources directory
-  const localResPython = path.join(__dirname, '..', 'resources', 'python', 'python.exe');
-  if (fs.existsSync(localResPython)) {
-    return localResPython;
+  const localResPython = path.join(__dirname, '..', 'resources', 'python', binDir, pyExe);
+  if (fs.existsSync(localResPython)) return localResPython;
+  const localResPythonDirect = path.join(__dirname, '..', 'resources', 'python', pyExe);
+  if (fs.existsSync(localResPythonDirect)) return localResPythonDirect;
+
+  // 4. macOS Application Support venv
+  if (process.platform === 'darwin') {
+    const homeDir = process.env.HOME || '';
+    const macAppVenv = path.join(homeDir, 'Library', 'Application Support', 'SongChordAnalyzer', 'venv', 'bin', 'python3');
+    if (fs.existsSync(macAppVenv)) return macAppVenv;
   }
 
-  // 4. Windows AppData SongChordAnalyzer venv (isolated app runtime)
-  const localAppData = process.env.LOCALAPPDATA || '';
-  const appVenvPython = path.join(localAppData, 'SongChordAnalyzer', 'venv', 'Scripts', 'python.exe');
-  if (fs.existsSync(appVenvPython)) {
-    return appVenvPython;
-  }
+  // 5. Windows AppData SongChordAnalyzer venv (isolated app runtime)
+  if (isWin) {
+    const localAppData = process.env.LOCALAPPDATA || '';
+    const appVenvPython = path.join(localAppData, 'SongChordAnalyzer', 'venv', 'Scripts', 'python.exe');
+    if (fs.existsSync(appVenvPython)) return appVenvPython;
 
-  // 5. Windows AppData StemKit venv (development / companion environment)
-  const appData = process.env.APPDATA || '';
-  const stemkitPython = path.join(appData, 'StemKit', 'venv', 'Scripts', 'python.exe');
-  if (fs.existsSync(stemkitPython)) {
-    return stemkitPython;
+    const appData = process.env.APPDATA || '';
+    const stemkitPython = path.join(appData, 'StemKit', 'venv', 'Scripts', 'python.exe');
+    if (fs.existsSync(stemkitPython)) return stemkitPython;
   }
 
   // 6. Project local venv (.venv or venv)
-  const localVenv = path.join(__dirname, '..', '.venv', 'Scripts', 'python.exe');
-  if (fs.existsSync(localVenv)) {
-    return localVenv;
-  }
-  const localVenv2 = path.join(__dirname, '..', 'venv', 'Scripts', 'python.exe');
-  if (fs.existsSync(localVenv2)) {
-    return localVenv2;
-  }
+  const localVenv = path.join(__dirname, '..', '.venv', binDir, pyExe);
+  if (fs.existsSync(localVenv)) return localVenv;
+  const localVenv2 = path.join(__dirname, '..', 'venv', binDir, pyExe);
+  if (fs.existsSync(localVenv2)) return localVenv2;
 
   // 7. System PATH fallback
-  return 'python';
+  return isWin ? 'python' : 'python3';
 }
 
-// Kill process and all its children on Windows cleanly
+// Kill process and all its children cleanly across Windows, macOS, and Linux
 function killProcessTree(pid) {
   if (!pid) return;
   try {
@@ -89,7 +93,11 @@ function killProcessTree(pid) {
         if (err) console.log(`[Electron] Cleaned process ${pid}`);
       });
     } else {
-      process.kill(pid, 'SIGTERM');
+      try {
+        process.kill(-pid, 'SIGTERM');
+      } catch (_) {
+        process.kill(pid, 'SIGTERM');
+      }
     }
   } catch (err) {
     console.error(`[Electron] Error terminating process ${pid}:`, err);
@@ -108,9 +116,10 @@ function startPythonBackend(port) {
   console.log(`[Electron] Python executable: ${pythonPath}`);
   console.log(`[Electron] Script: ${scriptPath} on port ${port}`);
 
+  const ffmpegExe = process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
   const ffmpegBin = app.isPackaged
-    ? path.join(process.resourcesPath, 'ffmpeg', 'ffmpeg.exe')
-    : path.join(__dirname, '..', 'resources', 'ffmpeg', 'ffmpeg.exe');
+    ? path.join(process.resourcesPath, 'ffmpeg', ffmpegExe)
+    : path.join(__dirname, '..', 'resources', 'ffmpeg', ffmpegExe);
 
   const env = {
     ...process.env,
@@ -127,6 +136,7 @@ function startPythonBackend(port) {
     {
       cwd: rootDir,
       env: env,
+      detached: process.platform !== 'win32',
       stdio: ['pipe', 'pipe', 'pipe']
     }
   );

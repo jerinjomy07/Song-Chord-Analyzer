@@ -27,7 +27,8 @@ from backend.chord.vocabulary import get_btc_index_map, parse_chord_string
 class BTCRecognizer(ChordRecognizer):
     def __init__(self, checkpoint_path: Path = BTC_CHECKPOINT_PATH, device: Optional[str] = None):
         self.checkpoint_path = checkpoint_path
-        self.device = device or ("cuda" if CUDA_AVAILABLE else "cpu")
+        from backend.config import DEFAULT_DEVICE
+        self.device = device or DEFAULT_DEVICE
         self.idx_to_chord = get_btc_index_map()
         self.model = None
         self.mean = 0.0

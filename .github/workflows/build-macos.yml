@@ -1,0 +1,98 @@
+name: macOS Standalone Build & Parity Test
+
+on:
+  push:
+    branches:
+      - feature/macos-standalone
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-test-macos:
+    name: Build & Test macOS (Apple Silicon M1)
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install System FFmpeg
+        run: |
+          brew install ffmpeg
+          bash scripts/fetch-ffmpeg-macos.sh
+
+      - name: Install Python MIR Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch torchaudio demucs librosa soundfile scipy numpy fastapi uvicorn jsonschema pydantic
+
+      - name: Execute macOS Parity & Metric Verification Suite
+        run: |
+          python tests/macos_parity/test_macos_parity.py
+
+      - name: Upload Parity Verification Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-parity-report
+          path: tests/macos_parity/macos_parity_report.json
+          if-no-files-found: error
+
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci || npm install
+
+      - name: Build Frontend SPA
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Install Root Electron Dependencies
+        run: npm ci || npm install
+
+      - name: Build & Package Desktop Application (electron-builder)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --mac dmg zip --arm64 --publish never
+
+      - name: Upload macOS Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SongChordAnalyzer-macOS-arm64
+          path: |
+            dist_electron/*.dmg
+            dist_electron/*.zip
+          if-no-files-found: error
+
+      - name: Create / Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist_electron/*.dmg
+            dist_electron/*.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

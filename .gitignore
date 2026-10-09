@@ -9,7 +9,9 @@ frontend/node_modules/
 .pnp.js
 
 # Build and distribution directories
-build/
+build/*
+!build/app.ico
+!build/entitlements.mac.plist
 dist/
 dist_electron/*
 !dist_electron/SongChordAnalyzer-Setup.exe

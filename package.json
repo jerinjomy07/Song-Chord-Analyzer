@@ -13,7 +13,9 @@
     "dev": "electron . --dev",
     "build:frontend": "npm --prefix frontend run build",
     "dist": "npm run build:frontend && electron-builder --win",
-    "dist:dir": "npm run build:frontend && electron-builder --dir"
+    "dist:dir": "npm run build:frontend && electron-builder --dir",
+    "dist:mac": "npm run build:frontend && electron-builder --mac --arm64",
+    "dist:mac:all": "npm run build:frontend && electron-builder --mac"
   },
   "dependencies": {},
   "devDependencies": {
