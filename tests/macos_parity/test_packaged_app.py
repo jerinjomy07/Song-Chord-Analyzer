@@ -447,10 +447,10 @@ def main():
     actual_key = f"{song_analysis_dict['key']['tonic']} {song_analysis_dict['key']['mode']}"
     actual_bpm = song_analysis_dict['tempo']['bpm']
     actual_meter = song_analysis_dict['meter'].get('display', f"{song_analysis_dict['meter'].get('numerator', 4)}/{song_analysis_dict['meter'].get('denominator', 4)}")
-    actual_bars = len(song_analysis_dict['beat_grid']['bars'])
-    actual_sections = len(song_analysis_dict['musical_structure']['sections'])
-
-    total_chords = sum(len(bar['chords']) for bar in song_analysis_dict['beat_grid']['bars'])
+    bars_list = [bar for s in song_analysis_dict.get('sections', []) for bar in s.get('bars', [])]
+    actual_bars = len(bars_list)
+    actual_sections = len(song_analysis_dict.get('sections', []))
+    total_chords = len(song_analysis_dict.get('chords', []))
 
     parity_results = {
         "key_mode": {
