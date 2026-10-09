@@ -8,9 +8,7 @@ import {
   Edit2,
   Sparkles,
   FileAudio,
-  ArrowRight,
   FolderOpen,
-  Music,
   Clock,
   ChevronDown,
   ChevronUp
@@ -24,7 +22,6 @@ const YoutubeIcon: React.FC<{ size?: number; className?: string }> = ({ size = 2
 );
 
 interface YouTubeSourceZoneProps {
-  onStartYouTubeAnalysis?: (url: string, customTitle?: string) => void;
   onStartAnalysisWithFile?: (
     file: File,
     customTitle?: string,
@@ -45,7 +42,6 @@ export function cleanYouTubeTitle(raw: string): string {
 }
 
 export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
-  onStartYouTubeAnalysis,
   onStartAnalysisWithFile,
   onOpenExistingSong,
   isAnalyzing,
@@ -57,7 +53,7 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
   const [customTitle, setCustomTitle] = useState('');
 
   // Optional local audio file override
-  const [showLocalOverride, setShowLocalOverride] = useState(false);
+  const [showLocalOverride, setShowLocalOverride] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -169,11 +165,6 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
     return `${mins}:${rem < 10 ? '0' : ''}${rem}`;
   };
 
-  const handleDirectYouTubeAnalyze = () => {
-    if (!url.trim() || !onStartYouTubeAnalysis) return;
-    onStartYouTubeAnalysis(url.trim(), customTitle.trim() || metadata?.title);
-  };
-
   const handleFileAnalyze = () => {
     if (!selectedFile || !onStartAnalysisWithFile) return;
     onStartAnalysisWithFile(selectedFile, customTitle.trim() || metadata?.title, metadata || undefined);
@@ -187,9 +178,9 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
           <YoutubeIcon size={22} />
         </div>
         <div>
-          <h3 className="text-base font-bold text-white">Analyze Directly from YouTube</h3>
+          <h3 className="text-base font-bold text-white">Link a YouTube Reference</h3>
           <p className="text-xs text-slate-400">
-            Paste any YouTube video or song link to automatically extract audio and recognize chords.
+            Inspect the video and attach its reference to an analysis made from audio you provide.
           </p>
         </div>
       </div>
@@ -355,28 +346,11 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
             </p>
           </div>
 
-          {/* Primary Action Button: Direct Video Analysis */}
-          <div className="p-4 sm:p-5 bg-slate-950/80 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <p className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                <Sparkles size={14} className="text-red-400" />
-                <span>Ready to recognize chords from this video</span>
-              </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                Extracts the audio stream automatically and processes with Demucs GPU stem separation & BTC Transformer models.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleDirectYouTubeAnalyze}
-              disabled={isAnalyzing}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-indigo-600 hover:from-red-500 hover:via-rose-500 hover:to-indigo-500 disabled:opacity-50 text-white text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-xl shadow-red-600/25 cursor-pointer transition-all whitespace-nowrap"
-            >
-              <Music size={16} />
-              <span>Generate Chords from Video</span>
-              <ArrowRight size={16} />
-            </button>
+          <div className="p-4 sm:p-5 bg-slate-950/80">
+            <p className="text-xs font-bold text-slate-200">Audio upload is required for chord analysis.</p>
+            <p className="text-[11px] text-slate-400 mt-1">
+              This link is saved as a reference. The app does not download audio from YouTube.
+            </p>
           </div>
 
           {/* Optional Local File Override Accordion */}
@@ -387,7 +361,7 @@ export const YouTubeSourceZone: React.FC<YouTubeSourceZoneProps> = ({
                 onClick={() => setShowLocalOverride(!showLocalOverride)}
                 className="w-full flex items-center justify-between text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors py-1 cursor-pointer"
               >
-                <span>Prefer to attach your own local audio file instead?</span>
+                <span>Choose the audio file to analyze</span>
                 {showLocalOverride ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
 
