@@ -74,7 +74,8 @@ mac:
         - arm64
         - x64
   icon: build/icon.png
-  hardenedRuntime: true
+  identity: "-"
+  hardenedRuntime: false
   gatekeeperAssess: false
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
