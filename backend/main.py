@@ -3,6 +3,7 @@ Main FastAPI Application Entrypoint.
 Provides CORS, health check, model diagnostics, and mounts API router.
 """
 
+import sys
 import os
 import asyncio
 from contextlib import asynccontextmanager

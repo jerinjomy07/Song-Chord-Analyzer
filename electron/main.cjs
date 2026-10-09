@@ -56,11 +56,14 @@ function resolvePythonExecutable() {
   const localResPythonDirect = path.join(__dirname, '..', 'resources', 'python', pyExe);
   if (fs.existsSync(localResPythonDirect)) return localResPythonDirect;
 
-  // 4. macOS Application Support venv
+  // 4. macOS Application Support venv & standard paths
   if (process.platform === 'darwin') {
     const homeDir = process.env.HOME || '';
     const macAppVenv = path.join(homeDir, 'Library', 'Application Support', 'SongChordAnalyzer', 'venv', 'bin', 'python3');
     if (fs.existsSync(macAppVenv)) return macAppVenv;
+
+    if (fs.existsSync('/opt/homebrew/bin/python3')) return '/opt/homebrew/bin/python3';
+    if (fs.existsSync('/usr/local/bin/python3')) return '/usr/local/bin/python3';
   }
 
   // 5. Windows AppData SongChordAnalyzer venv (isolated app runtime)
@@ -130,9 +133,12 @@ function startPythonBackend(port) {
     SONG_CHORD_ANALYZER_FFMPEG: fs.existsSync(ffmpegBin) ? ffmpegBin : ''
   };
 
+  const defaultHost = process.platform === 'darwin' ? '127.0.0.1' : '0.0.0.0';
+  const bindHost = process.env.SONG_CHORD_ANALYZER_HOST || defaultHost;
+
   pythonProcess = spawn(
     pythonPath,
-    [scriptPath, '--host', '0.0.0.0', '--port', String(port), '--no-browser'],
+    [scriptPath, '--host', bindHost, '--port', String(port), '--no-browser'],
     {
       cwd: rootDir,
       env: env,
@@ -491,9 +497,14 @@ ipcMain.on('window:close', () => {
 
 // App Lifecycle
 app.whenReady().then(async () => {
-  createSplashWindow();
+  const isSmokeTest = process.argv.includes('--smoke-test') || process.env.SONG_CHORD_ANALYZER_SMOKE_TEST === '1';
 
-  assignedPort = await findFreePort(8000);
+  if (!isSmokeTest) {
+    createSplashWindow();
+  }
+
+  const preferredPort = process.env.SONG_CHORD_ANALYZER_PORT ? parseInt(process.env.SONG_CHORD_ANALYZER_PORT, 10) : 8000;
+  assignedPort = await findFreePort(preferredPort);
   console.log(`[Electron] Selected free port: ${assignedPort}`);
 
   startPythonBackend(assignedPort);
@@ -501,16 +512,41 @@ app.whenReady().then(async () => {
   try {
     const healthInfo = await waitForBackend(assignedPort, 60000);
     console.log(`[Electron] Backend verified healthy:`, healthInfo);
-    createMainWindow(assignedPort, healthInfo);
+
+    if (process.env.SONG_CHORD_ANALYZER_READY_FILE) {
+      try {
+        fs.writeFileSync(
+          process.env.SONG_CHORD_ANALYZER_READY_FILE,
+          JSON.stringify({ port: assignedPort, status: 'healthy', healthInfo }, null, 2),
+          'utf8'
+        );
+      } catch (writeErr) {
+        console.warn(`[Electron] Could not write ready file:`, writeErr);
+      }
+    }
+
+    if (isSmokeTest) {
+      console.log(`[SMOKE_TEST_READY] Port: ${assignedPort}`);
+      if (process.argv.includes('--smoke-test-exit')) {
+        console.log(`[SMOKE_TEST] Exiting immediately as requested by --smoke-test-exit`);
+        app.quit();
+        return;
+      }
+      // In smoke test mode, backend is running and ready for external API requests
+    } else {
+      createMainWindow(assignedPort, healthInfo);
+    }
   } catch (err) {
     console.error(`[Electron] Failed to initialize backend:`, err);
     if (splashWindow && !splashWindow.isDestroyed()) {
       splashWindow.close();
     }
-    dialog.showErrorBox(
-      'Startup Error',
-      `Could not initialize the Song Chord Analyzer audio engine.\n\nDetails: ${err.message}`
-    );
+    if (!isSmokeTest) {
+      dialog.showErrorBox(
+        'Startup Error',
+        `Could not initialize the Song Chord Analyzer audio engine.\n\nDetails: ${err.message}`
+      );
+    }
     app.quit();
   }
 });
@@ -522,6 +558,18 @@ app.on('before-quit', () => {
     killProcessTree(pythonProcess.pid);
     pythonProcess = null;
   }
+});
+
+['SIGINT', 'SIGTERM'].forEach((sig) => {
+  process.on(sig, () => {
+    isQuitting = true;
+    if (pythonProcess && pythonProcess.pid) {
+      console.log(`[Electron] Received ${sig}. Shutting down backend PID ${pythonProcess.pid}...`);
+      killProcessTree(pythonProcess.pid);
+      pythonProcess = null;
+    }
+    app.quit();
+  });
 });
 
 app.on('window-all-closed', () => {

@@ -29,11 +29,12 @@ def main():
         default=int(os.environ.get("SONG_CHORD_ANALYZER_PORT", 8000)),
         help="Port to run FastAPI server on (default 8000)"
     )
+    default_host = "127.0.0.1" if sys.platform == "darwin" else "0.0.0.0"
     parser.add_argument(
         "--host",
         type=str,
-        default=os.environ.get("SONG_CHORD_ANALYZER_HOST", "0.0.0.0"),
-        help="Host address to bind (default 0.0.0.0)"
+        default=os.environ.get("SONG_CHORD_ANALYZER_HOST", default_host),
+        help="Host address to bind (default 127.0.0.1 on macOS, 0.0.0.0 on Windows/Linux)"
     )
     parser.add_argument(
         "--no-browser",

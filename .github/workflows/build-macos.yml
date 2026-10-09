@@ -92,6 +92,22 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx electron-builder --mac dmg zip --arm64 --publish never
 
+      - name: Execute Packaged Application Smoke & Parity Test
+        env:
+          PYTORCH_MPS_HIGH_WATERMARK_RATIO: "0.0"
+        run: |
+          python tests/macos_parity/test_packaged_app.py
+
+      - name: Upload Packaged App Validation Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-packaged-app-report
+          path: |
+            tests/macos_parity/macos_packaged_app_report.json
+            dist_electron/*.log
+          if-no-files-found: ignore
+
       - name: Upload macOS Release Artifacts
         uses: actions/upload-artifact@v4
         with:
