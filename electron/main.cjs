@@ -123,7 +123,7 @@ function startPythonBackend(port) {
 
   pythonProcess = spawn(
     pythonPath,
-    [scriptPath, '--port', String(port), '--no-browser'],
+    [scriptPath, '--host', '0.0.0.0', '--port', String(port), '--no-browser'],
     {
       cwd: rootDir,
       env: env,

@@ -284,6 +284,19 @@ class YouTubeAudioExtractor:
         meta = ref_src.get_metadata()
         if meta.get("valid"):
             return meta
+
+        # Smart typo recovery for character confusions (e.g. 'I' vs 'l', 'O' vs '0')
+        vid_id = YouTubeReferenceSource._extract_video_id(url)
+        if vid_id:
+            for src_c, dst_c in [('I', 'l'), ('l', 'I'), ('O', '0'), ('0', 'O')]:
+                if src_c in vid_id:
+                    alt_vid = vid_id.replace(src_c, dst_c, 1)
+                    try:
+                        alt_url = url.replace(vid_id, alt_vid)
+                        return cls.get_video_info(alt_url)
+                    except Exception:
+                        pass
+
         raise ValueError(f"Could not retrieve YouTube video info: {last_error}")
 
     @classmethod
@@ -372,7 +385,18 @@ class YouTubeAudioExtractor:
                             partial.unlink(missing_ok=True)
                         except Exception:
                             pass
-                continue
+        # Smart typo recovery for character confusions (e.g. 'I' vs 'l', 'O' vs '0')
+        vid_id = YouTubeReferenceSource._extract_video_id(url)
+        if vid_id and ("unavailable" in str(last_err).lower() or "not found" in str(last_err).lower()):
+            for src_c, dst_c in [('I', 'l'), ('l', 'I'), ('O', '0'), ('0', 'O')]:
+                if src_c in vid_id:
+                    alt_vid = vid_id.replace(src_c, dst_c, 1)
+                    try:
+                        alt_url = url.replace(vid_id, alt_vid)
+                        print(f"[YouTubeAudioExtractor] Auto-healing video ID typo: {vid_id} -> {alt_vid}")
+                        return cls.download_audio(alt_url, output_dir, progress_cb)
+                    except Exception:
+                        pass
 
         raise ValueError(
             f"Failed to download audio from YouTube: {last_err}. "

@@ -8,9 +8,9 @@ echo.
 set PYTHON_CMD="%APPDATA%\StemKit\venv\Scripts\python.exe"
 
 if exist %PYTHON_CMD% (
-    %PYTHON_CMD% run_app.py
+    %PYTHON_CMD% run_app.py --host 0.0.0.0
 ) else (
-    python run_app.py
+    python run_app.py --host 0.0.0.0
 )
 
 pause
