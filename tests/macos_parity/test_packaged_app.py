@@ -275,7 +275,7 @@ def main():
                 env=env_smoke,
                 capture_output=True,
                 text=True,
-                timeout=45
+                timeout=15
             )
             smoke_result["exit_code"] = res.returncode
             smoke_result["passed"] = (res.returncode == 0)
@@ -444,9 +444,9 @@ def main():
     ref_chords = 352
     ref_sections = 11
 
-    actual_key = f"{song_analysis_dict['key']['tonic']} {song_analysis_dict['key']['scale']}"
+    actual_key = f"{song_analysis_dict['key']['tonic']} {song_analysis_dict['key']['mode']}"
     actual_bpm = song_analysis_dict['tempo']['bpm']
-    actual_meter = song_analysis_dict['meter']['primary_meter']
+    actual_meter = song_analysis_dict['meter'].get('display', f"{song_analysis_dict['meter'].get('numerator', 4)}/{song_analysis_dict['meter'].get('denominator', 4)}")
     actual_bars = len(song_analysis_dict['beat_grid']['bars'])
     actual_sections = len(song_analysis_dict['musical_structure']['sections'])
 
