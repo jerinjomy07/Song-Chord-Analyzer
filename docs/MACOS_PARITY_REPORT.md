@@ -104,17 +104,18 @@ The test report is saved at [`tests/macos_parity/macos_parity_report.json`](file
 
 ## 7. Apple Silicon CI Verification & Physical Device Checklist
 
-### 7.1 Verified in Cloud CI (Apple Silicon M1 `macos-14`, Run #37885835324)
+### 7.1 Verified in Cloud CI (Apple Silicon M1 `macos-14`, Run #37887874776)
 
-- **Parity Verification Execution:** Fully executed in 145 seconds on Apple Silicon runner.
-  - Cold stem separation with Demucs v4 + BTC neural inference completed in 139.64s.
-  - Cached macOS engine completed in 6.15s.
+- **Python MIR Core Test Suite:** 39 tests executed (32 passed, 7 skipped for missing Flutter SDK / optional hardware, 0 failed) in 13.45s.
+- **Parity Verification Execution:** Fully executed in Apple Silicon runner:
+  - Cold stem separation with Demucs v4 + BTC neural inference validated.
+  - Golden track *Bekhayali* achieved 100.0% parity across key, BPM, meters, measures, 352 chord events, inversions, and section boundaries.
   - All 6 golden time signatures (`2/4`, `3/4`, `4/4`, `6/8`, `7/8`, `12/8`) verified with 100% agreement.
 - **Frontend SPA Compilation:** Vite production bundle generated cleanly (`dist/assets`).
 - **Electron Builder Packaging:**
   - `dist_electron/SongChordAnalyzer-mac-arm64.dmg` generated (APFS format for macOS 10.12+).
   - `dist_electron/Song Chord Analyzer-0.1.7-arm64-mac.zip` generated.
-  - Total uploaded artifact package size: **193,410,545 bytes (~193.4 MB)**.
+  - Total uploaded artifact package size: **193,407,174 bytes (~184.4 MB)**.
 
 ### 7.2 Remaining Physical Device Validation Checklist
 
