@@ -11,6 +11,7 @@ frontend/node_modules/
 # Build and distribution directories
 build/*
 !build/app.ico
+!build/icon.png
 !build/entitlements.mac.plist
 dist/
 dist_electron/*
@@ -66,12 +67,15 @@ storage/stems/*
 !storage/stems/.gitkeep
 storage/cache/*
 !storage/cache/.gitkeep
+!storage/cache/ecdbc4dd2a6d827b_44k_stereo.wav
 storage/exports/*
 !storage/exports/.gitkeep
 storage/temp/*
 !storage/temp/.gitkeep
 *.mp3
 *.wav
+!tests/golden_meter/*/audio.wav
+!storage/cache/ecdbc4dd2a6d827b_44k_stereo.wav
 *.flac
 *.m4a
 validation_worktree_*.txt

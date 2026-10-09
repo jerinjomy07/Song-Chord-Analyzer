@@ -57,7 +57,13 @@ class DemucsSeparator:
         if progress_callback:
             progress_callback(5, "Initializing stem separation (bass + accompaniment)...")
 
-        device = "cuda" if CUDA_AVAILABLE else "cpu"
+        import torch
+        if CUDA_AVAILABLE:
+            device = "cuda"
+        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available() and torch.backends.mps.is_built():
+            device = "mps"
+        else:
+            device = "cpu"
 
         # 2. Run separation using integrated module
         try:

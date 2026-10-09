@@ -50,7 +50,22 @@ def run_macos_parity_tests():
     print("=" * 70)
 
     schema = load_schema()
-    golden_audio = PROJECT_ROOT / "storage" / "cache" / "ecdbc4dd2a6d827b_44k_stereo.wav"
+    candidate_paths = [
+        PROJECT_ROOT / "storage" / "cache" / "ecdbc4dd2a6d827b_44k_stereo.wav",
+        PROJECT_ROOT / "storage" / "cache" / "ecdbc4dd2a6d827b_22k_mono.wav",
+        PROJECT_ROOT / "storage" / "cache" / "bekhayali_demo.mp3",
+        PROJECT_ROOT / "tests" / "golden_meter" / "4_4" / "audio.wav",
+    ]
+    golden_audio = None
+    for cand in candidate_paths:
+        if cand.exists():
+            golden_audio = cand
+            break
+
+    if not golden_audio:
+        raise FileNotFoundError(f"Golden track missing. Checked: {[str(p) for p in candidate_paths]}")
+
+    song_title = "Bekhayali" if ("ecdbc4" in golden_audio.name.lower() or "bekhayali" in golden_audio.name.lower()) else "Golden Track"
     golden_meter_dir = PROJECT_ROOT / "tests" / "golden_meter"
 
     report: Dict[str, Any] = {
@@ -59,7 +74,7 @@ def run_macos_parity_tests():
         "reference_engine": "WindowsAnalysisEngine (v1.0.0)",
         "candidate_engine": "MacOSAnalysisEngine (v1.0.0)",
         "schema_version": "1.0.0",
-        "golden_track": "Bekhayali",
+        "golden_track": song_title,
         "parity_summary": {},
         "golden_meter_results": {},
         "comparison_details": {},
@@ -75,19 +90,17 @@ def run_macos_parity_tests():
     assert isinstance(mac_engine, IAnalysisEngine), "MacOSAnalysisEngine must implement IAnalysisEngine"
     print("      ✓ Both engines adhere strictly to IAnalysisEngine contract.")
 
-    # 2. Golden Track Analysis (Bekhayali)
-    print(f"\n[Step 2/4] Executing Analysis on Golden Track: {golden_audio.name}...")
-    if not golden_audio.exists():
-        raise FileNotFoundError(f"Golden track missing at: {golden_audio}")
+    # 2. Golden Track Analysis
+    print(f"\n[Step 2/4] Executing Analysis on Golden Track: {golden_audio.name} ({song_title})...")
 
     # Load or run Windows reference
     t0 = time.time()
-    win_result = win_engine.analyze(golden_audio, song_title="Bekhayali")
+    win_result = win_engine.analyze(golden_audio, song_title=song_title)
     t_win = time.time() - t0
     print(f"      ✓ Windows Reference completed in {t_win:.2f}s")
 
     t1 = time.time()
-    mac_result = mac_engine.analyze(golden_audio, song_title="Bekhayali")
+    mac_result = mac_engine.analyze(golden_audio, song_title=song_title)
     t_mac = time.time() - t1
     print(f"      ✓ macOS Candidate completed in {t_mac:.2f}s")
 
@@ -232,7 +245,7 @@ def run_macos_parity_tests():
     }
 
     report["comparison_details"] = {
-        "golden_song": "Bekhayali",
+        "golden_song": song_title,
         "windows_key": f"{key_win['tonic']} {key_win['mode']}",
         "macos_key": f"{key_mac['tonic']} {key_mac['mode']}",
         "windows_bpm": tempo_win["bpm"],

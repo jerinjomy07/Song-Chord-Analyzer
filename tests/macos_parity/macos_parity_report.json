@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-09T04:20:29Z",
+  "timestamp": "2026-10-09T04:44:51Z",
   "test_suite": "macOS Engine vs Windows Reference Parity",
   "reference_engine": "WindowsAnalysisEngine (v1.0.0)",
   "candidate_engine": "MacOSAnalysisEngine (v1.0.0)",
