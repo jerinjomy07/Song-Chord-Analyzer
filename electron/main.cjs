@@ -526,11 +526,14 @@ app.whenReady().then(async () => {
     }
 
     if (isSmokeTest) {
-      console.log(`[SMOKE_TEST_READY] Port: ${assignedPort}`);
-      if (process.argv.includes('--smoke-test-exit')) {
+      if (process.argv.includes('--smoke-test-exit') || process.env.SONG_CHORD_ANALYZER_SMOKE_TEST_EXIT === '1') {
         console.log(`[SMOKE_TEST] Exiting immediately as requested by --smoke-test-exit`);
+        if (pythonProcess && pythonProcess.pid) {
+          killProcessTree(pythonProcess.pid);
+          pythonProcess = null;
+        }
         app.quit();
-        return;
+        process.exit(0);
       }
       // In smoke test mode, backend is running and ready for external API requests
     } else {

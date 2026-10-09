@@ -260,6 +260,8 @@ def main():
     env_smoke["SONG_CHORD_ANALYZER_PORT"] = str(smoke_port)
     env_smoke["SONG_CHORD_ANALYZER_HOST"] = "127.0.0.1"
     env_smoke["SONG_CHORD_ANALYZER_SMOKE_TEST"] = "1"
+    env_smoke["SONG_CHORD_ANALYZER_SMOKE_TEST_EXIT"] = "1"
+    env_smoke["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "1"
     env_smoke["SONG_CHORD_ANALYZER_FFMPEG"] = str(ffmpeg_bin)
     env_smoke["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
 
@@ -393,19 +395,32 @@ def main():
         status_url = f"http://127.0.0.1:{test_port}/api/analysis/{analysis_id}/status"
         final_status = None
         t_poll_start = time.time()
+        last_progress = -1
         while time.time() - t_poll_start < 300:
             status_resp = client.get(status_url)
             if status_resp.status_code == 200:
-                st = status_resp.json().get("status")
-                if st == "completed":
+                resp_json = status_resp.json()
+                st = str(resp_json.get("status", "")).upper()
+                pct = resp_json.get("progress", 0)
+                msg = resp_json.get("message", "")
+                if pct != last_progress:
+                    print(f"      • Progress: {pct}% ({st}) - {msg}")
+                    last_progress = pct
+
+                if st in ("COMPLETED", "SUCCESS"):
                     final_status = "completed"
                     break
-                elif st == "failed":
+                elif st in ("FAILED", "ERROR"):
                     final_status = "failed"
-                    raise RuntimeError(f"Analysis failed on packaged backend: {status_resp.json().get('error')}")
+                    raise RuntimeError(f"Analysis failed on packaged backend: {resp_json.get('error') or msg}")
             time.sleep(2.0)
 
-        assert final_status == "completed", "Analysis timed out after 300 seconds"
+        if final_status != "completed":
+            log_fp.flush()
+            with open(backend_log_file, "r", encoding="utf-8") as f:
+                print(f"[Backend Logs on Timeout]:\n{f.read()[-2000:]}")
+            assert final_status == "completed", "Analysis timed out after 300 seconds"
+
         analysis_duration = time.time() - t_poll_start
         print(f"      ✓ Packaged analysis completed in {analysis_duration:.2f}s!")
 
