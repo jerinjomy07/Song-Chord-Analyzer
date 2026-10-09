@@ -62,6 +62,8 @@ nsis:
 portable:
   artifactName: "SongChordAnalyzer.${ext}"
 
+afterPack: scripts/after-pack.cjs
+
 mac:
   category: public.app-category.music
   target:
@@ -74,7 +76,7 @@ mac:
         - arm64
         - x64
   icon: build/icon.png
-  identity: "-"
+  identity: null
   hardenedRuntime: false
   gatekeeperAssess: false
   entitlements: build/entitlements.mac.plist
