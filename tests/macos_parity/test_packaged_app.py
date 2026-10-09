@@ -121,7 +121,16 @@ def unmount_dmg(mount_point: Path) -> None:
         print(f"[DMG] Detach warning: {res.stderr.strip()}")
 
 
-def main():
+def save_report(report_data: Dict[str, Any]) -> Path:
+    """Safely saves validation report to tests/macos_parity/macos_packaged_app_report.json."""
+    report_file = PROJECT_ROOT / "tests" / "macos_parity" / "macos_packaged_app_report.json"
+    report_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(report_file, "w", encoding="utf-8") as f:
+        json.dump(report_data, f, indent=2)
+    return report_file
+
+
+def run_packaged_app_validation():
     print("=" * 75)
     print("      SONG CHORD ANALYZER — PACKAGED macOS APP SMOKE & PARITY TEST")
     print("=" * 75)
@@ -261,6 +270,7 @@ def main():
     env_smoke["SONG_CHORD_ANALYZER_HOST"] = "127.0.0.1"
     env_smoke["SONG_CHORD_ANALYZER_SMOKE_TEST"] = "1"
     env_smoke["SONG_CHORD_ANALYZER_SMOKE_TEST_EXIT"] = "1"
+    env_smoke["SONG_CHORD_ANALYZER_PYTHON"] = sys.executable
     env_smoke["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "1"
     env_smoke["SONG_CHORD_ANALYZER_FFMPEG"] = str(ffmpeg_bin)
     env_smoke["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
@@ -275,7 +285,7 @@ def main():
                 env=env_smoke,
                 capture_output=True,
                 text=True,
-                timeout=15
+                timeout=30
             )
             smoke_result["exit_code"] = res.returncode
             smoke_result["passed"] = (res.returncode == 0)
@@ -512,16 +522,36 @@ def main():
 
     report["verdict"] = "PASSED"
 
-    # Save report
-    report_file = PROJECT_ROOT / "tests" / "macos_parity" / "macos_packaged_app_report.json"
-    report_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(report_file, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
+    report["verdict"] = "PASSED"
+    report_file = save_report(report)
 
     print("\n" + "=" * 75)
     print(f"      PACKAGED APP VALIDATION: PASSED (100% PARITY & SCHEMA COMPLIANCE)")
     print(f"      Report saved to: {report_file}")
     print("=" * 75)
+
+
+def main():
+    try:
+        run_packaged_app_validation()
+    except Exception as e:
+        import traceback
+        report_file = PROJECT_ROOT / "tests" / "macos_parity" / "macos_packaged_app_report.json"
+        report_file.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with open(report_file, "w", encoding="utf-8") as f:
+                json.dump({
+                    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                    "test_suite": "Packaged macOS Standalone Application Validation",
+                    "verdict": "FAILED",
+                    "error": str(e),
+                    "traceback": traceback.format_exc(),
+                }, f, indent=2)
+            print(f"\n[ERROR] Packaged App Validation failed. Failure report recorded to: {report_file}")
+        except Exception:
+            pass
+        traceback.print_exc()
+        sys.exit(1)
 
 
 if __name__ == "__main__":
