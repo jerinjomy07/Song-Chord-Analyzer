@@ -48,6 +48,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install torch torchaudio demucs librosa soundfile scipy numpy fastapi uvicorn jsonschema pydantic
 
+      - name: Execute Python MIR Core Test Suite
+        run: |
+          python -m unittest discover -s tests -p "test_*.py"
+
       - name: Execute macOS Parity & Metric Verification Suite
         env:
           PYTORCH_MPS_HIGH_WATERMARK_RATIO: "0.0"
@@ -55,11 +59,22 @@ jobs:
           python tests/macos_parity/test_macos_parity.py
 
       - name: Upload Parity Verification Report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: macos-parity-report
           path: tests/macos_parity/macos_parity_report.json
-          if-no-files-found: error
+          if-no-files-found: ignore
+
+      - name: Upload Diagnostic Build Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-diagnostic-logs
+          path: |
+            ~/Library/Logs/SongChordAnalyzer/
+            dist_electron/*.log
+          if-no-files-found: ignore
 
       - name: Install Frontend Dependencies
         working-directory: ./frontend
