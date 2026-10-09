@@ -491,14 +491,51 @@ async def download_apk():
 @router.post("/analyze/youtube")
 async def analyze_youtube_endpoint(req: YouTubeAnalyzeRequest):
     """
-    Direct YouTube audio stream ripping is disabled.
-    Audio analysis requires a user-provided audio file.
-    Please upload your audio file directly via POST /analyze (YouTube metadata can be linked via youtube_video_id / youtube_url).
+    Directly extracts audio from a YouTube video and runs full automatic chord recognition.
+    Performs duplicate check in SQLite library unless force=True.
     """
-    raise HTTPException(
-        status_code=400,
-        detail="Direct YouTube audio analysis is disabled. Audio analysis requires a user-provided audio file. Please upload your audio file directly via POST /analyze (YouTube metadata can be linked via youtube_video_id / youtube_url)."
+    from backend.sources.audio_source import YouTubeReferenceSource
+
+    clean_url = req.url.strip()
+    video_id = YouTubeReferenceSource._extract_video_id(clean_url)
+    if not video_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid YouTube link. Please enter a valid YouTube video or music URL."
+        )
+
+    # Duplicate check by video ID unless force=True
+    if not req.force:
+        existing = SongRepository.find_by_youtube_id(video_id)
+        if existing:
+            return {
+                "status": "DUPLICATE_FOUND",
+                "existing_song": existing,
+                "message": f"This YouTube video ('{existing['title']}') was already analyzed."
+            }
+
+    analysis_id = str(uuid.uuid4())[:8]
+
+    ACTIVE_TASKS[analysis_id] = AnalysisStatusResponse(
+        analysis_id=analysis_id,
+        status=AnalysisStatusEnum.DOWNLOADING,
+        progress=5,
+        current_stage="DOWNLOADING",
+        message="Connecting to YouTube and extracting audio stream..."
     )
+
+    worker = threading.Thread(
+        target=run_youtube_pipeline_worker,
+        args=(analysis_id, clean_url, req.title),
+        daemon=True
+    )
+    worker.start()
+
+    return {
+        "analysis_id": analysis_id,
+        "title": req.title or "YouTube Video",
+        "status": "QUEUED"
+    }
 
 
 @router.get("/analyze/{analysis_id}")

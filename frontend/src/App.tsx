@@ -190,6 +190,47 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleStartYouTubeAnalysis = async (url: string, customTitle?: string, force: boolean = false) => {
+    setErrorMessage(null);
+    setDuplicateInfo(null);
+    setAnalysis(null);
+    setStatus('DOWNLOADING');
+    setProgress(5);
+    setStatusMessage('Connecting to YouTube and extracting audio stream...');
+
+    try {
+      const res = await fetch('/api/analyze/youtube', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url,
+          title: customTitle?.trim() || undefined,
+          force
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.detail || 'Failed to start YouTube analysis');
+      }
+
+      const data = await res.json();
+
+      if (data.status === 'DUPLICATE_FOUND') {
+        setStatus('IDLE');
+        setDuplicateInfo({ existingSong: data.existing_song, youtubeUrl: url, customTitle });
+        return;
+      }
+
+      setAnalysisId(data.analysis_id);
+      setProgress(10);
+      setStatusMessage('Extracting audio from YouTube video...');
+    } catch (err: any) {
+      setStatus('FAILED');
+      setErrorMessage(err.message || 'Could not connect to YouTube analysis service.');
+    }
+  };
+
   const openSongFromHistory = async (songId: string) => {
     setErrorMessage(null);
     setDuplicateInfo(null);
@@ -539,6 +580,7 @@ export const App: React.FC = () => {
               />
             ) : (
               <YouTubeSourceZone
+                onStartYouTubeAnalysis={handleStartYouTubeAnalysis}
                 onStartAnalysisWithFile={(file, customTitle, ytMeta) => handleStartAnalysis(file, false, customTitle, ytMeta)}
                 onOpenExistingSong={openSongFromHistory}
                 isAnalyzing={isProcessing}
@@ -611,10 +653,13 @@ export const App: React.FC = () => {
           }}
           onAnalyzeAgain={() => {
             const file = duplicateInfo.file;
+            const ytUrl = duplicateInfo.youtubeUrl;
             const customTitle = duplicateInfo.customTitle;
             const ytMeta = duplicateInfo.youtubeMeta;
             setDuplicateInfo(null);
-            if (file) {
+            if (ytUrl) {
+              handleStartYouTubeAnalysis(ytUrl, customTitle, true);
+            } else if (file) {
               handleStartAnalysis(file, true, customTitle, ytMeta);
             }
           }}
