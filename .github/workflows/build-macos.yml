@@ -87,6 +87,15 @@ jobs:
       - name: Install Root Electron Dependencies
         run: npm ci || npm install
 
+      - name: Ensure Packaged Model Resources
+        run: |
+          mkdir -p models/btc
+          if [ ! -f "models/btc/btc_model_large_voca.pt" ] || [ $(wc -c < "models/btc/btc_model_large_voca.pt" 2>/dev/null || echo 0) -lt 10000000 ]; then
+            echo "Fetching BTC checkpoint..."
+            curl -fSL -o models/btc/btc_model_large_voca.pt "https://raw.githubusercontent.com/ptnghia-j/ChordMini/main/checkpoints/btc_model_large_voca.pt"
+          fi
+          ls -lh models/btc/
+
       - name: Build & Package Desktop Application (electron-builder)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

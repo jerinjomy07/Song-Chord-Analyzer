@@ -205,15 +205,15 @@ BTC_MODEL_DOWNLOAD_URL = "https://raw.githubusercontent.com/ptnghia-j/ChordMini/
 
 # Model checkpoint paths
 def resolve_btc_checkpoint() -> Path:
-    # First check AppData models directory
-    appdata_ckpt = MODELS_DIR / "btc_model_large_voca.pt"
-    if appdata_ckpt.exists() and appdata_ckpt.stat().st_size > 1_000_000:
-        return appdata_ckpt
-
-    # Check project-level directory
+    # 1. Check bundled project models directory (production app bundle)
     project_ckpt = PROJECT_MODELS_DIR / "btc" / "btc_model_large_voca.pt"
     if project_ckpt.exists() and project_ckpt.stat().st_size > 1_000_000:
         return project_ckpt
+
+    # 2. Check user storage directory (Application Support / AppData)
+    appdata_ckpt = MODELS_DIR / "btc_model_large_voca.pt"
+    if appdata_ckpt.exists() and appdata_ckpt.stat().st_size > 1_000_000:
+        return appdata_ckpt
 
     # Auto-download on first launch if missing
     try:

@@ -205,7 +205,13 @@ def main():
 
     electron_bin = macos_dir / "Song Chord Analyzer"
     ffmpeg_bin = resources_dir / "ffmpeg" / "ffmpeg"
-    btc_model = asar_unpacked / "models" / "btc" / "btc_model_large_voca.pt"
+    btc_candidates = [
+        asar_unpacked / "models" / "btc" / "btc_model_large_voca.pt",
+        asar_unpacked / "models" / "btc_model_large_voca.pt",
+        resources_dir / "models" / "btc" / "btc_model_large_voca.pt",
+        resources_dir / "models" / "btc_model_large_voca.pt",
+    ]
+    btc_model = next((c for c in btc_candidates if c.exists() and c.stat().st_size > 1_000_000), None)
     schema_path = asar_unpacked / "shared" / "music_schema" / "song_analysis.schema.json"
     run_app_py = asar_unpacked / "run_app.py"
     frontend_index = asar_unpacked / "frontend" / "dist" / "index.html"
@@ -213,7 +219,7 @@ def main():
     inventory = {
         "electron_binary_exists": electron_bin.exists(),
         "ffmpeg_binary_exists": ffmpeg_bin.exists(),
-        "btc_model_exists": btc_model.exists(),
+        "btc_model_exists": btc_model is not None,
         "schema_exists": schema_path.exists(),
         "run_app_exists": run_app_py.exists(),
         "frontend_assets_exist": frontend_index.exists(),
@@ -230,10 +236,11 @@ def main():
             inventory["ffmpeg_error"] = str(e)
             print(f"      ✗ Packaged FFmpeg invocation failed: {e}")
 
-    if btc_model.exists():
+    if btc_model is not None:
+        inventory["btc_model_path"] = str(btc_model)
         inventory["btc_model_size_bytes"] = btc_model.stat().st_size
         inventory["btc_model_sha256"] = compute_sha256(btc_model)
-        print(f"      ✓ Packaged BTC Model verified: {round(inventory['btc_model_size_bytes']/1048576, 2)} MB (SHA256: {inventory['btc_model_sha256'][:16]}...)")
+        print(f"      ✓ Packaged BTC Model verified at {btc_model.name}: {round(inventory['btc_model_size_bytes']/1048576, 2)} MB (SHA256: {inventory['btc_model_sha256'][:16]}...)")
 
     if schema_path.exists():
         inventory["schema_size_bytes"] = schema_path.stat().st_size

@@ -83,6 +83,7 @@ phone_screenshot*.png
 
 # Large ML Weights & Checkpoints (downloaded on demand)
 *.pt
+!models/btc/btc_model_large_voca.pt
 *.pth
 *.ckpt
 *.onnx
