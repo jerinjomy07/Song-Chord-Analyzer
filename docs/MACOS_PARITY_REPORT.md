@@ -99,3 +99,34 @@ The `MacOSAnalysisEngine` achieves **100.0% algorithmic, musical, and structural
 The macOS implementation does **not** rely on simplified or toy chord recognizers; it preserves Demucs stem separation, the BTC Transformer neural network, sub-bass physical inversion tracking, 6 time signature classifications, and bar-aligned chord sheet construction.
 
 The test report is saved at [`tests/macos_parity/macos_parity_report.json`](file:///tests/macos_parity/macos_parity_report.json).
+
+---
+
+## 7. Apple Silicon CI Verification & Physical Device Checklist
+
+### 7.1 Verified in Cloud CI (Apple Silicon M1 `macos-14`, Run #37885835324)
+
+- **Parity Verification Execution:** Fully executed in 145 seconds on Apple Silicon runner.
+  - Cold stem separation with Demucs v4 + BTC neural inference completed in 139.64s.
+  - Cached macOS engine completed in 6.15s.
+  - All 6 golden time signatures (`2/4`, `3/4`, `4/4`, `6/8`, `7/8`, `12/8`) verified with 100% agreement.
+- **Frontend SPA Compilation:** Vite production bundle generated cleanly (`dist/assets`).
+- **Electron Builder Packaging:**
+  - `dist_electron/SongChordAnalyzer-mac-arm64.dmg` generated (APFS format for macOS 10.12+).
+  - `dist_electron/Song Chord Analyzer-0.1.7-arm64-mac.zip` generated.
+  - Total uploaded artifact package size: **193,410,545 bytes (~193.4 MB)**.
+
+### 7.2 Remaining Physical Device Validation Checklist
+
+While CI on Apple Silicon (`macos-14`) proves algorithmic execution, compilation, and package assembly, the following runtime checks require testing on a physical macOS machine:
+
+1. **Gatekeeper Quarantine & First Launch:**
+   - On a physical Mac, test double-clicking the `.dmg`, dragging to `/Applications`, and opening.
+   - For unsigned developer builds, verify bypass via `xattr -cr /Applications/SongChordAnalyzer.app` or right-click -> Open.
+2. **Audio Hardware & Playback:**
+   - Verify native macOS CoreAudio output during playback and scrubbing in the Electron UI.
+3. **100% Offline Analysis Without Network:**
+   - Disconnect Wi-Fi on a physical Mac and analyze a new song from disk to confirm offline stem separation and chord extraction.
+4. **Window Management & Native Menus:**
+   - Verify macOS menu bar shortcuts (`Cmd+O`, `Cmd+Q`, `Cmd+P` for PDF export).
+
