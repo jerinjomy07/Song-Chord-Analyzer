@@ -105,4 +105,12 @@ class DemucsSeparator:
             "-o", str(song_stems_dir.parent),
             str(audio_path),
         ]
-        demucs.separate.main(cmd)
+        try:
+            demucs.separate.main(cmd)
+        except Exception as e:
+            if device != "cpu":
+                print(f"[Demucs] Direct separation failed on {device} ({e}), retrying on CPU...")
+                cmd[3] = "cpu"
+                demucs.separate.main(cmd)
+            else:
+                raise e

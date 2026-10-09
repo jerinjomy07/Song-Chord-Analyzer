@@ -49,6 +49,8 @@ jobs:
           pip install torch torchaudio demucs librosa soundfile scipy numpy fastapi uvicorn jsonschema pydantic
 
       - name: Execute macOS Parity & Metric Verification Suite
+        env:
+          PYTORCH_MPS_HIGH_WATERMARK_RATIO: "0.0"
         run: |
           python tests/macos_parity/test_macos_parity.py
 

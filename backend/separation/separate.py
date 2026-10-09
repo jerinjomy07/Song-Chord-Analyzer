@@ -158,7 +158,15 @@ def run_separation(
     except Exception as e:
         fail(f"Model load failed: {e}")
 
-    model.to(device)
+    try:
+        model.to(device)
+    except Exception as e:
+        if device != "cpu":
+            print(f"[Demucs] Transfer to {device} failed ({e}), falling back to CPU...")
+            device = "cpu"
+            model.to("cpu")
+        else:
+            fail(f"Model transfer to {device} failed: {e}")
     model.eval()
     leg_state["legs"] = max(1, len(getattr(model, "models", [1]))) * max(1, shifts)
 

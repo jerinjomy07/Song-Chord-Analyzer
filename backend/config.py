@@ -99,7 +99,16 @@ PYTHON_EXECUTABLE = resolve_python_path()
 class HardwareCapabilities:
     def __init__(self):
         self.cuda_available = torch.cuda.is_available()
-        self.mps_available = hasattr(torch.backends, "mps") and torch.backends.mps.is_available() and torch.backends.mps.is_built()
+        self.mps_available = False
+        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available() and torch.backends.mps.is_built():
+            try:
+                # Active tensor allocation probe to verify Metal shader pool is functioning
+                _test_tensor = torch.zeros(1, device="mps")
+                del _test_tensor
+                self.mps_available = True
+            except Exception as e:
+                print(f"[Hardware] MPS detected but allocation probe failed ({e}). Falling back to CPU.")
+                self.mps_available = False
         
         if self.cuda_available:
             self.device = "cuda"
