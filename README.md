@@ -16,7 +16,7 @@
 **Production-grade, cross-platform Music Information Retrieval (MIR) and Automatic Chord Recognition (ACR) system.**<br/>
 Combines deep learning audio stem separation, bidirectional transformer chord recognition, harmonic downbeat tracking, responsive 2-column mobile chord sheets, adaptive single-page lead sheet PDF generation, and seamless local LAN / remote cellular connectivity.
 
-[**📥 Download Binaries**](#-downloads--executables) • [**📖 Documentation Suite**](#-comprehensive-documentation-suite) • [**⚡ Quick Start**](#-quick-start) • [**🏗️ Architecture**](#%EF%B8%8F-system-architecture) • [**🧪 Verification**](#-testing--verification)
+[**📥 Download Binaries**](#-downloads--executables) • [**⚡ Quick Start**](#-quick-start) • [**🏗️ Architecture**](#%EF%B8%8F-system-architecture) • [**🧪 Verification**](#-testing--verification)
 
 </div>
 
@@ -121,36 +121,7 @@ flowchart TD
     SQL --> Exporters
 ```
 
----
 
-## 📖 Comprehensive Documentation Suite
-
-The complete engineering, operational, and architectural documentation for the Song Chord Analyzer project is detailed in the master publication PDF and 21 modular specifications:
-
-| Document | Description | Format |
-| :--- | :--- | :--- |
-| [**Song Chord Analyzer Master Guide**](Song_Chord_Analyzer_Complete_Documentation.pdf) | **49-Page Complete Engineering & Architecture Manual** with diagrams, tables, and schemas | [📄 PDF](Song_Chord_Analyzer_Complete_Documentation.pdf) |
-| [**Project A-to-Z Technical Audit**](docs/PROJECT_A_TO_Z.md) | Exhaustive master audit covering all systems, data flows, and build pipelines | [📝 Markdown](docs/PROJECT_A_TO_Z.md) |
-| [**Music Analysis Pipeline Blueprint**](docs/MUSIC_ANALYSIS_PIPELINE.md) | In-depth breakdown of all 40 stages from audio ingestion to chord smoothing | [📝 Markdown](docs/MUSIC_ANALYSIS_PIPELINE.md) |
-| [**Overall System Architecture**](docs/ARCHITECTURE.md) | High-level system topology, process trees, and cross-platform boundaries | [📝 Markdown](docs/ARCHITECTURE.md) |
-| [**Android Client Architecture**](docs/ANDROID_ARCHITECTURE.md) | Flutter application architecture, responsive 2-column grid, state lifecycle | [📝 Markdown](docs/ANDROID_ARCHITECTURE.md) |
-| [**Windows Desktop Architecture**](docs/WINDOWS_ARCHITECTURE.md) | Electron architecture, process management, React 19 UI, and IPC bridges | [📝 Markdown](docs/WINDOWS_ARCHITECTURE.md) |
-| [**Dual-Mode Networking Guide**](docs/NETWORKING.md) | Local LAN mDNS discovery, Cloudflare tunnel setup, latency benchmarks | [📝 Markdown](docs/NETWORKING.md) |
-| [**Data Schemas & Contracts**](docs/DATA_SCHEMA.md) | Complete JSON schemas, Pydantic models, and Dart data class contracts | [📝 Markdown](docs/DATA_SCHEMA.md) |
-| [**REST & Streaming API Reference**](docs/API_REFERENCE.md) | Formal HTTP route contracts, query parameters, payloads, and SSE events | [📝 Markdown](docs/API_REFERENCE.md) |
-| [**Adaptive PDF Lead Sheet Export**](docs/PDF_EXPORT.md) | Single-page layout algorithm, font scaling rules, lead-sheet styling specs | [📝 Markdown](docs/PDF_EXPORT.md) |
-| [**Storage & Data Lifecycle**](docs/STORAGE_AND_DATA_LIFECYCLE.md) | SQLite WAL mode, content-hash caching, audio persistence, and cleanup | [📝 Markdown](docs/STORAGE_AND_DATA_LIFECYCLE.md) |
-| [**Security & Sandboxing**](docs/SECURITY.md) | Threat modeling, path traversal mitigations, audio sanitization, token security | [📝 Markdown](docs/SECURITY.md) |
-| [**Testing, Parity & Benchmarks**](docs/TESTING_AND_PARITY.md) | Multi-meter golden tests, server parity reports, latency and VRAM profiling | [📝 Markdown](docs/TESTING_AND_PARITY.md) |
-| [**Build & Release Guide**](docs/BUILD_AND_RELEASE.md) | Windows Electron build, Flutter APK build, PyInstaller server bundling | [📝 Markdown](docs/BUILD_AND_RELEASE.md) |
-| [**Developer Onboarding**](docs/DEVELOPER_ONBOARDING.md) | Step-by-step local development setup, prerequisites, and common commands | [📝 Markdown](docs/DEVELOPER_ONBOARDING.md) |
-| [**Troubleshooting & Diagnostics**](docs/TROUBLESHOOTING.md) | Diagnostic flows for GPU OOM, port conflicts, tunnel drops, and audio errors | [📝 Markdown](docs/TROUBLESHOOTING.md) |
-| [**Known Limitations & Edge Cases**](docs/KNOWN_LIMITATIONS.md) | Explicit MIR limitations, atypical time signatures, dense polyphony bounds | [📝 Markdown](docs/KNOWN_LIMITATIONS.md) |
-| [**Future Engineering Roadmap**](docs/FUTURE_ROADMAP.md) | Real-time microphone listening, MIDI export, automated chord-lyric alignment | [📝 Markdown](docs/FUTURE_ROADMAP.md) |
-| [**Technical Glossary**](docs/GLOSSARY.md) | Definitions of MIR, ACR, CQT, Chromagram, BTC, WAL, and musical terminology | [📝 Markdown](docs/GLOSSARY.md) |
-| [**Complete Project File Index**](docs/PROJECT_FILE_INDEX.md) | Catalog of every source file in the repository with its technical role | [📝 Markdown](docs/PROJECT_FILE_INDEX.md) |
-| [**Project Cheat Sheet**](docs/PROJECT_CHEAT_SHEET.md) | Quick reference card for developers, operators, and musicians | [📝 Markdown](docs/PROJECT_CHEAT_SHEET.md) |
-| [**Interactive Demo Guide**](docs/DEMO_GUIDE.md) | Walkthrough script for live demonstrations, presentations, and testing | [📝 Markdown](docs/DEMO_GUIDE.md) |
 
 ---
 
@@ -233,7 +204,7 @@ song-chord-analyzer/
 ├── dist_electron/                         # Packaged Windows executables (Tracked via Git LFS)
 │   ├── SongChordAnalyzer-Setup.exe        # Windows installer
 │   └── SongChordAnalyzer.exe              # Windows portable standalone
-├── docs/                                  # 21 modular engineering specifications & blueprints
+├── docs/                                  # Documentation & model licensing
 ├── cleanup/                               # Project size audit & cleanup reports (6.27 GB -> 1.76 GB)
 ├── electron/                              # Electron 33 lifecycle, port management & secure IPC
 ├── frontend/                              # React 19 + Vite + Tailwind CSS desktop UI
